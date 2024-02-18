@@ -44,8 +44,8 @@ function sbToString(sb: any): string {
   return JSON.stringify({
     coin_spends: sb.coinSpends.map((coinSpend: any) => ({
       coin: {
-        parent_coin_info: "0x" + coinSpend.coin.parentCoinInfo,
-        puzzle_hash: "0x" + coinSpend.coin.puzzleHash,
+        parent_coin_info: "0x" + coinSpend.coin.parentCoinInfo.replace("0x", ""),
+        puzzle_hash: "0x" + coinSpend.coin.puzzleHash.replace("0x", ""),
         amount: parseInt(coinSpend.coin.amount.toString())
       },
       puzzle_reveal: GreenWeb.util.sexp.toHex(coinSpend.puzzleReveal),
@@ -360,28 +360,38 @@ export function mintCATs(
     GreenWeb.util.sexp.sha256tree(updatePuzzle),
     nonces_used_last_spend
   );
+  console.log({
+     PORTAL_RECEIVER_LAUNCHER_ID,
+      PORTAL_THRESHOLD,
+      PORTAL_KEYS,
+      updater_ph: GreenWeb.util.sexp.sha256tree(updatePuzzle),
+      nonces_used_last_spend
+  })
   const portalPuzzle = GreenWeb.util.sexp.singletonPuzzle(PORTAL_RECEIVER_LAUNCHER_ID, portalInnerPuzzle);
 
   var portalParentInnerPuzHash = null;
-  if(GreenWeb.util.sexp.sha256tree(portalParentSpend.puzzle_reveal) !== SINGLETON_LAUNCHER_HASH) {
-    const [_, args] = GreenWeb.util.sexp.uncurry(portalParentSpend.puzzle_reveal)!;
+  const parentPuzzle = GreenWeb.util.sexp.fromHex(
+    GreenWeb.util.unhexlify(portalParentSpend.puzzle_reveal)!
+  );
+  if(GreenWeb.util.sexp.sha256tree(parentPuzzle ) !== SINGLETON_LAUNCHER_HASH) {
+    const [_, args] = GreenWeb.util.sexp.uncurry(parentPuzzle)!;
     const innerPuzzle = args[1];
     portalParentInnerPuzHash = GreenWeb.util.sexp.sha256tree(innerPuzzle);
   }
   const portalLineageProof = portalParentInnerPuzHash !== null ? SExp.to([
-    Bytes.from(portalParentSpend.coin.parentCoinInfo, "hex"),
-    Bytes.from(portalParentSpend.coin.puzzleHash, "hex"),
+    Bytes.from(portalParentSpend.coin.parent_coin_info, "hex"),
+    Bytes.from(portalParentInnerPuzHash, "hex"),
     Bytes.from("01", "hex"),
   ]) : SExp.to([
-    Bytes.from(portalParentSpend.coin.parentCoinInfo, "hex"),
+    Bytes.from(portalParentSpend.coin.parent_coin_info, "hex"),
     Bytes.from("01", "hex"),
-  ])
+  ]);
 
   const portalInnerSolution = getPortalReceiverInnerSolution(
     sig_switches,
     nonce,
     source_chain,
-    source_contract,
+    GreenWeb.util.unhexlify(source_contract)!,
     destination,
     contents
   );
@@ -392,7 +402,7 @@ export function mintCATs(
   );
 
   const portalCoinSpend = new GreenWeb.util.serializer.types.CoinSpend();
-  portalCoinSpend.coin = portalCoin;
+  portalCoinSpend.coin = GreenWeb.util.goby.parseGobyCoin(portalCoin)!;
   portalCoinSpend.puzzleReveal = portalPuzzle;
   portalCoinSpend.solution = portalSolution;
   coin_spends.push(portalCoinSpend);

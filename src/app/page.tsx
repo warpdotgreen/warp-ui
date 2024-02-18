@@ -12,7 +12,7 @@ import { getCoinRecordByName, getPuzzleAndSolution } from "@/util/rpc";
 export default function Home() {
   const [ethAmount, setEthAmount] = useState('0.003');
   const [xchAddress, setXchAddress] = useState('txch1ak7dup645fr562t2u9rs30d60qh9t89nyxvezwpkd5v29m62z6aqwmmxge');
-  const [ethTxHash, setEthTxHash] = useState('0x443441bb5a1a38546134064fcf117f3c2ce598a8da57b2b86647905c9d59d5ff');
+  const [ethTxHash, setEthTxHash] = useState('0xc38185970bd77609077f354771d5cac02ab5f2354486c03604101b3de916ebbe');
   const [messageData, setMessageData] = useState({});
   const [coinId, setCoinId] = useState('click button below');
   const [nonces, setNonces] = useState({});
@@ -85,7 +85,7 @@ export default function Home() {
     e.preventDefault();
     
     const portalCoinRecord = await getCoinRecordByName(coinId);
-    const portalParentSpend = await getPuzzleAndSolution(portalCoinRecord.coin.parentCoinInfo, portalCoinRecord.confirmed_block_index);
+    const portalParentSpend = await getPuzzleAndSolution(portalCoinRecord.coin.parent_coin_info, portalCoinRecord.confirmed_block_index);
     mintCATs(
       messageData,
       portalCoinRecord,
@@ -95,7 +95,7 @@ export default function Home() {
       offer,
       [sig],
       [true, false, false], // todo
-      "eth",
+      "657468", // eth
       process.env.NEXT_PUBLIC_BRIDGE_ADDRESS!.slice(2)
     );
   };
