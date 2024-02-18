@@ -635,14 +635,16 @@ def get_cat_minter_puzzle_solution(
 */
 function getCATMinterPuzzleSolution(
   nonce: string,
-  message: GreenWeb.clvm.SExp,
+  message_contents: any,
   my_puzzle_hash: string,
   my_coin_id: string,
   message_coin_parent_info: string,
 ): GreenWeb.clvm.SExp {
   return SExp.to([
     GreenWeb.util.sexp.bytesToAtom(nonce),
-    message,
+    message_contents.map((content: string) => GreenWeb.util.sexp.bytesToAtom(
+      GreenWeb.util.unhexlify(content)!
+    )),
     GreenWeb.util.sexp.bytesToAtom(my_puzzle_hash),
     GreenWeb.util.sexp.bytesToAtom(my_coin_id),
     GreenWeb.util.sexp.bytesToAtom(message_coin_parent_info)
@@ -813,7 +815,7 @@ export function mintCATs(
     GreenWeb.util.unhexlify(source_contract)!
   );
   const minterPuzzleHash = GreenWeb.util.sexp.sha256tree(minterPuzzle);
-  const minterCoinSolution = SExp.to([
+  const sourceCoinSolution = SExp.to([
     [
       GreenWeb.util.sexp.bytesToAtom(
         GreenWeb.util.unhexlify(nonce)!
@@ -825,11 +827,11 @@ export function mintCATs(
     ],
   ]);
 
-  const minterCoinSpend = new GreenWeb.util.serializer.types.CoinSpend();
-  minterCoinSpend.coin = source_coin;
-  minterCoinSpend.puzzleReveal = GreenWeb.util.sexp.fromHex(OFFER_MOD);
-  minterCoinSpend.solution = minterCoinSolution;
-  coin_spends.push(minterCoinSpend);
+  const sourceCoinSpend = new GreenWeb.util.serializer.types.CoinSpend();
+  sourceCoinSpend.coin = source_coin;
+  sourceCoinSpend.puzzleReveal = GreenWeb.util.sexp.fromHex(OFFER_MOD);
+  sourceCoinSpend.solution = sourceCoinSolution;
+  coin_spends.push(sourceCoinSpend);
 
   /* spend minter coin */
   const minterCoin = new GreenWeb.Coin();
@@ -837,7 +839,32 @@ export function mintCATs(
   minterCoin.puzzleHash = minterPuzzleHash;
   minterCoin.amount = tokenAmountInt;
 
+  const minterSolution = getCATMinterPuzzleSolution(
+    GreenWeb.util.unhexlify(nonce)!,
+    contents,
+    xchReceiverPh,
+    GreenWeb.util.coin.getName(minterCoin),
+    GreenWeb.util.coin.getName(portalCoinSpend.coin)
+  );
+
+  const minterCoinSpend = new GreenWeb.util.serializer.types.CoinSpend();
+  minterCoinSpend.coin = minterCoin;
+  minterCoinSpend.puzzleReveal = minterPuzzle;
+  minterCoinSpend.solution = minterSolution;
+  coin_spends.push(minterCoinSpend);
+  
   /* spend message coin */
+  const messagePuzzle = getMessageCoinPuzzle();
+
+  const messageCoin = new GreenWeb.Coin();
+  messageCoin.parentCoinInfo = GreenWeb.util.coin.getName(portalCoinSpend.coin);
+  messageCoin.puzzleHash = GreenWeb.util.sexp.sha256tree(messagePuzzle);
+  messageCoin.amount = 0;
+
+  /* spend eve CAT coin */
+  // todo
+
+  /* lastly, aggregate sigs  and build spend bundle */
 
   const sb = new GreenWeb.util.serializer.types.SpendBundle();
   sb.coinSpends = coin_spends;
