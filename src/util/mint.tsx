@@ -11,6 +11,13 @@ import { SExp, Tuple, Bytes } from "clvm";
 const OFFER_MOD_HASH = "cfbfdeed5c4ca2de3d0bf520b9cb4bb7743a359bd2e6a188d19ce7dffc21d3e7";
 
 /*
+>>> from chia.wallet.trading.offer import OFFER_MOD
+>>> bytes(OFFER_MOD).hex()
+'ff02ffff01ff02ff0affff04ff02ffff04ff03ff80808080ffff04ffff01ffff333effff02ffff03ff05ffff01ff04ffff04ff0cffff04ffff02ff1effff04ff02ffff04ff09ff80808080ff808080ffff02ff16ffff04ff02ffff04ff19ffff04ffff02ff0affff04ff02ffff04ff0dff80808080ff808080808080ff8080ff0180ffff02ffff03ff05ffff01ff02ffff03ffff15ff29ff8080ffff01ff04ffff04ff08ff0980ffff02ff16ffff04ff02ffff04ff0dffff04ff0bff808080808080ffff01ff088080ff0180ffff010b80ff0180ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff1effff04ff02ffff04ff09ff80808080ffff02ff1effff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080
+*/
+const OFFER_MOD = "ff02ffff01ff02ff0affff04ff02ffff04ff03ff80808080ffff04ffff01ffff333effff02ffff03ff05ffff01ff04ffff04ff0cffff04ffff02ff1effff04ff02ffff04ff09ff80808080ff808080ffff02ff16ffff04ff02ffff04ff19ffff04ffff02ff0affff04ff02ffff04ff0dff80808080ff808080808080ff8080ff0180ffff02ffff03ff05ffff01ff02ffff03ffff15ff29ff8080ffff01ff04ffff04ff08ff0980ffff02ff16ffff04ff02ffff04ff0dffff04ff0bff808080808080ffff01ff088080ff0180ffff010b80ff0180ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff1effff04ff02ffff04ff09ff80808080ffff02ff1effff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080";
+
+/*
 >>> from chia.wallet.puzzles.singleton_top_layer_v1_1 import SINGLETON_MOD_HASH
 >>> from chia.wallet.puzzles.singleton_top_layer_v1_1 import SINGLETON_LAUNCHER_HASH
 >>> SINGLETON_MOD_HASH.hex()
@@ -38,6 +45,43 @@ const MULTISIG_KEYS = [
   "9796fa4b1fa20600e1ab44f5ff77aec6d48ab27e0af89009f269cb918fa2afd2b4bb00dc2560f643cd7e53d786d69c65"
 ]
 const P2_M_OF_N_DELEGATE_DIRECT_MOD = "ff02ffff01ff02ffff03ffff09ff05ffff02ff16ffff04ff02ffff04ff17ff8080808080ffff01ff02ff0cffff04ff02ffff04ffff02ff0affff04ff02ffff04ff17ffff04ff0bff8080808080ffff04ffff02ff1effff04ff02ffff04ff2fff80808080ffff04ff2fffff04ff5fff80808080808080ffff01ff088080ff0180ffff04ffff01ffff31ff02ffff03ff05ffff01ff04ffff04ff08ffff04ff09ffff04ff0bff80808080ffff02ff0cffff04ff02ffff04ff0dffff04ff0bffff04ff17ffff04ff2fff8080808080808080ffff01ff02ff17ff2f8080ff0180ffff02ffff03ff05ffff01ff02ffff03ff09ffff01ff04ff13ffff02ff0affff04ff02ffff04ff0dffff04ff1bff808080808080ffff01ff02ff0affff04ff02ffff04ff0dffff04ff1bff808080808080ff0180ff8080ff0180ffff02ffff03ff05ffff01ff10ffff02ff16ffff04ff02ffff04ff0dff80808080ffff02ffff03ff09ffff01ff0101ff8080ff018080ff8080ff0180ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff1effff04ff02ffff04ff09ff80808080ffff02ff1effff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080";
+
+/*
+>>> from drivers.wrapped_assets import CAT_BURNER_MOD
+>>> bytes(CAT_BURNER_MOD).hex()
+*/
+const CAT_BURNER_MOD = "ff02ffff01ff02ff2affff04ff02ffff04ff825fffffff04ffff0bffff02ffff03ffff09ffff0dff81bf80ffff012080ffff0181bfffff01ff088080ff0180ffff02ff2effff04ff02ffff04ff05ffff04ffff0bffff0101ff0580ffff04ff82017fffff04ffff02ff2effff04ff02ffff04ffff02ff2effff04ff02ffff04ff0bffff04ffff0bffff0101ff822fff80ffff04ffff0bffff0101ff8205ff80ff808080808080ffff04ffff0bffff0101ff820bff80ffff04ffff0bffff0101ff8217ff80ff808080808080ff80808080808080ff8202ff80ffff04ffff04ffff04ff38ffff04ff825fffff808080ffff04ffff04ff28ffff04ff8217ffff808080ffff04ffff04ff14ffff04ff822fffff808080ffff04ffff04ff2cffff04ff17ffff04ff8217ffffff04ffff04ff2fffff04ff5fffff04ff8205ffffff04ff820bffffff04ff8202ffff808080808080ff8080808080ff8080808080ff808080808080ffff04ffff01ffffff3dff4946ff48ff333cffff02ffff04ffff04ff10ffff04ffff0bff0bff0580ff808080ffff04ffff04ff3cffff04ff0bff808080ff178080ff02ffff03ff05ffff01ff0bff76ffff02ff3effff04ff02ffff04ff09ffff04ffff02ff3affff04ff02ffff04ff0dff80808080ff808080808080ffff016680ff0180ffffffa04bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459aa09dcf97a184f32623d11a73124ceb99a5709b083721e878a16d78f596718ba7b2ffa102a12871fee210fb8619291eaea194581cbd2531e4b23759d225f6806923f63222a102a8d5dd63fba471ebcb1f3e8f7c1e1879b7152a6e7298a91ce119a63400ade7c5ffff0bff56ffff02ff3effff04ff02ffff04ff05ffff04ffff02ff3affff04ff02ffff04ff07ff80808080ff808080808080ff0bff12ffff0bff12ff66ff0580ffff0bff12ff0bff468080ff018080";
+
+/*
+>>> from drivers.wrapped_assets import CAT_MINTER_MOD
+>>> bytes(CAT_MINTER_MOD).hex()
+*/
+const CAT_MINTER_MOD = "ff02ffff01ff02ff12ffff04ff02ffff04ffff0bffff02ffff03ffff09ffff0dff822fff80ffff012080ffff01822fffffff01ff088080ff0180ffff02ff16ffff04ff02ffff04ff05ffff04ffff0bffff0101ff8202ff80ffff04ff82017fffff04ffff0bffff0101ff820bff80ffff04ffff0bffff0101ffff02ff3effff04ff02ffff04ff8205ffff8080808080ff8080808080808080ff8080ffff04ff8217ffffff04ffff04ffff04ff28ffff04ff8217ffff808080ffff04ffff04ff38ffff04ff820bffff808080ffff04ffff04ff14ffff04ffff02ff16ffff04ff02ffff04ff0bffff04ffff0bffff0101ff0b80ffff04ffff0bffff0101ffff02ff16ffff04ff02ffff04ff17ffff04ffff0bffff0101ff820bff80ffff04ffff0bffff0101ffff02ff16ffff04ff02ffff04ff81bfffff04ff5fffff04ffff0bffff0101ff8209ff80ff80808080808080ff80808080808080ffff04ffff02ff16ffff04ff02ffff04ff2fffff04ffff0bffff0101ff8215ff80ff8080808080ff80808080808080ffff04ff822dffff80808080ff80808080ff808080808080ffff04ffff01ffffff3dff4648ff33ff3c02ffffff04ffff04ff10ffff04ffff0bff05ff0b80ff808080ffff04ffff04ff2cffff04ff05ff808080ff178080ffff02ffff03ff05ffff01ff0bff81faffff02ff2effff04ff02ffff04ff09ffff04ffff02ff2affff04ff02ffff04ff0dff80808080ff808080808080ffff0181da80ff0180ffffa04bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459aa09dcf97a184f32623d11a73124ceb99a5709b083721e878a16d78f596718ba7b2ffa102a12871fee210fb8619291eaea194581cbd2531e4b23759d225f6806923f63222a102a8d5dd63fba471ebcb1f3e8f7c1e1879b7152a6e7298a91ce119a63400ade7c5ffff0bff81baffff02ff2effff04ff02ffff04ff05ffff04ffff02ff2affff04ff02ffff04ff07ff80808080ff808080808080ffff0bff3cffff0bff3cff81daff0580ffff0bff3cff0bff819a8080ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff3effff04ff02ffff04ff09ff80808080ffff02ff3effff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080";
+
+/*
+>>> from drivers.wrapped_assets import CAT_MINT_AND_PAYOUT_MOD, CAT_MINT_AND_PAYOUT_MOD_HASH
+>>> bytes(CAT_MINT_AND_PAYOUT_MOD).hex()
+>>> CAT_MINT_AND_PAYOUT_MOD_HASH.hex()
+*/
+const CAT_MINT_AND_PAYOUT_MOD = "ff02ffff01ff04ffff04ff04ffff04ff17ff808080ffff04ffff04ff06ffff04ff05ffff04ff17ff80808080ffff04ffff04ff06ffff04ff80ffff04ffff01818fffff04ff0bffff04ff2fff808080808080ff80808080ffff04ffff01ff4933ff018080";
+const CAT_MINT_AND_PAYOUT_MOD_HASH = "b7da6592ca3d94e4cd02cb83ca646e55e9b084a4e870db970d6b34b161116df8";
+
+/*
+>>> from drivers.wrapped_assets import WRAPPED_TAIL_MOD, WRAPPED_TAIL_MOD_HASH
+>>> bytes(WRAPPED_TAIL_MOD).hex()
+>>> WRAPPED_TAIL_MOD_HASH.hex()
+*/
+const WRAPPED_TAIL_MOD = "ff02ffff01ff02ffff03ff2fffff01ff02ffff03ffff22ffff09ffff11ff80ff81bf80ff8202f780ffff09ff47ffff0bff16ffff0bff04ffff0bff04ff1aff0b80ffff0bff04ffff0bff1effff0bff04ffff0bff04ff1aff8204ff80ffff0bff04ffff0bff1effff0bff04ffff0bff04ff1aff8206ff80ffff0bff04ff1aff12808080ff12808080ff128080808080ff80ffff01ff088080ff0180ffff01ff02ffff03ffff22ffff09ff81bfff8080ffff09ffff0dff8202ff80ffff012080ffff09ff81b7ffff0bff8202ffff05ff8202f7808080ff80ffff01ff088080ff018080ff0180ffff04ffff01ff02ffffa04bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459aa09dcf97a184f32623d11a73124ceb99a5709b083721e878a16d78f596718ba7b2ffa102a12871fee210fb8619291eaea194581cbd2531e4b23759d225f6806923f63222a102a8d5dd63fba471ebcb1f3e8f7c1e1879b7152a6e7298a91ce119a63400ade7c5ff018080";
+const WRAPPED_TAIL_MOD_HASH = "2d7e6fd2e8dd27536ebba2cf6b9fde09493fa10037aa64e14b201762c902f013";
+
+/*
+>>> from drivers.wrapped_assets import BURN_INNER_PUZZLE_MOD, BURN_INNER_PUZZLE_MOD_HASH
+>>> bytes(BURN_INNER_PUZZLE_MOD).hex()
+>>> BURN_INNER_PUZZLE_MOD_HASH.hex()
+*/
+const BURN_INNER_PUZZLE_MOD = "ff02ffff01ff04ffff04ff0cffff04ff81bfff808080ffff04ffff04ff0affff04ff80ffff04ffff01818fffff04ff82017fffff04ffff04ffff0bffff0101ff1780ffff0bffff0101ff2f8080ff808080808080ffff02ff1effff04ff02ffff04ff81bfffff04ffff0bffff02ffff03ffff09ffff0dff5f80ffff012080ffff015fffff01ff088080ff0180ff05ff2f80ff80808080808080ffff04ffff01ffff3d46ff33ff3cff04ffff04ff08ffff04ffff0bff0bff0580ff808080ffff04ffff04ff16ffff04ff0bff808080ff808080ff018080";
+const BURN_INNER_PUZZLE_MOD_HASH = "69b9ac68db61a9941ff537cbb69158a7e1015ad44c42cff905159909cd8e1f90";
+                                    // nice
 
 // allows debugging via mixch.dev
 function sbToString(sb: any): string {
@@ -292,6 +336,236 @@ function getMOfNDelegateDirectPuzzle(
   );
 }
 
+/*
+def get_cat_burner_puzzle(
+    bridging_puzzle_hash: bytes32,
+    destination_chain: bytes,
+    destination: bytes, # address of contract that receives message
+) -> Program:
+  return CAT_BURNER_MOD.curry(
+    CAT_MOD_HASH,
+    BURN_INNER_PUZZLE_MOD_HASH,
+    bridging_puzzle_hash,
+    destination_chain,
+    destination
+  )
+*/
+function getCATBurnerPuzzle(
+  bridging_puzzle_hash: string,
+  destination_chain: string,
+  destination: string,
+): GreenWeb.clvm.SExp {
+  return GreenWeb.util.sexp.curry(
+    GreenWeb.util.sexp.fromHex(CAT_BURNER_MOD),
+    [
+      GreenWeb.util.sexp.bytesToAtom(GreenWeb.util.sexp.CAT_PROGRAM_MOD_HASH),
+      GreenWeb.util.sexp.bytesToAtom(BURN_INNER_PUZZLE_MOD_HASH),
+      GreenWeb.util.sexp.bytesToAtom(bridging_puzzle_hash),
+      GreenWeb.util.sexp.bytesToAtom(destination_chain),
+      GreenWeb.util.sexp.bytesToAtom(destination)
+    ]
+  );
+}
+
+/*
+def get_cat_minter_puzzle(
+    portal_receiver_launcher_id: bytes32,
+    bridging_puzzle_hash: bytes32,
+    source_chain: bytes,
+    source: bytes
+) -> Program:
+  return CAT_MINTER_MOD.curry(
+    get_message_coin_puzzle_1st_curry(portal_receiver_launcher_id).get_tree_hash(),
+    CAT_MOD_HASH,
+    WRAPPED_TAIL_MOD_HASH,
+    CAT_MINT_AND_PAYOUT_MOD_HASH,
+    raw_hash([
+      b'\x01',
+      get_cat_burner_puzzle(bridging_puzzle_hash, source_chain, source).get_tree_hash()
+    ]), # CAT_BURNER_PUZZLE_HASH_HASH = (sha256 1 CAT_BURNER_PUZZLE_HASH_HASH)
+    BURN_INNER_PUZZLE_MOD_HASH,
+    raw_hash([
+      b'\x02',
+      raw_hash([b'\x01', source_chain]),
+      raw_hash([b'\x01', source]),
+    ]), # SOURCE_STUFF_HASH
+  )
+*/
+function getCATMinterPuzzle(
+  portal_receiver_launcher_id: string,
+  bridging_puzzle_hash: string,
+  source_chain: string,
+  source: string,
+): GreenWeb.clvm.SExp {
+  return GreenWeb.util.sexp.curry(
+    GreenWeb.util.sexp.fromHex(CAT_MINTER_MOD),
+    [
+      GreenWeb.util.sexp.bytesToAtom(
+        GreenWeb.util.sexp.sha256tree(
+          getMessageCoinPuzzle1stCurry(portal_receiver_launcher_id)
+        )
+      ),
+      GreenWeb.util.sexp.bytesToAtom(GreenWeb.util.sexp.CAT_PROGRAM_MOD_HASH),
+      GreenWeb.util.sexp.bytesToAtom(WRAPPED_TAIL_MOD_HASH),
+      GreenWeb.util.sexp.bytesToAtom(CAT_MINT_AND_PAYOUT_MOD_HASH),
+      GreenWeb.util.sexp.bytesToAtom(
+        GreenWeb.util.sexp.sha256tree(
+          SExp.to(
+            GreenWeb.util.sexp.sha256tree(
+              getCATBurnerPuzzle(bridging_puzzle_hash, source_chain, source)
+            )
+          )
+        )
+      ),
+      GreenWeb.util.sexp.bytesToAtom(BURN_INNER_PUZZLE_MOD_HASH),
+      GreenWeb.util.sexp.bytesToAtom(
+        GreenWeb.util.sexp.sha256tree(
+          SExp.to(new Tuple<SExp, SExp>(
+            GreenWeb.util.sexp.bytesToAtom(source_chain),
+            GreenWeb.util.sexp.bytesToAtom(source),
+          ))
+        )
+      )
+    ]
+  );
+}
+
+/*
+def get_cat_mint_and_payout_inner_puzzle(
+    receiver: bytes32
+) -> Program:
+  return CAT_MINT_AND_PAYOUT_MOD.curry(
+    receiver
+  )
+*/
+function getCATMintAndPayoutInnerPuzzle(
+  receiver: string,
+): GreenWeb.clvm.SExp {
+  return GreenWeb.util.sexp.curry(
+    GreenWeb.util.sexp.fromHex(CAT_MINT_AND_PAYOUT_MOD),
+    [
+      GreenWeb.util.sexp.bytesToAtom(receiver)
+    ]
+  );
+}
+
+/*
+def get_cat_burn_inner_puzzle_first_curry(
+    bridging_puzzle_hash: bytes32,
+    destination_chain: bytes,
+    destination: bytes,
+    source_chain_token_contract_address: bytes,
+) -> Program:
+  return BURN_INNER_PUZZLE_MOD.curry(
+    get_cat_burner_puzzle(bridging_puzzle_hash, destination_chain, destination).get_tree_hash(),
+    source_chain_token_contract_address
+  )
+*/
+function getCATBurnInnerPuzzleFirstCurry(
+  bridging_puzzle_hash: string,
+  destination_chain: string,
+  destination: string,
+  source_chain_token_contract_address: string,
+): GreenWeb.clvm.SExp {
+  return GreenWeb.util.sexp.curry(
+    GreenWeb.util.sexp.fromHex(BURN_INNER_PUZZLE_MOD),
+    [
+      GreenWeb.util.sexp.bytesToAtom(
+        GreenWeb.util.sexp.sha256tree(
+          getCATBurnerPuzzle(bridging_puzzle_hash, destination_chain, destination)
+        )
+      ),
+      GreenWeb.util.sexp.bytesToAtom(source_chain_token_contract_address)
+    ]
+  );
+}
+
+/*
+def get_cat_burn_inner_puzzle(
+    bridging_puzzle_hash: bytes32,
+    destination_chain: bytes,
+    destination: bytes, # e.g., ETH token bridge
+    source_chain_token_contract_address: bytes,
+    target_receiver: bytes,
+    bridge_fee: int
+) -> Program:
+  return get_cat_burn_inner_puzzle_first_curry(
+    bridging_puzzle_hash,
+    destination_chain,
+    destination,
+    source_chain_token_contract_address
+  ).curry(
+    target_receiver,
+    bridge_fee
+  )
+*/
+function getCATBurnInnerPuzzle(
+  bridging_puzzle_hash: string,
+  destination_chain: string,
+  destination: string,
+  source_chain_token_contract_address: string,
+  target_receiver: string,
+  bridge_fee: number,
+): GreenWeb.clvm.SExp {
+  return GreenWeb.util.sexp.curry(
+    getCATBurnInnerPuzzleFirstCurry(
+      bridging_puzzle_hash,
+      destination_chain,
+      destination,
+      source_chain_token_contract_address
+    ),
+    [
+      GreenWeb.util.sexp.bytesToAtom(target_receiver),
+      GreenWeb.util.sexp.bytesToAtom(
+        GreenWeb.util.coin.amountToBytes(bridge_fee)
+      )
+    ]
+  );
+}
+
+/*
+def get_wrapped_tail(
+    portal_receiver_launcher_id: bytes32,
+    bridging_puzzle_hash: bytes32,
+    source_chain: bytes,
+    source: bytes,
+    source_chain_token_contract_address: bytes,
+) -> Program:
+  return WRAPPED_TAIL_MOD.curry(
+    get_cat_minter_puzzle(
+      portal_receiver_launcher_id, bridging_puzzle_hash, source_chain, source
+    ).get_tree_hash(),
+    get_cat_burn_inner_puzzle_first_curry(
+      bridging_puzzle_hash, source_chain, source, source_chain_token_contract_address
+    ).get_tree_hash(),
+  )
+*/
+function getWrappedTAIL(
+  portal_receiver_launcher_id: string,
+  bridging_puzzle_hash: string,
+  source_chain: string,
+  source: string,
+  source_chain_token_contract_address: string,
+): GreenWeb.clvm.SExp {
+  return GreenWeb.util.sexp.curry(
+    GreenWeb.util.sexp.fromHex(WRAPPED_TAIL_MOD),
+    [
+      GreenWeb.util.sexp.bytesToAtom(
+        GreenWeb.util.sexp.sha256tree(
+          getCATMinterPuzzle(portal_receiver_launcher_id, bridging_puzzle_hash, source_chain, source)
+        )
+      ),
+      GreenWeb.util.sexp.bytesToAtom(
+        GreenWeb.util.sexp.sha256tree(
+          getCATBurnInnerPuzzleFirstCurry(
+            bridging_puzzle_hash, source_chain, source, source_chain_token_contract_address
+          )
+        )
+      ),
+    ]
+  );
+}
+
 export function mintCATs(
   message: any,
   portalCoinRecord: any,
@@ -360,13 +634,6 @@ export function mintCATs(
     GreenWeb.util.sexp.sha256tree(updatePuzzle),
     nonces_used_last_spend
   );
-  console.log({
-     PORTAL_RECEIVER_LAUNCHER_ID,
-      PORTAL_THRESHOLD,
-      PORTAL_KEYS,
-      updater_ph: GreenWeb.util.sexp.sha256tree(updatePuzzle),
-      nonces_used_last_spend
-  })
   const portalPuzzle = GreenWeb.util.sexp.singletonPuzzle(PORTAL_RECEIVER_LAUNCHER_ID, portalInnerPuzzle);
 
   var portalParentInnerPuzHash = null;
@@ -406,6 +673,25 @@ export function mintCATs(
   portalCoinSpend.puzzleReveal = portalPuzzle;
   portalCoinSpend.solution = portalSolution;
   coin_spends.push(portalCoinSpend);
+
+  /* spend source coin to create minter */
+  const minterCoinSolution = SExp.to([
+    [nonce, [minterPuzzleHash, tokenAmountInt]]
+  ]);
+
+  const minterCoinSpend = new GreenWeb.util.serializer.types.CoinSpend();
+  minterCoinSpend.coin = source_coin;
+  minterCoinSpend.puzzleReveal = GreenWeb.util.sexp.fromHex(OFFER_MOD);
+  minterCoinSpend.solution = minterCoinSolution;
+  coin_spends.push(minterCoinSpend);
+
+  /* spend minter coin */
+  const minterCoin = new GreenWeb.Coin();
+  minterCoin.parentCoinInfo = GreenWeb.util.coin.getName(source_coin);
+  minterCoin.puzzleHash = minterPuzzleHash;
+  minterCoin.amount = tokenAmountInt;
+
+  /* spend message coin */
 
   const sb = new GreenWeb.util.serializer.types.SpendBundle();
   sb.coinSpends = coin_spends;
