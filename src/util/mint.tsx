@@ -567,6 +567,136 @@ function getWrappedTAIL(
   );
 }
 
+/*
+def get_burn_inner_puzzle_solution(
+    cat_burner_parent_id: bytes32,
+    my_coin_id: bytes32,
+    tail_reveal: Program
+) -> Program:
+  return Program.to([
+    cat_burner_parent_id,
+    my_coin_id,
+    tail_reveal
+  ])
+*/
+function getBurnInnerPuzzleSolution(
+  cat_burner_parent_id: string,
+  my_coin_id: string,
+  tail_reveal: GreenWeb.clvm.SExp,
+): GreenWeb.clvm.SExp {
+  return SExp.to([
+    GreenWeb.util.sexp.bytesToAtom(cat_burner_parent_id),
+    GreenWeb.util.sexp.bytesToAtom(my_coin_id),
+    tail_reveal
+  ]);
+}
+
+/*
+def get_cat_mint_and_payout_inner_puzzle_solution(
+    tail_puzzle: Program,
+    my_amount: int,
+    parent_parent_info: bytes32,
+) -> Program:
+  return Program.to([
+    tail_puzzle,
+    my_amount,
+    parent_parent_info
+  ])
+*/
+function getCATMintAndPayoutInnerPuzzleSolution(
+  tail_puzzle: GreenWeb.clvm.SExp,
+  my_amount: number,
+  parent_parent_info: string,
+): GreenWeb.clvm.SExp {
+  return SExp.to([
+    tail_puzzle,
+    GreenWeb.util.sexp.bytesToAtom(
+      GreenWeb.util.coin.amountToBytes(my_amount)
+    ),
+    GreenWeb.util.sexp.bytesToAtom(parent_parent_info)
+  ]);
+}
+
+/*
+def get_cat_minter_puzzle_solution(
+    nonce: int,
+    message: Program,
+    my_puzzle_hash: bytes32,
+    my_coin_id: bytes32,
+    message_coin_parent_info: bytes32,
+) -> Program:
+  return Program.to([
+    nonce,
+    message,
+    my_puzzle_hash,
+    my_coin_id,
+    message_coin_parent_info
+  ])
+*/
+function getCATMinterPuzzleSolution(
+  nonce: string,
+  message: GreenWeb.clvm.SExp,
+  my_puzzle_hash: string,
+  my_coin_id: string,
+  message_coin_parent_info: string,
+): GreenWeb.clvm.SExp {
+  return SExp.to([
+    GreenWeb.util.sexp.bytesToAtom(nonce),
+    message,
+    GreenWeb.util.sexp.bytesToAtom(my_puzzle_hash),
+    GreenWeb.util.sexp.bytesToAtom(my_coin_id),
+    GreenWeb.util.sexp.bytesToAtom(message_coin_parent_info)
+  ]);
+}
+
+/*
+def get_cat_burner_puzzle_solution(
+    cat_parent_info: bytes32,
+    tail_hash: bytes32,
+    cat_amount: int,
+    source_chain_token_contract_address: bytes,
+    destination_receiver_address: bytes,
+    my_coin: Coin
+) -> Program:
+  return Program.to([
+    cat_parent_info,
+    raw_hash([b'\x01', tail_hash]),
+    cat_amount,
+    source_chain_token_contract_address,
+    destination_receiver_address,
+    my_coin.amount,
+    my_coin.puzzle_hash,
+    my_coin.name()
+  ])
+*/
+function getCATBurnerPuzzleSolution(
+  cat_parent_info: string,
+  tail_hash: string,
+  cat_amount: number,
+  source_chain_token_contract_address: string,
+  destination_receiver_address: string,
+  my_coin: any,
+): GreenWeb.clvm.SExp {
+  return SExp.to([
+    GreenWeb.util.sexp.bytesToAtom(cat_parent_info),
+    GreenWeb.util.sexp.bytesToAtom(
+      GreenWeb.util.sexp.sha256tree(
+        SExp.to(GreenWeb.util.sexp.bytesToAtom(tail_hash))
+      )
+    ),
+    GreenWeb.util.sexp.bytesToAtom(
+      GreenWeb.util.coin.amountToBytes(cat_amount)
+    ),
+    GreenWeb.util.sexp.bytesToAtom(source_chain_token_contract_address),
+    GreenWeb.util.sexp.bytesToAtom(destination_receiver_address),
+    GreenWeb.util.sexp.bytesToAtom(
+      GreenWeb.util.coin.amountToBytes(my_coin.amount)
+    ),
+    GreenWeb.util.sexp.bytesToAtom(my_coin.puzzle_hash),
+    GreenWeb.util.sexp.bytesToAtom(my_coin.name())
+  ]);
+}
+
 export function mintCATs(
   message: any,
   portalCoinRecord: any,
