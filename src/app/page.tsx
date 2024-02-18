@@ -7,6 +7,7 @@ import { ethers } from "ethers";
 import * as GreenWeb from 'greenwebjs';
 import { offerToSpendBundle } from "@/util/offer";
 import { mintCATs } from "@/util/mint";
+import { getCoinRecordByName, getPuzzleAndSolution } from "@/util/rpc";
 
 export default function Home() {
   const [ethAmount, setEthAmount] = useState('0.003');
@@ -80,10 +81,12 @@ export default function Home() {
     setNonces(nonces);
   };
 
-  const handleOfferSubmit = (e: React.FormEvent) => {
+  const handleOfferSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    mintCATs(messageData, offer, [sig]);
+    const portalCoinRecord = await getCoinRecordByName(coinId);
+    const portalParentSpend = await getPuzzleAndSolution(portalCoinRecord.coin.parentCoinInfo, portalCoinRecord.confirmed_block_index);
+    mintCATs(messageData, portalCoinRecord, portalParentSpend, nonces, offer, [sig]);
   };
 
   return (
