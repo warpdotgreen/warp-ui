@@ -86,7 +86,18 @@ export default function Home() {
     
     const portalCoinRecord = await getCoinRecordByName(coinId);
     const portalParentSpend = await getPuzzleAndSolution(portalCoinRecord.coin.parentCoinInfo, portalCoinRecord.confirmed_block_index);
-    mintCATs(messageData, portalCoinRecord, portalParentSpend, nonces, offer, [sig]);
+    mintCATs(
+      messageData,
+      portalCoinRecord,
+      portalParentSpend,
+      nonces,
+      [], // todo
+      offer,
+      [sig],
+      [true, false, false], // todo
+      "eth",
+      process.env.NEXT_PUBLIC_BRIDGE_ADDRESS!.slice(2)
+    );
   };
 
   return (
