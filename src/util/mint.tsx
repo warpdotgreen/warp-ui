@@ -617,6 +617,12 @@ function getCATMintAndPayoutInnerPuzzleSolution(
   ]);
 }
 
+function getMessageAsSExp(message_contents: any): GreenWeb.clvm.SExp {
+  return message_contents.map((content: string) => GreenWeb.util.sexp.bytesToAtom(
+    GreenWeb.util.unhexlify(content)!
+  ));
+}
+
 /*
 def get_cat_minter_puzzle_solution(
     nonce: int,
@@ -642,9 +648,7 @@ function getCATMinterPuzzleSolution(
 ): GreenWeb.clvm.SExp {
   return SExp.to([
     GreenWeb.util.sexp.bytesToAtom(nonce),
-    message_contents.map((content: string) => GreenWeb.util.sexp.bytesToAtom(
-      GreenWeb.util.unhexlify(content)!
-    )),
+    getMessageAsSExp(message_contents),
     GreenWeb.util.sexp.bytesToAtom(my_puzzle_hash),
     GreenWeb.util.sexp.bytesToAtom(my_coin_id),
     GreenWeb.util.sexp.bytesToAtom(message_coin_parent_info)
@@ -854,12 +858,34 @@ export function mintCATs(
   coin_spends.push(minterCoinSpend);
   
   /* spend message coin */
-  const messagePuzzle = getMessageCoinPuzzle();
+  const messageCoinPuzzle = getMessageCoinPuzzle(
+    PORTAL_RECEIVER_LAUNCHER_ID,
+    source_chain,
+    GreenWeb.util.unhexlify(source_contract)!,
+    GreenWeb.util.unhexlify(nonce)!,
+    destination,
+    GreenWeb.util.sexp.sha256tree(
+      getMessageAsSExp(contents)
+    )
+  );
 
   const messageCoin = new GreenWeb.Coin();
   messageCoin.parentCoinInfo = GreenWeb.util.coin.getName(portalCoinSpend.coin);
-  messageCoin.puzzleHash = GreenWeb.util.sexp.sha256tree(messagePuzzle);
+  messageCoin.puzzleHash = GreenWeb.util.sexp.sha256tree(messageCoinPuzzle);
   messageCoin.amount = 0;
+
+  const messageCoinSolution = getMessageCoinSolution(
+    minterCoin,
+    portalCoin.parentCoinInfo,
+    GreenWeb.util.sexp.sha256tree(portalInnerPuzzle),
+    GreenWeb.util.coin.getName(messageCoin)
+  );
+
+  const messageCoinSpend = new GreenWeb.util.serializer.types.CoinSpend();
+  messageCoinSpend.coin = messageCoin;
+  messageCoinSpend.puzzleReveal = messageCoinPuzzle;
+  messageCoinSpend.solution = messageCoinSolution;
+  coin_spends.push(messageCoinSpend);
 
   /* spend eve CAT coin */
   // todo
