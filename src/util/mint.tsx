@@ -876,7 +876,7 @@ export function mintCATs(
 
   const messageCoinSolution = getMessageCoinSolution(
     minterCoin,
-    portalCoin.parentCoinInfo,
+    portalCoin.parent_coin_info,
     GreenWeb.util.sexp.sha256tree(portalInnerPuzzle),
     GreenWeb.util.coin.getName(messageCoin)
   );
@@ -886,6 +886,10 @@ export function mintCATs(
   messageCoinSpend.puzzleReveal = messageCoinPuzzle;
   messageCoinSpend.solution = messageCoinSolution;
   coin_spends.push(messageCoinSpend);
+
+  // issues:
+  // - wrong parent, for some reason
+  // - wrong minterCoin ph, for some reason
 
   /* spend eve CAT coin */
   // todo
