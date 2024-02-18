@@ -116,6 +116,59 @@ function getMessageCoinPuzzle(
   );
 }
 
+/*
+def get_portal_receiver_inner_puzzle(
+      launcher_id: bytes32,
+      signature_treshold: int,
+      signature_pubkeys: list[G1Element],
+      update_puzzle_hash: bytes32,
+      last_nonces: List[int] = [],
+) -> Program:
+    first_curry = PORTAL_RECEIVER_MOD.curry(
+       (signature_treshold, signature_pubkeys), # VALIDATOR_INFO
+       get_message_coin_puzzle_1st_curry(launcher_id).get_tree_hash(),
+       update_puzzle_hash
+    )
+    return first_curry.curry(
+       first_curry.get_tree_hash(), # SELF_HASH
+       last_nonces
+    )
+*/
+
+function getPortalReceiverInnerPuzzle(
+  launcher_id: string,
+  signature_treshold: number,
+  signature_pubkeys: string[],
+  update_puzzle_hash: string,
+  last_nonces: string[] = [],
+): GreenWeb.clvm.SExp {
+  const first_curry = GreenWeb.util.sexp.curry(
+    GreenWeb.util.sexp.fromHex(PORTAL_MOD),
+    [
+      SExp.to(new Tuple<SExp, SExp>(
+          GreenWeb.util.sexp.bytesToAtom(
+            GreenWeb.util.coin.amountToBytes(signature_treshold)
+          ),
+          SExp.to(signature_pubkeys.map((pubkey) => GreenWeb.util.sexp.bytesToAtom(pubkey)))
+      )),
+      GreenWeb.util.sexp.bytesToAtom(
+        GreenWeb.util.sexp.sha256tree(getMessageCoinPuzzle1stCurry(launcher_id))
+      ),
+      GreenWeb.util.sexp.bytesToAtom(update_puzzle_hash)
+    ]
+  );
+
+  return GreenWeb.util.sexp.curry(
+    first_curry,
+    [
+      GreenWeb.util.sexp.bytesToAtom(
+        GreenWeb.util.sexp.sha256tree(first_curry)
+      ),
+      SExp.to(last_nonces.map((nonce) => GreenWeb.util.sexp.bytesToAtom(nonce)))
+    ]
+  );
+}
+
 export function mintCATs(
   message: any,
   portalCoinRecord: any,
