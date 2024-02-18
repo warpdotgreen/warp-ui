@@ -7,13 +7,14 @@ import { ethers } from "ethers";
 import * as GreenWeb from 'greenwebjs';
 
 export default function Home() {
-  const [offer, setOffer] = useState('');
   const [ethAmount, setEthAmount] = useState('0.003');
   const [xchAddress, setXchAddress] = useState('txch1ak7dup645fr562t2u9rs30d60qh9t89nyxvezwpkd5v29m62z6aqwmmxge');
   const [ethTxHash, setEthTxHash] = useState('0x443441bb5a1a38546134064fcf117f3c2ce598a8da57b2b86647905c9d59d5ff');
   const [messageData, setMessageData] = useState({});
   const [coinId, setCoinId] = useState('click button below');
   const [nonces, setNonces] = useState({});
+  const [offer, setOffer] = useState('offer1qqr83wcuu2rykcmqvps8ennjuyr4lnaw6zkw2736tu0swhh430v46vlthzp0uwun0cmt6mvf0adzyaal067jmzwpvnfsf3lw4kde2eclzf2lnm0fktatn2ku3tacevmkq0xjsa3alngqlhjwrhh88hrqsvmlfl7evrcnq74dl07xtd28gkt0xllyuxth7e9wh3natfmn9kxkuzadae0sm8krtjn8ye77gkxm392j80l74q94xeqf9hhlqhnl0hmmr03m86y79hm40pva577m096cn88taarvv8ru2ww0all4r08ulslhxq6ct4secplmf8my7yfka9cehl3gkj5dm7ltmz6nm6jtunuh4qughhhel307dukl9nheacx4gm8jh727z47c9vrzp5lxlupyh6tefkukzl6w4vn5c5lt8zlk42nlhklg4hxpav8jaztnlxeja24jqjrasr8x75nj7h3l0h2m0tt7dmjre6e0fmve0as60mllglmm6ht0pgxvqmwajajwfjalyh00ay5tkfv9dgj7lcfwadut8uvy7d9m74206azhw042lr8rze7khm938wc0nh3vk983ng7rxa73970uw5u48rp47278g5745lqfqqdysnhg57j6nq');
+  const [sig, setSig] = useState('');
 
   const handleOfferSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -131,12 +132,21 @@ export default function Home() {
       </div>
       <form onSubmit={handleOfferSubmit} className="flex flex-col space-y-4 w-full">
         <label htmlFor="offer" className="block text-lg font-semibold">4. Create & Submit Offer</label>
+        <p>You should be offering {(ethers.parseEther(ethAmount) / ethers.parseEther("0.001")).toString()} mojos and a decent fee.</p>
         <input
           id="offer"
           type="text"
           value={offer}
           onChange={(e) => setOffer(e.target.value)}
           placeholder="Enter your offer"
+          className="w-full p-4 text-lg border-2 border-gray-300 rounded-md"
+        />
+        <input
+          id="sig"
+          type="text"
+          value={sig}
+          onChange={(e) => setSig(e.target.value)}
+          placeholder="Enter validator sig"
           className="w-full p-4 text-lg border-2 border-gray-300 rounded-md"
         />
         <button type="submit" className="px-6 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600">Submit</button>
