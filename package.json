@@ -13,11 +13,13 @@
     "ethers": "^6.11.1",
     "greenwebjs": "^1.1.9",
     "next": "14.1.0",
+    "pako": "^2.1.0",
     "react": "^18",
     "react-dom": "^18"
   },
   "devDependencies": {
     "@types/node": "^20",
+    "@types/pako": "^2.0.3",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.0.1",

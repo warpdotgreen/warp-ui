@@ -5,6 +5,7 @@ import { findLatestPortalState } from '../util/portal_receiver';
 import { BRIDGE_CONTRACT_ABI, BRIDGE_CONTRACT_ADDRESS } from "@/util/bridge";
 import { ethers } from "ethers";
 import * as GreenWeb from 'greenwebjs';
+import { offerToSpendBundle } from "@/util/offer";
 
 export default function Home() {
   const [ethAmount, setEthAmount] = useState('0.003');
@@ -18,7 +19,8 @@ export default function Home() {
 
   const handleOfferSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    alert(offer);
+    
+    const sb = offerToSpendBundle(offer);
   };
 
   const fetchPortalInfo = async () => {
