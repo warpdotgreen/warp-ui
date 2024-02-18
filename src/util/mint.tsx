@@ -169,6 +169,107 @@ function getPortalReceiverInnerPuzzle(
   );
 }
 
+/*
+def get_message_coin_solution(
+    receiver_coin: Coin,
+    parent_parent_info: bytes32,
+    parent_inner_puzzle_hash: bytes32,
+    message_coin_id: bytes32,
+) -> Program:
+    return Program.to([
+      (receiver_coin.parent_coin_info, (receiver_coin.puzzle_hash, receiver_coin.amount)),
+      (parent_parent_info, parent_inner_puzzle_hash),
+      message_coin_id
+    ])
+*/
+function getMessageCoinSolution(
+  receiverCoin: any,
+  parent_parent_info: string,
+  parent_inner_puzzle_hash: string,
+  message_coin_id: string,
+): GreenWeb.clvm.SExp {
+  return SExp.to([
+    SExp.to(new Tuple<SExp, SExp>(
+        GreenWeb.util.sexp.bytesToAtom(receiverCoin.parentCoinInfo),
+        SExp.to(new Tuple<SExp, SExp>(
+            GreenWeb.util.sexp.bytesToAtom(receiverCoin.puzzleHash),
+            GreenWeb.util.sexp.bytesToAtom(
+              GreenWeb.util.coin.amountToBytes(receiverCoin.amount)
+            )
+        )),
+    )),
+    SExp.to(new Tuple<SExp, SExp>(
+        GreenWeb.util.sexp.bytesToAtom(parent_parent_info),
+        GreenWeb.util.sexp.bytesToAtom(parent_inner_puzzle_hash),
+    )),
+    GreenWeb.util.sexp.bytesToAtom(message_coin_id)
+  ]);
+}
+
+/*
+def get_sigs_switch(sig_switches: List[bool]) -> int:
+   return int(
+       "".join(["1" if x else "0" for x in sig_switches])[::-1],
+       2
+    )
+*/
+function getSigsSwitch(
+  sig_switches: boolean[]
+): number {
+  return parseInt(
+    sig_switches.map((x) => x ? "1" : "0").join("").split("").reverse().join(""),
+    2
+  );
+}
+
+/*
+def get_portal_receiver_inner_solution(
+    messages: List[PortalMessage],
+    update_puzzle_reveal: Program | None = None,
+    update_puzzle_solution: Program | None = None
+) -> Program:
+    return Program.to([
+       0 if update_puzzle_reveal is None or update_puzzle_solution is None else (update_puzzle_reveal, update_puzzle_solution),
+       [messages.nonce for messages in messages],
+       [
+          [
+            get_sigs_switch(msg.validator_sig_switches),
+            msg.source_chain,
+            msg.source,
+            msg.destination,
+            msg.message
+          ] for msg in messages
+       ]
+    ])
+*/
+// BUT we are only doing this for one message :green_heart:
+function getPortalReceiverInnerSolution(
+  validator_sig_switches: boolean[],
+  nonce: string,
+  source_chain: string,
+  source: string,
+  destination: string,
+  message: string,
+): GreenWeb.clvm.SExp {
+  return SExp.to([
+    0,
+    [GreenWeb.util.sexp.bytesToAtom(nonce)],
+    [
+      [
+        GreenWeb.util.sexp.bytesToAtom(
+          GreenWeb.util.coin.amountToBytes(
+            getSigsSwitch(validator_sig_switches)
+          )
+        ),
+        GreenWeb.util.sexp.bytesToAtom(source_chain),
+        GreenWeb.util.sexp.bytesToAtom(source),
+        GreenWeb.util.sexp.bytesToAtom(destination),
+        GreenWeb.util.sexp.bytesToAtom(message)
+      ]
+    ]
+  ]);
+}
+
 export function mintCATs(
   message: any,
   portalCoinRecord: any,
