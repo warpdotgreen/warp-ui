@@ -6,6 +6,7 @@ import { BRIDGE_CONTRACT_ABI, BRIDGE_CONTRACT_ADDRESS } from "@/util/bridge";
 import { ethers } from "ethers";
 import * as GreenWeb from 'greenwebjs';
 import { offerToSpendBundle } from "@/util/offer";
+import { mintCATs } from "@/util/mint";
 
 export default function Home() {
   const [ethAmount, setEthAmount] = useState('0.003');
@@ -16,18 +17,6 @@ export default function Home() {
   const [nonces, setNonces] = useState({});
   const [offer, setOffer] = useState('offer1qqr83wcuu2rykcmqvps8ennjuyr4lnaw6zkw2736tu0swhh430v46vlthzp0uwun0cmt6mvf0adzyaal067jmzwpvnfsf3lw4kde2eclzf2lnm0fktatn2ku3tacevmkq0xjsa3alngqlhjwrhh88hrqsvmlfl7evrcnq74dl07xtd28gkt0xllyuxth7e9wh3natfmn9kxkuzadae0sm8krtjn8ye77gkxm392j80l74q94xeqf9hhlqhnl0hmmr03m86y79hm40pva577m096cn88taarvv8ru2ww0all4r08ulslhxq6ct4secplmf8my7yfka9cehl3gkj5dm7ltmz6nm6jtunuh4qughhhel307dukl9nheacx4gm8jh727z47c9vrzp5lxlupyh6tefkukzl6w4vn5c5lt8zlk42nlhklg4hxpav8jaztnlxeja24jqjrasr8x75nj7h3l0h2m0tt7dmjre6e0fmve0as60mllglmm6ht0pgxvqmwajajwfjalyh00ay5tkfv9dgj7lcfwadut8uvy7d9m74206azhw042lr8rze7khm938wc0nh3vk983ng7rxa73970uw5u48rp47278g5745lqfqqdysnhg57j6nq');
   const [sig, setSig] = useState('');
-
-  const handleOfferSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    const sb = offerToSpendBundle(offer);
-  };
-
-  const fetchPortalInfo = async () => {
-    const { coinId, nonces } = await findLatestPortalState();
-    setCoinId(coinId);
-    setNonces(nonces);
-  };
 
   const sendEthToBridge = async () => {
     if (typeof window.ethereum === 'undefined') {
@@ -85,8 +74,20 @@ export default function Home() {
     })
   };
 
+  const fetchPortalInfo = async () => {
+    const { coinId, nonces } = await findLatestPortalState();
+    setCoinId(coinId);
+    setNonces(nonces);
+  };
+
+  const handleOfferSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    mintCATs(messageData, offer, [sig]);
+  };
+
   return (
-    <main className="flex min-h-screen flex-col items-center p-48">
+    <main className="flex min-h-screen flex-col items-center pr-48 pl-48 pt-16 pb-8">
       <div className="flex flex-col space-y-4 w-full pb-16">
         <label className="text-lg font-semibold">1. Send ETH to Bridge</label>
         <p>Using MetaM*sk</p>
