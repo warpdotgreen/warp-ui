@@ -18,6 +18,18 @@ const OFFER_MOD_HASH = "cfbfdeed5c4ca2de3d0bf520b9cb4bb7743a359bd2e6a188d19ce7df
 const OFFER_MOD = "ff02ffff01ff02ff0affff04ff02ffff04ff03ff80808080ffff04ffff01ffff333effff02ffff03ff05ffff01ff04ffff04ff0cffff04ffff02ff1effff04ff02ffff04ff09ff80808080ff808080ffff02ff16ffff04ff02ffff04ff19ffff04ffff02ff0affff04ff02ffff04ff0dff80808080ff808080808080ff8080ff0180ffff02ffff03ff05ffff01ff02ffff03ffff15ff29ff8080ffff01ff04ffff04ff08ff0980ffff02ff16ffff04ff02ffff04ff0dffff04ff0bff808080808080ffff01ff088080ff0180ffff010b80ff0180ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff1effff04ff02ffff04ff09ff80808080ffff02ff1effff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080";
 
 /*
+>>> from chia.wallet.cat_wallet.cat_wallet import CAT_MOD
+>>> bytes(CAT_MOD).hex()
+*/
+const CAT_MOD = "ff02ffff01ff02ff5effff04ff02ffff04ffff04ff05ffff04ffff0bff34ff0580ffff04ff0bff80808080ffff04ffff02ff17ff2f80ffff04ff5fffff04ffff02ff2effff04ff02ffff04ff17ff80808080ffff04ffff02ff2affff04ff02ffff04ff82027fffff04ff82057fffff04ff820b7fff808080808080ffff04ff81bfffff04ff82017fffff04ff8202ffffff04ff8205ffffff04ff820bffff80808080808080808080808080ffff04ffff01ffffffff3d46ff02ff333cffff0401ff01ff81cb02ffffff20ff02ffff03ff05ffff01ff02ff32ffff04ff02ffff04ff0dffff04ffff0bff7cffff0bff34ff2480ffff0bff7cffff0bff7cffff0bff34ff2c80ff0980ffff0bff7cff0bffff0bff34ff8080808080ff8080808080ffff010b80ff0180ffff02ffff03ffff22ffff09ffff0dff0580ff2280ffff09ffff0dff0b80ff2280ffff15ff17ffff0181ff8080ffff01ff0bff05ff0bff1780ffff01ff088080ff0180ffff02ffff03ff0bffff01ff02ffff03ffff09ffff02ff2effff04ff02ffff04ff13ff80808080ff820b9f80ffff01ff02ff56ffff04ff02ffff04ffff02ff13ffff04ff5fffff04ff17ffff04ff2fffff04ff81bfffff04ff82017fffff04ff1bff8080808080808080ffff04ff82017fff8080808080ffff01ff088080ff0180ffff01ff02ffff03ff17ffff01ff02ffff03ffff20ff81bf80ffff0182017fffff01ff088080ff0180ffff01ff088080ff018080ff0180ff04ffff04ff05ff2780ffff04ffff10ff0bff5780ff778080ffffff02ffff03ff05ffff01ff02ffff03ffff09ffff02ffff03ffff09ff11ff5880ffff0159ff8080ff0180ffff01818f80ffff01ff02ff26ffff04ff02ffff04ff0dffff04ff0bffff04ffff04ff81b9ff82017980ff808080808080ffff01ff02ff7affff04ff02ffff04ffff02ffff03ffff09ff11ff5880ffff01ff04ff58ffff04ffff02ff76ffff04ff02ffff04ff13ffff04ff29ffff04ffff0bff34ff5b80ffff04ff2bff80808080808080ff398080ffff01ff02ffff03ffff09ff11ff7880ffff01ff02ffff03ffff20ffff02ffff03ffff09ffff0121ffff0dff298080ffff01ff02ffff03ffff09ffff0cff29ff80ff3480ff5c80ffff01ff0101ff8080ff0180ff8080ff018080ffff0109ffff01ff088080ff0180ffff010980ff018080ff0180ffff04ffff02ffff03ffff09ff11ff5880ffff0159ff8080ff0180ffff04ffff02ff26ffff04ff02ffff04ff0dffff04ff0bffff04ff17ff808080808080ff80808080808080ff0180ffff01ff04ff80ffff04ff80ff17808080ff0180ffff02ffff03ff05ffff01ff04ff09ffff02ff56ffff04ff02ffff04ff0dffff04ff0bff808080808080ffff010b80ff0180ff0bff7cffff0bff34ff2880ffff0bff7cffff0bff7cffff0bff34ff2c80ff0580ffff0bff7cffff02ff32ffff04ff02ffff04ff07ffff04ffff0bff34ff3480ff8080808080ffff0bff34ff8080808080ffff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff2effff04ff02ffff04ff09ff80808080ffff02ff2effff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ffff04ffff04ff30ffff04ff5fff808080ffff02ff7effff04ff02ffff04ffff04ffff04ff2fff0580ffff04ff5fff82017f8080ffff04ffff02ff26ffff04ff02ffff04ff0bffff04ff05ffff01ff808080808080ffff04ff17ffff04ff81bfffff04ff82017fffff04ffff02ff2affff04ff02ffff04ff8204ffffff04ffff02ff76ffff04ff02ffff04ff09ffff04ff820affffff04ffff0bff34ff2d80ffff04ff15ff80808080808080ffff04ff8216ffff808080808080ffff04ff8205ffffff04ff820bffff808080808080808080808080ff02ff5affff04ff02ffff04ff5fffff04ff3bffff04ffff02ffff03ff17ffff01ff09ff2dffff02ff2affff04ff02ffff04ff27ffff04ffff02ff76ffff04ff02ffff04ff29ffff04ff57ffff04ffff0bff34ff81b980ffff04ff59ff80808080808080ffff04ff81b7ff80808080808080ff8080ff0180ffff04ff17ffff04ff05ffff04ff8202ffffff04ffff04ffff04ff78ffff04ffff0eff5cffff02ff2effff04ff02ffff04ffff04ff2fffff04ff82017fff808080ff8080808080ff808080ffff04ffff04ff20ffff04ffff0bff81bfff5cffff02ff2effff04ff02ffff04ffff04ff15ffff04ffff10ff82017fffff11ff8202dfff2b80ff8202ff80ff808080ff8080808080ff808080ff138080ff80808080808080808080ff018080";
+
+/*
+>>> from chia.wallet.cat_wallet.cat_wallet import CAT_MOD_HASH
+>>> CAT_MOD_HASH.hex()
+*/
+const CAT_MOD_HASH = "37bef360ee858133b69d595a906dc45d01af50379dad515eb9518abb7c1d2a7a";
+
+/*
 >>> from chia.wallet.puzzles.singleton_top_layer_v1_1 import SINGLETON_MOD_HASH
 >>> from chia.wallet.puzzles.singleton_top_layer_v1_1 import SINGLETON_LAUNCHER_HASH
 >>> SINGLETON_MOD_HASH.hex()
@@ -359,7 +371,7 @@ function getCATBurnerPuzzle(
   return GreenWeb.util.sexp.curry(
     GreenWeb.util.sexp.fromHex(CAT_BURNER_MOD),
     [
-      GreenWeb.util.sexp.bytesToAtom(GreenWeb.util.sexp.CAT_PROGRAM_MOD_HASH),
+      GreenWeb.util.sexp.bytesToAtom(CAT_MOD_HASH),
       GreenWeb.util.sexp.bytesToAtom(BURN_INNER_PUZZLE_MOD_HASH),
       GreenWeb.util.sexp.bytesToAtom(bridging_puzzle_hash),
       GreenWeb.util.sexp.bytesToAtom(destination_chain),
@@ -406,17 +418,13 @@ function getCATMinterPuzzle(
           getMessageCoinPuzzle1stCurry(portal_receiver_launcher_id)
         )
       ),
-      GreenWeb.util.sexp.bytesToAtom(GreenWeb.util.sexp.CAT_PROGRAM_MOD_HASH),
+      GreenWeb.util.sexp.bytesToAtom(CAT_MOD_HASH), // the one in GreenWeb is CAT v1
       GreenWeb.util.sexp.bytesToAtom(WRAPPED_TAIL_MOD_HASH),
       GreenWeb.util.sexp.bytesToAtom(CAT_MINT_AND_PAYOUT_MOD_HASH),
       GreenWeb.util.sexp.bytesToAtom(
-        GreenWeb.util.sexp.sha256tree(
-          SExp.to(
-            GreenWeb.util.sexp.sha256tree(
-              getCATBurnerPuzzle(bridging_puzzle_hash, source_chain, source)
-            )
-          )
-        )
+        GreenWeb.util.stdHash("01" + GreenWeb.util.sexp.sha256tree(
+          getCATBurnerPuzzle(bridging_puzzle_hash, source_chain, source)
+        )) // sha256 1 CAT_BURNER_PUZZLE_HASH
       ),
       GreenWeb.util.sexp.bytesToAtom(BURN_INNER_PUZZLE_MOD_HASH),
       GreenWeb.util.sexp.bytesToAtom(
@@ -806,7 +814,11 @@ export function mintCATs(
   );
 
   const portalCoinSpend = new GreenWeb.util.serializer.types.CoinSpend();
-  portalCoinSpend.coin = GreenWeb.util.goby.parseGobyCoin(portalCoin)!;
+  portalCoinSpend.coin = GreenWeb.util.goby.parseGobyCoin({
+    amount: 1,
+    parent_coin_info: GreenWeb.util.unhexlify(portalCoin.parent_coin_info),
+    puzzle_hash: GreenWeb.util.unhexlify(portalCoin.puzzle_hash)
+  })!;
   portalCoinSpend.puzzleReveal = portalPuzzle;
   portalCoinSpend.solution = portalSolution;
   coin_spends.push(portalCoinSpend);
@@ -886,10 +898,6 @@ export function mintCATs(
   messageCoinSpend.puzzleReveal = messageCoinPuzzle;
   messageCoinSpend.solution = messageCoinSolution;
   coin_spends.push(messageCoinSpend);
-
-  // issues:
-  // - wrong parent, for some reason
-  // - wrong minterCoin ph, for some reason
 
   /* spend eve CAT coin */
   // todo
