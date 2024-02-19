@@ -12,7 +12,7 @@ import { getCoinRecordByName, getPuzzleAndSolution } from "@/util/rpc";
 export default function Home() {
   const [ethAmount, setEthAmount] = useState('0.003');
   const [xchAddress, setXchAddress] = useState('txch1ak7dup645fr562t2u9rs30d60qh9t89nyxvezwpkd5v29m62z6aqwmmxge');
-  const [ethTxHash, setEthTxHash] = useState('0xd5592ffd15862749f04657a138604cbd1e2d12e6b0c6c0ec8ec56b8c59be9c22');
+  const [ethTxHash, setEthTxHash] = useState('0x5934d816452a09fec6cbdbc35eb9bc0d05b115f3baf06985378bb49a1ac14063');
   const [messageData, setMessageData] = useState({});
   const [coinId, setCoinId] = useState('click button below');
   const [nonces, setNonces] = useState({});
@@ -49,12 +49,13 @@ export default function Home() {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const receipt = await provider.getTransactionReceipt(ethTxHash);
 
-    const eventSignature = ethers.id("MessageSent(bytes32,bytes3,bytes32,bytes32[])");
+    const eventSignature = ethers.id("MessageSent(bytes32,address,bytes3,bytes32,bytes32[])");
     const eventLog = receipt!.logs.filter(log => log.topics[0] === eventSignature)[0];
 
+    console.log({ eventLog });
     const indexedNonce = eventLog.topics[1];
     const decodedData = ethers.AbiCoder.defaultAbiCoder().decode(
-        ["bytes3", "bytes32", "bytes32[]"], // Adjusted for the remaining parameters
+        ["address", "bytes3", "bytes32", "bytes32[]"], // Adjusted for the remaining parameters
         eventLog.data
     );
 
@@ -62,6 +63,7 @@ export default function Home() {
     /* 
     event MessageSent(
         bytes32 indexed nonce,
+        address source,
         bytes3 destination_chain,
         bytes32 destination,
         bytes32[] contents
@@ -69,9 +71,10 @@ export default function Home() {
     */
     setMessageData({
       nonce: indexedNonce,
-      destination_chain: decodedData[0],
-      destination: decodedData[1],
-      contents: decodedData[2]
+      source: decodedData[0],
+      destination_chain: decodedData[1],
+      destination: decodedData[2],
+      contents: decodedData[3]
     })
   };
 
