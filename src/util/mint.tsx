@@ -166,6 +166,7 @@ function getMessageCoinPuzzle(
   destination: string,
   message_hash: string,
 ): GreenWeb.clvm.SExp {
+  console.log({ source, nonce, destination, message_hash})
   return GreenWeb.util.sexp.curry(
     getMessageCoinPuzzle1stCurry(portal_receiver_launcher_id),
     [
@@ -241,7 +242,7 @@ def get_message_coin_solution(
     message_coin_id: bytes32,
 ) -> Program:
     return Program.to([
-      (receiver_coin.parent_coin_info, (receiver_coin.puzzle_hash, receiver_coin.amount)),
+      (receiver_coin.parent_coin_info, receiver_coin.amount),
       (parent_parent_info, parent_inner_puzzle_hash),
       message_coin_id
     ])
@@ -425,12 +426,11 @@ function getCATMinterPuzzle(
       ),
       GreenWeb.util.sexp.bytesToAtom(BURN_INNER_PUZZLE_MOD_HASH),
       GreenWeb.util.sexp.bytesToAtom(
-        GreenWeb.util.sexp.sha256tree(
-          SExp.to(new Tuple<SExp, SExp>(
-            GreenWeb.util.sexp.bytesToAtom(source_chain),
-            GreenWeb.util.sexp.bytesToAtom(source),
-          ))
-        )
+        GreenWeb.util.stdHash(
+          "02" +
+          GreenWeb.util.stdHash("01" + source_chain) +
+          GreenWeb.util.stdHash("01" + source)
+        ),
       )
     ]
   );
@@ -726,7 +726,6 @@ export function mintCATs(
     destination,
     contents
   } = message;
-
   const [ethAssetContract, xchReceiverPh, tokenAmount] = contents;
   const tokenAmountInt: number = parseInt(tokenAmount, 16);
   const offer_sb = offerToSpendBundle(offer);
@@ -855,7 +854,7 @@ export function mintCATs(
   const minterSolution = getCATMinterPuzzleSolution(
     GreenWeb.util.unhexlify(nonce)!,
     contents,
-    xchReceiverPh,
+    minterCoin.puzzleHash,
     GreenWeb.util.coin.getName(minterCoin),
     GreenWeb.util.coin.getName(portalCoinSpend.coin)
   );
