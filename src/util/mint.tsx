@@ -708,6 +708,44 @@ function getCATBurnerPuzzleSolution(
   ]);
 }
 
+function getCATPuzzle(
+  TAILProgramHash: string,
+  innerPuzzle: SExp
+): SExp {
+  return GreenWeb.util.sexp.curry(
+    GreenWeb.util.sexp.fromHex(CAT_MOD),
+    [
+      GreenWeb.util.sexp.bytesToAtom(CAT_MOD_HASH),
+      GreenWeb.util.sexp.bytesToAtom(TAILProgramHash),
+      innerPuzzle
+    ]
+  )
+}
+
+function getCATSolution(
+  innerPuzzleSolution: SExp,
+  lineageProof: SExp | null,
+  prevCoinId: string,
+  thisCoinInfo: any,
+  nextCoinProof: any,
+  prevSubtotal: number,
+  extraDelta: number
+): SExp {
+  return SExp.to([
+    innerPuzzleSolution,
+    lineageProof ?? SExp.FALSE,
+    GreenWeb.util.sexp.bytesToAtom(prevCoinId),
+    GreenWeb.util.coin.toProgram(thisCoinInfo),
+    GreenWeb.util.coin.toProgram(nextCoinProof),
+    GreenWeb.util.sexp.bytesToAtom(
+      GreenWeb.util.coin.amountToBytes(prevSubtotal)
+    ),
+    GreenWeb.util.sexp.bytesToAtom(
+      GreenWeb.util.coin.amountToBytes(extraDelta)
+    ),
+  ])
+}
+
 export function mintCATs(
   message: any,
   portalCoinRecord: any,
@@ -896,7 +934,55 @@ export function mintCATs(
   coin_spends.push(messageCoinSpend);
 
   /* spend eve CAT coin */
-  // todo
+  const wrappedAssetTAIL = getWrappedTAIL(
+    PORTAL_RECEIVER_LAUNCHER_ID,
+    BRIDGING_PUZZLE_HASH,
+    source_chain,
+    GreenWeb.util.unhexlify(source_contract)!,
+    GreenWeb.util.unhexlify(ethAssetContract)!
+  );
+  const wrappedAssetTAILHash = GreenWeb.util.sexp.sha256tree(wrappedAssetTAIL);
+
+  const mintAndPayoutInnerPuzzle = getCATMintAndPayoutInnerPuzzle(
+    xchReceiverPh
+  );
+
+  const eveCATPuzzle = getCATPuzzle(
+    wrappedAssetTAILHash,
+    mintAndPayoutInnerPuzzle
+  )
+  const eveCATPuzzleHash = GreenWeb.util.sexp.sha256tree(eveCATPuzzle);
+
+  const eveCAT = new GreenWeb.Coin();
+  eveCAT.parentCoinInfo = GreenWeb.util.coin.getName(minterCoin);
+  eveCAT.puzzleHash = eveCATPuzzleHash;
+  eveCAT.amount = tokenAmountInt;
+
+  const eveCATInnerSolution = getCATMintAndPayoutInnerPuzzleSolution(
+    wrappedAssetTAIL,
+    tokenAmountInt,
+    minterCoin.parentCoinInfo
+  );
+  const eveCATProof = {
+    parentCoinInfo: eveCAT.parentCoinInfo,
+    puzzleHash: GreenWeb.util.sexp.sha256tree(mintAndPayoutInnerPuzzle), // inner puzzle hash since this is a CAT proof
+    amount: eveCAT.amount
+  }
+  const eveCATSolution = getCATSolution(
+    eveCATInnerSolution,
+    null,
+    GreenWeb.util.coin.getName(eveCAT),
+    eveCAT,
+    eveCATProof,
+    0,
+    tokenAmountInt
+  );
+
+  const eveCATSpend = new GreenWeb.util.serializer.types.CoinSpend();
+  eveCATSpend.coin = eveCAT;
+  eveCATSpend.puzzleReveal = eveCATPuzzle;
+  eveCATSpend.solution = eveCATSolution;
+  coin_spends.push(eveCATSpend);
 
   /* lastly, aggregate sigs  and build spend bundle */
 
