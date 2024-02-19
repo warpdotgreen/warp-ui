@@ -975,7 +975,7 @@ export function mintCATs(
     eveCAT,
     eveCATProof,
     0,
-    tokenAmountInt
+    0
   );
 
   const eveCATSpend = new GreenWeb.util.serializer.types.CoinSpend();
@@ -983,6 +983,13 @@ export function mintCATs(
   eveCATSpend.puzzleReveal = eveCATPuzzle;
   eveCATSpend.solution = eveCATSolution;
   coin_spends.push(eveCATSpend);
+
+  console.log({
+    catInnerPuzzle: GreenWeb.util.sexp.toHex(mintAndPayoutInnerPuzzle),
+    catInnerSolution: GreenWeb.util.sexp.toHex(eveCATInnerSolution),
+    catFullPuzzle: GreenWeb.util.sexp.toHex(eveCATPuzzle),
+    catFullSolution: GreenWeb.util.sexp.toHex(eveCATSolution),
+  })
 
   /* lastly, aggregate sigs  and build spend bundle */
 
