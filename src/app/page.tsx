@@ -12,7 +12,7 @@ import { getCoinRecordByName, getPuzzleAndSolution } from "@/util/rpc";
 export default function Home() {
   const [ethAmount, setEthAmount] = useState('0.003');
   const [xchAddress, setXchAddress] = useState('txch1ak7dup645fr562t2u9rs30d60qh9t89nyxvezwpkd5v29m62z6aqwmmxge');
-  const [ethTxHash, setEthTxHash] = useState('0xc38185970bd77609077f354771d5cac02ab5f2354486c03604101b3de916ebbe');
+  const [ethTxHash, setEthTxHash] = useState('0xebaedca47cd40d7c04948bb9ba48c0e1565dfde986b206b6d95167c9ba4912ea');
   const [messageData, setMessageData] = useState({});
   const [coinId, setCoinId] = useState('click button below');
   const [nonces, setNonces] = useState({});
