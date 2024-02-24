@@ -1,6 +1,6 @@
 import { offerToSpendBundle } from "./offer";
 import * as GreenWeb from 'greenwebjs';
-import { SExp, Tuple, Bytes } from "clvm";
+import { SExp, Tuple, Bytes, getBLSModule, initializeBLS } from "clvm";
 
 /*
 >>> from chia.wallet.trading.offer import OFFER_MOD
@@ -44,7 +44,7 @@ const MESSAGE_COIN_PUZZLE_MOD = "ff02ffff01ff02ff16ffff04ff02ffff04ff05ffff04ff8
 const PORTAL_RECEIVER_LAUNCHER_ID = process.env.NEXT_PUBLIC_PORTAL_LAUNCHER_ID!;
 const BRIDGING_PUZZLE_HASH = process.env.NEXT_PUBLIC_BRIDGING_PUZZLE_HASH!;
 
-const PORTAL_MOD = "ff02ffff01ff02ffff03ff81bfffff01ff02ffff03ffff09ffff02ff2effff04ff02ffff04ff82013fff80808080ff1780ffff01ff02ff82013fff8201bf80ffff01ff088080ff0180ffff01ff04ffff04ff10ffff04ffff02ff12ffff04ff02ffff04ff2fffff04ffff0bffff0101ff2f80ffff04ffff02ff2effff04ff02ffff04ff82017fff80808080ff808080808080ffff01ff01808080ffff02ff16ffff04ff02ffff04ff05ffff04ff0bffff04ff82017fffff04ff8202ffff808080808080808080ff0180ffff04ffff01ffffff3302ffff02ffff03ff05ffff01ff0bff7cffff02ff1affff04ff02ffff04ff09ffff04ffff02ff14ffff04ff02ffff04ff0dff80808080ff808080808080ffff016c80ff0180ffffa04bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459aa09dcf97a184f32623d11a73124ceb99a5709b083721e878a16d78f596718ba7b2ffa102a12871fee210fb8619291eaea194581cbd2531e4b23759d225f6806923f63222a102a8d5dd63fba471ebcb1f3e8f7c1e1879b7152a6e7298a91ce119a63400ade7c5ffffff0bff5cffff02ff1affff04ff02ffff04ff05ffff04ffff02ff14ffff04ff02ffff04ff07ff80808080ff808080808080ff0bff18ffff0bff18ff6cff0580ffff0bff18ff0bff4c8080ffff02ff3effff04ff02ffff04ff09ffff04ff80ffff04ff0dffff04ff818fffff04ffff02ff2effff04ff02ffff04ffff04ff27ffff04ff82014fffff04ff8202cfffff04ff8205cfffff04ff820bcfff808080808080ff80808080ffff04ffff04ffff04ff10ffff04ffff02ff12ffff04ff02ffff04ff0bffff04ffff0bffff0101ff2780ffff04ffff0bffff0102ffff0bffff0101ff82014f80ffff0bffff0101ff8202cf8080ffff04ffff0bffff0101ff8205cf80ffff04ffff0bffff0101ffff02ff2effff04ff02ffff04ff820bcfff8080808080ff8080808080808080ffff01ff80808080ffff02ffff03ff37ffff01ff02ff16ffff04ff02ffff04ff05ffff04ff0bffff04ff37ffff04ff6fff80808080808080ff8080ff018080ff808080808080808080ffff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff2effff04ff02ffff04ff09ff80808080ffff02ff2effff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff02ffff03ff37ffff01ff02ff3effff04ff02ffff04ff05ffff04ffff10ff0bffff06ffff14ff2fffff0102808080ffff04ff37ffff04ffff05ffff14ff2fffff01028080ffff04ff5fffff04ffff02ffff03ffff09ffff06ffff14ff2fffff01028080ff8080ffff0181bfffff01ff04ffff04ffff0132ffff04ff27ffff04ff5fff80808080ff81bf8080ff0180ff808080808080808080ffff01ff02ffff03ffff15ff05ff0b80ffff01ff0880ffff0181bf80ff018080ff0180ff018080";
+const PORTAL_MOD = "ff02ffff01ff02ffff03ff81bfffff01ff02ffff03ffff09ffff02ff2effff04ff02ffff04ff82013fff80808080ff1780ffff01ff02ff82013fff8201bf80ffff01ff088080ff0180ffff01ff04ffff04ff10ffff04ffff02ff12ffff04ff02ffff04ff2fffff04ffff0bffff0101ff2f80ffff04ffff02ff2effff04ff02ffff04ff82017fff80808080ff808080808080ffff01ff01808080ffff02ff16ffff04ff02ffff04ff05ffff04ff0bffff04ff82017fffff04ff8202ffff808080808080808080ff0180ffff04ffff01ffffff3302ffff02ffff03ff05ffff01ff0bff7cffff02ff1affff04ff02ffff04ff09ffff04ffff02ff14ffff04ff02ffff04ff0dff80808080ff808080808080ffff016c80ff0180ffffa04bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459aa09dcf97a184f32623d11a73124ceb99a5709b083721e878a16d78f596718ba7b2ffa102a12871fee210fb8619291eaea194581cbd2531e4b23759d225f6806923f63222a102a8d5dd63fba471ebcb1f3e8f7c1e1879b7152a6e7298a91ce119a63400ade7c5ffffff0bff5cffff02ff1affff04ff02ffff04ff05ffff04ffff02ff14ffff04ff02ffff04ff07ff80808080ff808080808080ff0bff18ffff0bff18ff6cff0580ffff0bff18ff0bff4c8080ffff02ff3effff04ff02ffff04ff09ffff04ff80ffff04ff0dffff04ff818fffff04ffff02ff2effff04ff02ffff04ffff04ff47ffff04ff67ffff04ff82014fffff04ff8202cfffff04ff8205cfff808080808080ff80808080ffff04ffff04ffff04ff10ffff04ffff02ff12ffff04ff02ffff04ff0bffff04ffff0bffff0102ffff0bffff0101ff4780ffff0bffff0101ff678080ffff04ffff0bffff0101ff82014f80ffff04ffff0bffff0101ff8202cf80ffff04ffff0bffff0101ffff02ff2effff04ff02ffff04ff8205cfff8080808080ff8080808080808080ffff01ff80808080ffff02ffff03ff37ffff01ff02ff16ffff04ff02ffff04ff05ffff04ff0bffff04ff37ffff04ff6fff80808080808080ff8080ff018080ff808080808080808080ffff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff2effff04ff02ffff04ff09ff80808080ffff02ff2effff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff02ffff03ff37ffff01ff02ff3effff04ff02ffff04ff05ffff04ffff10ff0bffff06ffff14ff2fffff0102808080ffff04ff37ffff04ffff05ffff14ff2fffff01028080ffff04ff5fffff04ffff02ffff03ffff09ffff06ffff14ff2fffff01028080ff8080ffff0181bfffff01ff04ffff04ffff0132ffff04ff27ffff04ff5fff80808080ff81bf8080ff0180ff808080808080808080ffff01ff02ffff03ffff15ff05ff0b80ffff01ff0880ffff0181bf80ff018080ff0180ff018080";
 const PORTAL_THRESHOLD = 1;
 const PORTAL_KEYS = [
   "a60bffc4d51fa503ea6f12053a956de4cbb27a343453643e07eacddde06e7262e4fcd32653d61a731407a1d7e2d6ab2c",
@@ -69,7 +69,7 @@ const CAT_BURNER_MOD = "ff02ffff01ff02ff2affff04ff02ffff04ff825fffffff04ffff0bff
 >>> from drivers.wrapped_assets import CAT_MINTER_MOD
 >>> bytes(CAT_MINTER_MOD).hex()
 */
-const CAT_MINTER_MOD = "ff02ffff01ff02ff12ffff04ff02ffff04ffff0bffff02ffff03ffff09ffff0dff822fff80ffff012080ffff01822fffffff01ff088080ff0180ffff02ff16ffff04ff02ffff04ff05ffff04ffff0bffff0101ff8202ff80ffff04ff82017fffff04ffff0bffff0101ff820bff80ffff04ffff0bffff0101ffff02ff3effff04ff02ffff04ff8205ffff8080808080ff8080808080808080ff8080ffff04ff8217ffffff04ffff04ffff04ff28ffff04ff8217ffff808080ffff04ffff04ff38ffff04ff820bffff808080ffff04ffff04ff14ffff04ffff02ff16ffff04ff02ffff04ff0bffff04ffff0bffff0101ff0b80ffff04ffff0bffff0101ffff02ff16ffff04ff02ffff04ff17ffff04ffff0bffff0101ff820bff80ffff04ffff0bffff0101ffff02ff16ffff04ff02ffff04ff81bfffff04ff5fffff04ffff0bffff0101ff8209ff80ff80808080808080ff80808080808080ffff04ffff02ff16ffff04ff02ffff04ff2fffff04ffff0bffff0101ff8215ff80ff8080808080ff80808080808080ffff04ff822dffff80808080ff80808080ff808080808080ffff04ffff01ffffff3dff4648ff33ff3c02ffffff04ffff04ff10ffff04ffff0bff05ff0b80ff808080ffff04ffff04ff2cffff04ff05ff808080ff178080ffff02ffff03ff05ffff01ff0bff81faffff02ff2effff04ff02ffff04ff09ffff04ffff02ff2affff04ff02ffff04ff0dff80808080ff808080808080ffff0181da80ff0180ffffa04bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459aa09dcf97a184f32623d11a73124ceb99a5709b083721e878a16d78f596718ba7b2ffa102a12871fee210fb8619291eaea194581cbd2531e4b23759d225f6806923f63222a102a8d5dd63fba471ebcb1f3e8f7c1e1879b7152a6e7298a91ce119a63400ade7c5ffff0bff81baffff02ff2effff04ff02ffff04ff05ffff04ffff02ff2affff04ff02ffff04ff07ff80808080ff808080808080ffff0bff3cffff0bff3cff81daff0580ffff0bff3cff0bff819a8080ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff3effff04ff02ffff04ff09ff80808080ffff02ff3effff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080";
+const CAT_MINTER_MOD = "ff02ffff01ff02ff12ffff04ff02ffff04ffff0bffff02ffff03ffff09ffff0dff825fff80ffff012080ffff01825fffffff01ff088080ff0180ffff02ff16ffff04ff02ffff04ff05ffff04ffff0bffff0102ffff0bffff0101ff82017f80ffff0bffff0101ff8205ff8080ffff04ffff0bffff0101ff8202ff80ffff04ffff0bffff0101ff8217ff80ffff04ffff0bffff0101ffff02ff3effff04ff02ffff04ff820bffff8080808080ff8080808080808080ff8080ffff04ff822fffffff04ffff04ffff04ff28ffff04ff822fffff808080ffff04ffff04ff38ffff04ff8217ffff808080ffff04ffff04ff14ffff04ffff02ff16ffff04ff02ffff04ff0bffff04ffff0bffff0101ff0b80ffff04ffff0bffff0101ffff02ff16ffff04ff02ffff04ff17ffff04ffff0bffff0101ff8217ff80ffff04ffff0bffff0101ffff02ff16ffff04ff02ffff04ff81bfffff04ff5fffff04ffff0bffff0101ff8213ff80ff80808080808080ff80808080808080ffff04ffff02ff16ffff04ff02ffff04ff2fffff04ffff0bffff0101ff822bff80ff8080808080ff80808080808080ffff04ffff12ff825bffffff010180ff80808080ff80808080ff808080808080ffff04ffff01ffffff3dff4648ff33ff3c02ffffff04ffff04ff10ffff04ffff0bff05ff0b80ff808080ffff04ffff04ff2cffff04ff05ff808080ff178080ffff02ffff03ff05ffff01ff0bff81faffff02ff2effff04ff02ffff04ff09ffff04ffff02ff2affff04ff02ffff04ff0dff80808080ff808080808080ffff0181da80ff0180ffffa04bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459aa09dcf97a184f32623d11a73124ceb99a5709b083721e878a16d78f596718ba7b2ffa102a12871fee210fb8619291eaea194581cbd2531e4b23759d225f6806923f63222a102a8d5dd63fba471ebcb1f3e8f7c1e1879b7152a6e7298a91ce119a63400ade7c5ffff0bff81baffff02ff2effff04ff02ffff04ff05ffff04ffff02ff2affff04ff02ffff04ff07ff80808080ff808080808080ffff0bff3cffff0bff3cff81daff0580ffff0bff3cff0bff819a8080ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff3effff04ff02ffff04ff09ff80808080ffff02ff3effff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080";
 
 /*
 >>> from drivers.wrapped_assets import CAT_MINT_AND_PAYOUT_MOD, CAT_MINT_AND_PAYOUT_MOD_HASH
@@ -152,8 +152,8 @@ def get_message_coin_puzzle(
     message_hash: bytes32,
 ) -> Program:
   return get_message_coin_puzzle_1st_curry(portal_receiver_launcher_id).curry(
-    nonce,
-    (source_chain, source),
+    (source_chain, nonce),
+    source,
     destination,
     message_hash
   )
@@ -166,15 +166,14 @@ function getMessageCoinPuzzle(
   destination: string,
   message_hash: string,
 ): GreenWeb.clvm.SExp {
-  console.log({ source, nonce, destination, message_hash})
   return GreenWeb.util.sexp.curry(
     getMessageCoinPuzzle1stCurry(portal_receiver_launcher_id),
     [
-      GreenWeb.util.sexp.bytesToAtom(nonce),
       SExp.to(new Tuple<SExp, SExp>(
           GreenWeb.util.sexp.bytesToAtom(source_chain),
-          GreenWeb.util.sexp.bytesToAtom(source),
+          GreenWeb.util.sexp.bytesToAtom(nonce),
       )),
+      GreenWeb.util.sexp.bytesToAtom(source),
       GreenWeb.util.sexp.bytesToAtom(destination),
       GreenWeb.util.sexp.bytesToAtom(message_hash)
     ]
@@ -187,7 +186,7 @@ def get_portal_receiver_inner_puzzle(
       signature_treshold: int,
       signature_pubkeys: list[G1Element],
       update_puzzle_hash: bytes32,
-      last_nonces: List[int] = [],
+      last_chains_and_nonces: List[Tuple[bytes, int]] = [],
 ) -> Program:
     first_curry = PORTAL_RECEIVER_MOD.curry(
        (signature_treshold, signature_pubkeys), # VALIDATOR_INFO
@@ -205,7 +204,7 @@ function getPortalReceiverInnerPuzzle(
   signature_treshold: number,
   signature_pubkeys: string[],
   update_puzzle_hash: string,
-  last_nonces: string[] = [],
+  last_chains_and_nonces: [string, string][] = [],
 ): GreenWeb.clvm.SExp {
   const first_curry = GreenWeb.util.sexp.curry(
     GreenWeb.util.sexp.fromHex(PORTAL_MOD),
@@ -229,7 +228,10 @@ function getPortalReceiverInnerPuzzle(
       GreenWeb.util.sexp.bytesToAtom(
         GreenWeb.util.sexp.sha256tree(first_curry)
       ),
-      SExp.to(last_nonces.map((nonce) => GreenWeb.util.sexp.bytesToAtom(nonce)))
+      SExp.to(last_chains_and_nonces.map((chain_and_nonce) => new Tuple<SExp, SExp>(
+          GreenWeb.util.sexp.bytesToAtom(chain_and_nonce[0]),
+          GreenWeb.util.sexp.bytesToAtom(chain_and_nonce[1]),
+      )))
     ]
   );
 }
@@ -292,11 +294,10 @@ def get_portal_receiver_inner_solution(
 ) -> Program:
     return Program.to([
        0 if update_puzzle_reveal is None or update_puzzle_solution is None else (update_puzzle_reveal, update_puzzle_solution),
-       [messages.nonce for messages in messages],
+       [(message.source_chain, message.nonce) for message in messages],
        [
           [
             get_sigs_switch(msg.validator_sig_switches),
-            msg.source_chain,
             msg.source,
             msg.destination,
             msg.message
@@ -315,7 +316,12 @@ function getPortalReceiverInnerSolution(
 ): GreenWeb.clvm.SExp {
   return SExp.to([
     0,
-    [GreenWeb.util.sexp.bytesToAtom(nonce)],
+    [
+      new Tuple<SExp, SExp>(
+        GreenWeb.util.sexp.bytesToAtom(source_chain),
+        GreenWeb.util.sexp.bytesToAtom(nonce),
+      ),
+    ],
     [
       [
         GreenWeb.util.sexp.bytesToAtom(
@@ -323,7 +329,6 @@ function getPortalReceiverInnerSolution(
             getSigsSwitch(validator_sig_switches)
           )
         ),
-        GreenWeb.util.sexp.bytesToAtom(source_chain),
         GreenWeb.util.sexp.bytesToAtom(source),
         GreenWeb.util.sexp.bytesToAtom(destination),
         contents.map(contentPart => GreenWeb.util.sexp.bytesToAtom(contentPart))
@@ -395,11 +400,8 @@ def get_cat_minter_puzzle(
       get_cat_burner_puzzle(bridging_puzzle_hash, source_chain, source).get_tree_hash()
     ]), # CAT_BURNER_PUZZLE_HASH_HASH = (sha256 1 CAT_BURNER_PUZZLE_HASH_HASH)
     BURN_INNER_PUZZLE_MOD_HASH,
-    raw_hash([
-      b'\x02',
-      raw_hash([b'\x01', source_chain]),
-      raw_hash([b'\x01', source]),
-    ]), # SOURCE_STUFF_HASH
+    source_chain,
+    source
   )
 */
 function getCATMinterPuzzle(
@@ -425,13 +427,8 @@ function getCATMinterPuzzle(
         )) // sha256 1 CAT_BURNER_PUZZLE_HASH
       ),
       GreenWeb.util.sexp.bytesToAtom(BURN_INNER_PUZZLE_MOD_HASH),
-      GreenWeb.util.sexp.bytesToAtom(
-        GreenWeb.util.stdHash(
-          "02" +
-          GreenWeb.util.stdHash("01" + source_chain) +
-          GreenWeb.util.stdHash("01" + source)
-        ),
-      )
+      GreenWeb.util.sexp.bytesToAtom(source_chain),
+      GreenWeb.util.sexp.bytesToAtom(source),
     ]
   );
 }
@@ -751,7 +748,7 @@ export function mintCATs(
   portalCoinRecord: any,
   portalParentSpend: any,
   nonces: any,
-  nonces_used_last_spend: string[],
+  nonces_used_last_spend: [string, string][],
   offer: string,
   sigs: string[],
   sig_switches: boolean[],
@@ -795,10 +792,8 @@ export function mintCATs(
 
   /* beign building spend bundle */
   var coin_spends = offer_sb.coinSpends;
-  var sigs = [
-    offer_sb.aggregatedSignature
-  ];
-
+  sigs.push(offer_sb.aggregatedSignature);
+  
   /* spend portal to create message */
   const portalCoin = portalCoinRecord.coin;
 
@@ -955,6 +950,7 @@ export function mintCATs(
 
   const eveCAT = new GreenWeb.Coin();
   eveCAT.parentCoinInfo = GreenWeb.util.coin.getName(minterCoin);
+  console.log({ minterCoin })
   eveCAT.puzzleHash = eveCATPuzzleHash;
   eveCAT.amount = tokenAmountInt;
 
@@ -984,17 +980,18 @@ export function mintCATs(
   eveCATSpend.solution = eveCATSolution;
   coin_spends.push(eveCATSpend);
 
-  console.log({
-    catInnerPuzzle: GreenWeb.util.sexp.toHex(mintAndPayoutInnerPuzzle),
-    catInnerSolution: GreenWeb.util.sexp.toHex(eveCATInnerSolution),
-    catFullPuzzle: GreenWeb.util.sexp.toHex(eveCATPuzzle),
-    catFullSolution: GreenWeb.util.sexp.toHex(eveCATSolution),
-  })
-
   /* lastly, aggregate sigs  and build spend bundle */
 
-  const sb = new GreenWeb.util.serializer.types.SpendBundle();
-  sb.coinSpends = coin_spends;
-  sb.aggregatedSignature = sigs[0]; // todo
-  console.log( sbToString(sb) );
+  initializeBLS().then(() => {
+    const { AugSchemeMPL, G2Element } = getBLSModule();
+
+    const sb = new GreenWeb.util.serializer.types.SpendBundle();
+    sb.coinSpends = coin_spends;
+    sb.aggregatedSignature = Buffer.from(
+      AugSchemeMPL.aggregate(
+        sigs.map((sig) => G2Element.from_bytes(Buffer.from(sig, "hex")))
+      ).serialize()
+    ).toString("hex");
+    console.log( sbToString(sb) );
+  });
 }

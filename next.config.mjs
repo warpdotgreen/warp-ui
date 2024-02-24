@@ -7,6 +7,14 @@ const nextConfig = {
     }
     return config;
   },
+  async rewrites() {
+    return [
+      {
+        source: '/_next/static/chunks/app/blsjs.wasm',
+        destination: '/blsjs.wasm',
+      },
+    ]
+  },
 };
 
 export default nextConfig;

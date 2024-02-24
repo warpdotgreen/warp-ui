@@ -10,9 +10,9 @@ import { mintCATs } from "@/util/mint";
 import { getCoinRecordByName, getPuzzleAndSolution } from "@/util/rpc";
 
 export default function Home() {
-  const [ethAmount, setEthAmount] = useState('0.003');
+  const [ethAmount, setEthAmount] = useState('0.007');
   const [xchAddress, setXchAddress] = useState('txch1ak7dup645fr562t2u9rs30d60qh9t89nyxvezwpkd5v29m62z6aqwmmxge');
-  const [ethTxHash, setEthTxHash] = useState('0x5934d816452a09fec6cbdbc35eb9bc0d05b115f3baf06985378bb49a1ac14063');
+  const [ethTxHash, setEthTxHash] = useState('');
   const [messageData, setMessageData] = useState({});
   const [coinId, setCoinId] = useState('click button below');
   const [nonces, setNonces] = useState({});
