@@ -1,4 +1,4 @@
-import { offerToSpendBundle } from "./offer";
+import { hexStringToUint8Array, offerToSpendBundle, uint8ArrayToHexString } from "./offer";
 import * as GreenWeb from 'greenwebjs';
 import { SExp, Tuple, Bytes, getBLSModule, initializeBLS } from "clvm";
 import { decodeSignature } from "./sig";
@@ -707,8 +707,10 @@ function getCATBurnerPuzzleSolution(
     GreenWeb.util.sexp.bytesToAtom(
       GreenWeb.util.coin.amountToBytes(my_coin.amount)
     ),
-    GreenWeb.util.sexp.bytesToAtom(my_coin.puzzle_hash),
-    GreenWeb.util.sexp.bytesToAtom(my_coin.name())
+    GreenWeb.util.sexp.bytesToAtom(my_coin.puzzleHash),
+    GreenWeb.util.sexp.bytesToAtom(
+      GreenWeb.util.coin.getName(my_coin)
+    )
   ]);
 }
 
@@ -762,7 +764,6 @@ export function mintCATs(
   source_chain: string,
   source_contract: string,
 ) {
-  console.log({ chains_and_nonces_used_last_spend })
   const {
     nonce,
     destination_chain,
@@ -946,7 +947,6 @@ export function mintCATs(
     GreenWeb.util.unhexlify(ethAssetContract)!
   );
   const wrappedAssetTAILHash = GreenWeb.util.sexp.sha256tree(wrappedAssetTAIL);
-  console.log({ wrappedAssetTAILHash });
 
   const mintAndPayoutInnerPuzzle = getCATMintAndPayoutInnerPuzzle(
     xchReceiverPh
@@ -1078,7 +1078,7 @@ export function getBurnSendFullPuzzleHash(
   );
   const wrappedTAILHash = GreenWeb.util.sexp.sha256tree(wrappedTAIL);
 
-  console.log({ wrappedTAILHash });
+  console.log({ wrappedTAILHash, destination });
 
   const fullPuzzle = getCATPuzzle(
     wrappedTAILHash,
@@ -1088,10 +1088,236 @@ export function getBurnSendFullPuzzleHash(
   return GreenWeb.util.sexp.sha256tree(fullPuzzle);
 }
 
-export function burnCATs(
+export async function burnCATs(
   burnSendCoinParentInfo: string,
+  burnSendCoinAmount: number,
+  burnSendCoinParentSpend: any,
+  offer: string,
+  destination_chain: string,
+  token_contract_address: string,
+  eth_target_address: string
 ) {
-  alert('todo after dinner');
+  token_contract_address = GreenWeb.util.unhexlify(token_contract_address)!;
+  token_contract_address = "0".repeat(64 - token_contract_address.length) + token_contract_address;
+  burnSendCoinParentInfo = GreenWeb.util.unhexlify(burnSendCoinParentInfo)!;
+
+  const offer_sb = offerToSpendBundle(offer);
+
+  /* find source coin = coin with OFFER_MOD that will create CAT minter */
+  var source_coin = new GreenWeb.Coin();
+  source_coin.amount = Math.max(1, BRIDGING_FEE_MOJOS - burnSendCoinAmount);
+
+  const sourceCoinAmountHex = GreenWeb.util.coin.amountToBytes(source_coin.amount);
+
+  for(var i = 0; i < offer_sb.coinSpends.length; ++i) {
+    const coinSpend = offer_sb.coinSpends[i];
+
+    var [_, conditionsDict, __] = GreenWeb.util.sexp.conditionsDictForSolution(
+      coinSpend.puzzleReveal,
+      coinSpend.solution,
+      GreenWeb.util.sexp.MAX_BLOCK_COST_CLVM
+    );
+    var createCoinConds = conditionsDict!.get("33") ?? [];
+
+    for(var j = 0; j < createCoinConds.length; ++j) {
+      const cond = createCoinConds[j];
+
+      if(cond.vars[0] === OFFER_MOD_HASH && cond.vars[1] === sourceCoinAmountHex) {
+        source_coin.parentCoinInfo = GreenWeb.util.coin.getName(coinSpend.coin);
+        source_coin.puzzleHash = OFFER_MOD_HASH;
+        break;
+      }
+    }
+  }
+
+  /* beign building spend bundle */
+  var coin_spends = offer_sb.coinSpends;
+  const sigs: string[] = [
+    offer_sb.aggregatedSignature
+  ];
+
+  /* security coin adds a sig to this bundle so bundle_agg_sig != offer_agg_sig */
+  /* it comes between the offer coin and the CAT burner coin */
+
+  // https://gist.github.com/Yakuhito/d0e5bc4218138fcb183dfef4aaf3edd2
+  const tempSeed = require('crypto').randomBytes(32).toString('hex');
+  const mnemonic = GreenWeb.util.key.mnemonic.bytesToMnemonic(tempSeed);
+
+  const tempSk = GreenWeb.util.key.mnemonic.privateKeyFromMnemonic(mnemonic);
+  const tempPk = tempSk.get_g1();
+
+  const securityCoinPuzzle = GreenWeb.util.sexp.standardCoinPuzzle(tempPk);
+  const securityCoinPuzzleHash = GreenWeb.util.sexp.sha256tree(securityCoinPuzzle);
+
+  const securityCoin = new GreenWeb.Coin();
+  securityCoin.parentCoinInfo = GreenWeb.util.coin.getName(source_coin);
+  securityCoin.puzzleHash = securityCoinPuzzleHash;
+  securityCoin.amount = BRIDGING_FEE_MOJOS;
+
+  /* spend source coin = offer coin */
+
+  const sourceCoinSolution = SExp.to([
+    [
+      GreenWeb.util.sexp.bytesToAtom(
+        GreenWeb.util.coin.getName(source_coin)
+      ),
+      [
+        GreenWeb.util.sexp.bytesToAtom(securityCoinPuzzleHash),
+        BRIDGING_FEE_MOJOS
+      ]
+    ],
+  ])
+
+  const sourceCoinSpend = new GreenWeb.util.serializer.types.CoinSpend();
+  sourceCoinSpend.coin = source_coin;
+  sourceCoinSpend.puzzleReveal = GreenWeb.util.sexp.fromHex(OFFER_MOD);
+  sourceCoinSpend.solution = sourceCoinSolution;
   
-  return {}
+  coin_spends.push(sourceCoinSpend);
+
+  /* spend CAT burner */
+  const catBurnerPuzzle = getCATBurnerPuzzle(
+    BRIDGING_PUZZLE_HASH,
+    destination_chain,
+    BRIDGE_CONTRACT_ADDRESS.slice(2)
+  );
+  const catBurnerCoin = new GreenWeb.Coin();
+  catBurnerCoin.parentCoinInfo = GreenWeb.util.coin.getName(securityCoin);
+  catBurnerCoin.puzzleHash = GreenWeb.util.sexp.sha256tree(catBurnerPuzzle);
+  catBurnerCoin.amount = BRIDGING_FEE_MOJOS;
+
+  const wrappedTAIL = getWrappedTAIL(
+    PORTAL_RECEIVER_LAUNCHER_ID,
+    BRIDGING_PUZZLE_HASH,
+    destination_chain,
+    BRIDGE_CONTRACT_ADDRESS.slice(2),
+    token_contract_address
+  );
+  const wrappedTAILHash = GreenWeb.util.sexp.sha256tree(wrappedTAIL);
+  console.log({ wrappedTAILHash, token_contract_address });
+
+  const burnInnerPuzzle = getCATBurnInnerPuzzle(
+    BRIDGING_PUZZLE_HASH,
+    destination_chain,
+    BRIDGE_CONTRACT_ADDRESS.slice(2),
+    token_contract_address,
+    eth_target_address.slice(2),
+    BRIDGING_FEE_MOJOS
+  );
+  const burnCoinFullPuzzle = getCATPuzzle(
+    wrappedTAILHash,
+    burnInnerPuzzle
+  );
+
+  const userCatCoin = new GreenWeb.Coin();
+  userCatCoin.parentCoinInfo = burnSendCoinParentInfo;
+  userCatCoin.puzzleHash = GreenWeb.util.sexp.sha256tree(burnCoinFullPuzzle);
+  userCatCoin.amount = burnSendCoinAmount;
+
+  const catBurnerSolution = getCATBurnerPuzzleSolution(
+    userCatCoin.parentCoinInfo,
+    wrappedTAILHash,
+    userCatCoin.amount,
+    token_contract_address,
+    eth_target_address,
+    catBurnerCoin
+  );
+
+  const catBurnerSpend = new GreenWeb.util.serializer.types.CoinSpend();
+  catBurnerSpend.coin = catBurnerCoin;
+  catBurnerSpend.puzzleReveal = catBurnerPuzzle;
+  catBurnerSpend.solution = catBurnerSolution;
+
+  coin_spends.push(catBurnerSpend);
+  
+  /* spend security coin */
+  const securityCoinInnerConds = [
+    GreenWeb.spend.createCoinCondition(catBurnerCoin.puzzleHash, catBurnerCoin.amount),
+    SExp.to([
+        GreenWeb.util.sexp.bytesToAtom("40"), // ASSERT_CONCURRENT_SPEND
+        GreenWeb.util.sexp.bytesToAtom(
+          GreenWeb.util.coin.getName(catBurnerCoin)
+        ),
+    ])
+  ];
+  const securityCoinSolution = GreenWeb.util.sexp.standardCoinSolution(
+    securityCoinInnerConds
+  );
+
+  const securityCoinSpend = new GreenWeb.util.serializer.types.CoinSpend();
+  securityCoinSpend.coin = securityCoin;
+  securityCoinSpend.puzzleReveal = securityCoinPuzzle;
+  securityCoinSpend.solution = securityCoinSolution;
+  
+  coin_spends.push(securityCoinSpend);
+
+  /* spend CAT coin */
+  const burnInnerSolution = getBurnInnerPuzzleSolution(
+    catBurnerCoin.parentCoinInfo,
+    GreenWeb.util.coin.getName(userCatCoin),
+    wrappedTAIL
+  );
+
+  const burnCoinParentPuzzle = GreenWeb.util.sexp.fromHex(
+    GreenWeb.util.unhexlify(burnSendCoinParentSpend.puzzle_reveal)!
+  );
+  const [___, args] = GreenWeb.util.sexp.uncurry(burnCoinParentPuzzle)!;
+  const burnCoinParentInnerPuzzle = args[2];
+  console.log({ burnCoinParentInnerPuzzle: GreenWeb.util.sexp.toHex(burnCoinParentInnerPuzzle) })
+
+  const burnCoinLineageProof = new GreenWeb.Coin();
+  burnCoinLineageProof.parentCoinInfo = burnSendCoinParentSpend.coin.parent_coin_info;
+  burnCoinLineageProof.puzzleHash = GreenWeb.util.sexp.sha256tree(burnCoinParentInnerPuzzle); // inner ph
+  burnCoinLineageProof.amount = burnSendCoinParentSpend.coin.amount;
+
+  console.log({ userCatCoin })
+  const burnCoinSolution = getCATSolution(
+    burnInnerSolution,
+    GreenWeb.util.coin.toProgram(burnCoinLineageProof),
+    GreenWeb.util.coin.getName(userCatCoin),
+    userCatCoin,
+    {
+      parentCoinInfo: userCatCoin.parentCoinInfo,
+      puzzleHash: GreenWeb.util.sexp.sha256tree(burnInnerPuzzle),
+      amount: userCatCoin.amount
+    }, // next coin proof
+    0,
+    -userCatCoin.amount
+  )
+
+  const burnCoinSpend = new GreenWeb.util.serializer.types.CoinSpend();
+  burnCoinSpend.coin = userCatCoin;
+  burnCoinSpend.puzzleReveal = burnCoinFullPuzzle;
+  burnCoinSpend.solution = burnCoinSolution;
+
+  coin_spends.push(burnCoinSpend);
+
+  /* lastly, aggregate sigs and build spend bundle */
+
+  const { AugSchemeMPL, G2Element } = getBLSModule();
+
+  // (list AGG_SIG_ME SYNTHETIC_PUBLIC_KEY (sha256tree1 delegated_puzzle))
+  const securityDelegatedPuzzle = GreenWeb.util.sexp.run(
+      GreenWeb.util.sexp.P2_CONDITIONS_PROGRAM,
+      SExp.to([
+          SExp.to(securityCoinInnerConds),
+      ])
+  );
+  const securityDelegatedPuzzleHash = GreenWeb.util.sexp.sha256tree(securityDelegatedPuzzle);
+  const dataToSign = securityDelegatedPuzzleHash + GreenWeb.util.coin.getName(securityCoin) + process.env.NEXT_PUBLIC_AGG_SIG_ADDITIONAL_DATA!;
+  const securityCoinSigRaw = AugSchemeMPL.sign(tempSk, hexStringToUint8Array(dataToSign));
+  const securityCoinSig = Buffer.from(
+    securityCoinSigRaw.serialize()
+  ).toString("hex");
+  sigs.push(securityCoinSig);
+
+  const sb = new GreenWeb.util.serializer.types.SpendBundle();
+  sb.coinSpends = coin_spends;
+  sb.aggregatedSignature = Buffer.from(
+    AugSchemeMPL.aggregate(
+      sigs.map((sig) => G2Element.from_bytes(Buffer.from(sig, "hex")))
+    ).serialize()
+  ).toString("hex");
+
+  return sb;
 }
