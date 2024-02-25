@@ -2,6 +2,7 @@ import { offerToSpendBundle } from "./offer";
 import * as GreenWeb from 'greenwebjs';
 import { SExp, Tuple, Bytes, getBLSModule, initializeBLS } from "clvm";
 import { decodeSignature } from "./sig";
+import { BRIDGE_CONTRACT_ADDRESS } from "./bridge";
 
 /*
 >>> from chia.wallet.trading.offer import OFFER_MOD
@@ -1030,6 +1031,9 @@ export function getBurnSendAddress(
   target_receiver: string,
   prefix: string = "xch"
 ) {
+  source_chain_token_contract_address = GreenWeb.util.unhexlify(source_chain_token_contract_address)!;
+  source_chain_token_contract_address = "0".repeat(64 - source_chain_token_contract_address.length) + source_chain_token_contract_address;
+
   const burnInnerPuzzle = getCATBurnInnerPuzzle(
     BRIDGING_PUZZLE_HASH,
     destination_chain,
@@ -1045,4 +1049,49 @@ export function getBurnSendAddress(
     burnInnerPuzzleHash,
     prefix
   );
+}
+
+export function getBurnSendFullPuzzleHash(
+  destination_chain: string,
+  destination: string,
+  source_chain_token_contract_address: string,
+  target_receiver: string,
+): string {
+  source_chain_token_contract_address = GreenWeb.util.unhexlify(source_chain_token_contract_address)!;
+  source_chain_token_contract_address = "0".repeat(64 - source_chain_token_contract_address.length) + source_chain_token_contract_address;
+
+  const burnInnerPuzzle = getCATBurnInnerPuzzle(
+    BRIDGING_PUZZLE_HASH,
+    destination_chain,
+    destination,
+    source_chain_token_contract_address,
+    target_receiver,
+    BRIDGING_FEE_MOJOS
+  );
+
+  const wrappedTAIL = getWrappedTAIL(
+    PORTAL_RECEIVER_LAUNCHER_ID,
+    BRIDGING_PUZZLE_HASH,
+    destination_chain,
+    destination,
+    source_chain_token_contract_address
+  );
+  const wrappedTAILHash = GreenWeb.util.sexp.sha256tree(wrappedTAIL);
+
+  console.log({ wrappedTAILHash });
+
+  const fullPuzzle = getCATPuzzle(
+    wrappedTAILHash,
+    burnInnerPuzzle
+  );
+
+  return GreenWeb.util.sexp.sha256tree(fullPuzzle);
+}
+
+export function burnCATs(
+  burnSendCoinParentInfo: string,
+) {
+  alert('todo after dinner');
+  
+  return {}
 }

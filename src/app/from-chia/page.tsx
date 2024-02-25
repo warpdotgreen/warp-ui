@@ -1,8 +1,10 @@
 "use client";
-import { BRIDGING_FEE_MOJOS, getBurnSendAddress, sbToString } from "@/util/driver";
-import { pushTx } from "@/util/rpc";
+import { BRIDGING_FEE_MOJOS, burnCATs, getBurnSendAddress, getBurnSendFullPuzzleHash, sbToString } from "@/util/driver";
+import { getCoinRecordsByPuzzleHash, pushTx } from "@/util/rpc";
 import { ethers } from "ethers";
 import { useState } from "react";
+import * as GreenWeb from 'greenwebjs';
+import Link from "next/link";
 
 export default function FromChia() {
   const [ethAddress, setEthAddress] = useState("0x113f132a978B7679Aa72c02B0234a32569507043");
@@ -27,12 +29,34 @@ export default function FromChia() {
   const offerAmount = BRIDGING_FEE_MOJOS - Math.ceil(parseFloat(tokenAmountStr) * 1000);
 
   const createSpendBundle = async () => {
-    alert("Create sb!")
+    const puzzleHash = getBurnSendFullPuzzleHash(
+      "657468", // eth
+      process.env.NEXT_PUBLIC_BRIDGE_ADDRESS!.slice(2),
+      ethTokenAddress,
+      ethAddress
+    );
+
+    const coinRecords = await getCoinRecordsByPuzzleHash(puzzleHash);
+    if(coinRecords.length > 1) {
+      alert("Multiple records found, using first one - make sure ammount is correct.")
+    }
+    const coinRecord = coinRecords[0];
+
+    const burnSendCoinParent = coinRecord.coin.parent_coin_info;
+
+    const sb = burnCATs(
+      burnSendCoinParent
+    );
+
+    setSb(sb);
   }
 
   return (
     <main className="flex min-h-screen flex-col items-center pr-48 pl-48 pt-16 pb-8">
       <div className="flex flex-col space-y-4 w-full pb-16">
+        <p className="text-blue-600 underline left">
+          <Link href="/">Back</Link>
+        </p>
         <label className="text-lg font-semibold">1. Send wrapped tokens to address</label>
         <p>ETH Address:</p>
         <input

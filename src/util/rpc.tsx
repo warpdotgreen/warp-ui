@@ -37,3 +37,17 @@ export async function pushTx(sb: any): Promise<any> {
   const j = await res.json();
   return j;
 }
+
+export async function getCoinRecordsByPuzzleHash(
+  puzzleHash: string,
+): Promise<any> {
+  const res = await fetch(`${RPC_BASE_URL}/get_coin_records_by_puzzle_hash`, {
+    method: "POST",
+    body: JSON.stringify({ puzzle_hash: puzzleHash }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const j = await res.json();
+  return j.coin_records;
+}
