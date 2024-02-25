@@ -1,6 +1,7 @@
 import { offerToSpendBundle } from "./offer";
 import * as GreenWeb from 'greenwebjs';
 import { SExp, Tuple, Bytes, getBLSModule, initializeBLS } from "clvm";
+import { decodeSignature } from "./sig";
 
 /*
 >>> from chia.wallet.trading.offer import OFFER_MOD
@@ -96,9 +97,8 @@ const BURN_INNER_PUZZLE_MOD = "ff02ffff01ff04ffff04ff0cffff04ff81bfff808080ffff0
 const BURN_INNER_PUZZLE_MOD_HASH = "69b9ac68db61a9941ff537cbb69158a7e1015ad44c42cff905159909cd8e1f90";
                                     // nice
 
-// allows debugging via mixch.dev
-function sbToString(sb: any): string {
-  return JSON.stringify({
+export function sbToJSON(sb: any): any {
+  return {
     coin_spends: sb.coinSpends.map((coinSpend: any) => ({
       coin: {
         parent_coin_info: "0x" + coinSpend.coin.parentCoinInfo.replace("0x", ""),
@@ -109,7 +109,12 @@ function sbToString(sb: any): string {
       solution: GreenWeb.util.sexp.toHex(coinSpend.solution)
     })),
     aggregated_signature: sb.aggregatedSignature
-  });
+  };
+}
+
+// allows debugging via mixch.dev
+export function sbToString(sb: any): any {
+  return JSON.stringify(sbToJSON(sb));
 
 }
 
@@ -748,13 +753,14 @@ export function mintCATs(
   portalCoinRecord: any,
   portalParentSpend: any,
   nonces: any,
-  nonces_used_last_spend: [string, string][],
+  chains_and_nonces_used_last_spend: [string, string][],
   offer: string,
-  sigs: string[],
+  sig_strings: string[],
   sig_switches: boolean[],
   source_chain: string,
   source_contract: string,
 ) {
+  console.log({ chains_and_nonces_used_last_spend })
   const {
     nonce,
     destination_chain,
@@ -792,6 +798,7 @@ export function mintCATs(
 
   /* beign building spend bundle */
   var coin_spends = offer_sb.coinSpends;
+  const sigs: string[] = [];
   sigs.push(offer_sb.aggregatedSignature);
   
   /* spend portal to create message */
@@ -806,7 +813,7 @@ export function mintCATs(
     PORTAL_THRESHOLD,
     PORTAL_KEYS,
     GreenWeb.util.sexp.sha256tree(updatePuzzle),
-    nonces_used_last_spend
+    chains_and_nonces_used_last_spend
   );
   const portalPuzzle = GreenWeb.util.sexp.singletonPuzzle(PORTAL_RECEIVER_LAUNCHER_ID, portalInnerPuzzle);
 
@@ -983,18 +990,34 @@ export function mintCATs(
 
   /* lastly, aggregate sigs  and build spend bundle */
 
-  initializeBLS().then(() => {
-    const { AugSchemeMPL, G2Element } = getBLSModule();
-
-    console.log({ sigs })
-
-    const sb = new GreenWeb.util.serializer.types.SpendBundle();
-    sb.coinSpends = coin_spends;
-    sb.aggregatedSignature = Buffer.from(
-      AugSchemeMPL.aggregate(
-        sigs.map((sig) => G2Element.from_bytes(Buffer.from(sig, "hex")))
-      ).serialize()
-    ).toString("hex");
-    console.log( sbToString(sb) );
+  sig_strings.map((sig_string) => {
+    var [
+      origin_chain,
+      destination_chain,
+      nonce,
+      coin_id,
+      sig
+    ] = decodeSignature(sig_string);
+    console.log({origin_chain,
+      destination_chain,
+      nonce,
+      coin_id,
+      sig
+    });
+    sigs.push(sig);
   });
+
+  const { AugSchemeMPL, G2Element } = getBLSModule();
+  console.log({ sigs })
+
+  const sb = new GreenWeb.util.serializer.types.SpendBundle();
+  sb.coinSpends = coin_spends;
+  sb.aggregatedSignature = Buffer.from(
+    AugSchemeMPL.aggregate(
+      sigs.map((sig) => G2Element.from_bytes(Buffer.from(sig, "hex")))
+    ).serialize()
+  ).toString("hex");
+  // console.log( sbToString(sb) );
+
+  return sb;
 }

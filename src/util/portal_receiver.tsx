@@ -6,11 +6,13 @@ const LATEST_PORTAL_STATE_KEY = "latest-portal-data";
 
 export async function findLatestPortalState() {
   console.log({ loc: "findLatestPortalState" }); // todo: debug
-  let {coinId, nonces} = JSON.parse(window.localStorage.getItem(LATEST_PORTAL_STATE_KEY) ?? "{}")
+  let {coinId, nonces, lastUsedChainAndNonces} = JSON.parse(window.localStorage.getItem(LATEST_PORTAL_STATE_KEY) ?? "{}")
   nonces = nonces ?? {};
   coinId = coinId ?? process.env.NEXT_PUBLIC_PORTAL_BOOTSTRAP_COIN_ID;
+  lastUsedChainAndNonces = lastUsedChainAndNonces ?? []
   
   var coinRecord = await getCoinRecordByName(coinId);
+  var last_used_nonces = {};
 
   while(coinRecord.spent) {
     const puzzleAndSolution = await getPuzzleAndSolution(coinId, coinRecord.spent_block_index);
@@ -44,12 +46,15 @@ export async function findLatestPortalState() {
         )
       );
 
+      lastUsedChainAndNonces = []
       for(var i = 0; i < usedChainsAndNonces.length; i++) {
         const chainAndNonce = GreenWeb.util.sexp.fromHex(
           usedChainsAndNonces[i]
         );
         const chain = (chainAndNonce.first().as_javascript() as Bytes).hex();
         const nonce = (chainAndNonce.rest().as_javascript() as Bytes).hex();
+
+        lastUsedChainAndNonces.push([chain, nonce]);
         
         if(nonces[chain] === undefined) {
           nonces[chain] = {};
@@ -67,10 +72,11 @@ export async function findLatestPortalState() {
     coinRecord = await getCoinRecordByName(coinId);
   }
 
-  window.localStorage.setItem(LATEST_PORTAL_STATE_KEY, JSON.stringify({coinId, nonces}))
+  window.localStorage.setItem(LATEST_PORTAL_STATE_KEY, JSON.stringify({coinId, nonces, lastUsedChainAndNonces}))
 
   return {
     coinId,
-    nonces
+    nonces,
+    lastUsedChainAndNonces
   };
 }

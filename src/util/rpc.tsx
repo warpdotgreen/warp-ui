@@ -1,3 +1,5 @@
+import { sbToJSON } from "./mint";
+
 const RPC_BASE_URL = process.env.NEXT_PUBLIC_RPC_BASE_URL;
 
 export async function getCoinRecordByName(coinName: string) {
@@ -22,4 +24,16 @@ export async function getPuzzleAndSolution(coinId: string, spentBlockIndex: numb
   });
   const j = await res.json();
   return j.coin_solution;
+}
+
+export async function pushTx(sb: any): Promise<any> {
+  const res = await fetch(`${RPC_BASE_URL}/push_tx`, {
+    method: "POST",
+    body: JSON.stringify({ spend_bundle: sbToJSON(sb) }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const j = await res.json();
+  return j;
 }

@@ -6,18 +6,23 @@ import { BRIDGE_CONTRACT_ABI, BRIDGE_CONTRACT_ADDRESS } from "@/util/bridge";
 import { ethers } from "ethers";
 import * as GreenWeb from 'greenwebjs';
 import { offerToSpendBundle } from "@/util/offer";
-import { mintCATs } from "@/util/mint";
-import { getCoinRecordByName, getPuzzleAndSolution } from "@/util/rpc";
+import { mintCATs, sbToString } from "@/util/mint";
+import { getCoinRecordByName, getPuzzleAndSolution, pushTx } from "@/util/rpc";
+import { initializeBLS } from "clvm";
 
 export default function Home() {
-  const [ethAmount, setEthAmount] = useState('0.042');
+  const [ethAmount, setEthAmount] = useState('0.069');
   const [xchAddress, setXchAddress] = useState('txch1s2s3jj6nc2s2aad73wlh3ghvsa2yp7njmcpzxvm0uw3p4gaalkxs3matt5');
-  const [ethTxHash, setEthTxHash] = useState('0x8a12052b6f309aece19feb10d53d2da9c44ef65b3f784329619f87f66657e403');
+  const [ethTxHash, setEthTxHash] = useState('0xfbc705e7e7a123e84ffed4535ad69e1e8991659cda785b5b95c75c3ccc6ac5a2');
   const [messageData, setMessageData] = useState({});
   const [coinId, setCoinId] = useState('click button below');
   const [nonces, setNonces] = useState({});
-  const [offer, setOffer] = useState('offer1qqr83wcuu2rykcmqvps9faz76c2n9aa36w62nq5mws2r266hafxk3e6d7wt0629kg6gzrmw6u6grnztn9flms8l6drwh73k3dwpmrw8u6a0g0glth06m5s4xehj9regpnfg7f80nm5taunsaaeeaccyrxax9rjm8x67uv77v8e56x27m7v5gartphxm4j74k4wl0px4xlmhw7x7ap9v4umcj3c9wnhhyv90k98w7myzddksqf9a079uumal77mvve738hdkutu2hd8hkme0xyef6l0ft8pgazlnne0llglcl9ulltgxkqa2dpvjmmqc094v0wa2l7llg53t0mfp3cls4m434ydkw077ys6h3m6lmml6mpvpu27y4sx9yml4hxt7q5779qpjd4lzlzz3nym2rj39hkc0ckkdf5xd4zdn2nlfa906xu5ds5kken98686elu5rs3z6k6wsaezskn00erla7ttflaelrfrku4cgth44q0ew700nwlkulwlakj5m9nhnxjkalc7u7s4v7xvgf6krjewvhmgk8uldl4j77uezge0xmhv09nhdwdlv082n9l47m60xxu5dj2r3f0kv79gh0j6cnwa65wv5gdxwqvq8n8az3vcxpf0t');
-  const [sig, setSig] = useState('');
+  const [lastUsedChainAndNonces, setLastUsedChainAndNonces] = useState([]);
+  const [blsInitialized, setBlsInitialized] = useState(false);
+  const [offer, setOffer] = useState('offer1qqr83wcuu2rykcmqvpswfe0amzu43ft5eyx2rk349llle0tujteenl0r4uaugu3mtvh63tkfhpv0mp3h4lcd89sr08dmjn4lzfk0fyps0wsvmxqnt4smp7tedlgt7ye8s9npfp8d27tgrd6nsla3cd7cuqxnh0ghakdev677epwms6xps7dh5esz9ygec4autv0m7vm3x6xelwxhm8zzzkhqayuu02mztkrj00ae544qm4k6qpyh4lchnn0hlmmd3n86y7akm3032a577m09ucn98taa9vu9r5t7w09llarlruhnl7hq6cr4anr9hnghdq6zehtm2cu6gfla9tmkanl2ufk7rzuanur6jla0pft0d7wlng0exct3rk5d3erl90p6lvzhp3q2dn0lq4v4jqk9dn2kuhazwmkk2duluh7mpuwwz35mux8lddfh0awkmyh5uq9m5ksln79pmt3ax7t6j337ey5wn6u748075ne0tqamm7al597987h8kw09hzmdn6l93tyumhsl972v20lx8k5vzk4hvhrahra020hs48hn0plj7wlflmx52dahmnupy6eaulefnn0dhg4g526ud4mhywpwmma93l04670tqxqq65v4q2g0tzfg5');
+  const [sig, setSig] = useState('r1v46xs7rrdqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqyrfgye3-c1nhtr5984fvx795ptys3cd40l69j8yqkf3twggc6d0ysnnqgkmvpqhtan0m-s140kru0nnkne4j6l78qqqchmfvpwf4h5sy0cdkq3nqm4t2xgm4gpa0ye6qycga94f2d48sw0x7qudyp0jexx7z9phj86872a4yfzm2mzw3q6gplg45cr7l5mne5s75vf0rks9p456jzjmkgavh6s3z308u564f99j');
+  const [sb, setSb] = useState({});
+  const [pushTxStatus, setPushTxStatus] = useState('click button below');
 
   const sendEthToBridge = async () => {
     if (typeof window.ethereum === 'undefined') {
@@ -79,9 +84,10 @@ export default function Home() {
   };
 
   const fetchPortalInfo = async () => {
-    const { coinId, nonces } = await findLatestPortalState();
+    const { coinId, nonces, lastUsedChainAndNonces } = await findLatestPortalState();
     setCoinId(coinId);
     setNonces(nonces);
+    setLastUsedChainAndNonces(lastUsedChainAndNonces);
   };
 
   const handleOfferSubmit = async (e: React.FormEvent) => {
@@ -89,18 +95,22 @@ export default function Home() {
     
     const portalCoinRecord = await getCoinRecordByName(coinId);
     const portalParentSpend = await getPuzzleAndSolution(portalCoinRecord.coin.parent_coin_info, portalCoinRecord.confirmed_block_index);
-    mintCATs(
+    const sb = mintCATs(
       messageData,
       portalCoinRecord,
       portalParentSpend,
       nonces,
-      [], // todo
+      lastUsedChainAndNonces,
       offer,
       [sig],
       [true, false, false], // todo
       "657468", // eth
       process.env.NEXT_PUBLIC_BRIDGE_ADDRESS!.slice(2)
     );
+
+    console.log({ sb })
+
+    setSb(sb);
   };
 
   return (
@@ -144,14 +154,26 @@ export default function Home() {
         <label className="text-lg font-semibold">3. Fetch Latest Portal Coin</label>
         <p id="coin-id-text">Coin Id: {coinId}</p>
         <textarea disabled={true} value={JSON.stringify(nonces, null, 2)} rows={JSON.stringify(nonces) == '{}' ? 1 : (JSON.stringify(nonces, null, 2).match(/\n/g) || []).length + 1} />
+        <textarea disabled={true} value={JSON.stringify(lastUsedChainAndNonces, null, 2)} rows={JSON.stringify(lastUsedChainAndNonces) == '{}' ? 1 : (JSON.stringify(lastUsedChainAndNonces, null, 2).match(/\n/g) || []).length + 1} />
         <button
           type="submit"
           className="px-6 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600"
           onClick={fetchPortalInfo}
         >Fetch Latest Portal Coin</button>
       </div>
-      <form onSubmit={handleOfferSubmit} className="flex flex-col space-y-4 w-full">
-        <label htmlFor="offer" className="block text-lg font-semibold">4. Create & Submit Offer</label>
+      <div className="flex flex-col space-y-4 w-full pb-16">
+        <label className="text-lg font-semibold">4. Initialize BLS Module</label>
+        <p>BLS Initialized: {blsInitialized ? 'Yes' : 'No'}</p>
+        <button
+          className="px-6 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600"
+          onClick={async () => {
+            await initializeBLS();
+            setBlsInitialized(true);
+          }}
+        >Initialize BLS</button>
+      </div>
+      <form onSubmit={handleOfferSubmit} className="flex flex-col space-y-4 w-full pb-16">
+        <label htmlFor="offer" className="block text-lg font-semibold">5. Create & Submit Offer</label>
         <p>You should be offering {(ethers.parseEther(ethAmount) / ethers.parseEther("0.001")).toString()} mojos and a decent fee.</p>
         <p>chia rpc wallet create_offer_for_ids {"'"}{'{"offer":{"1":-' + (ethers.parseEther(ethAmount) / ethers.parseEther("0.001")).toString() + '},"fee":4200000000,"driver_dict":{},"validate_only":false}'}{"'"}</p>
         <input
@@ -172,6 +194,29 @@ export default function Home() {
         />
         <button type="submit" className="px-6 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600">Submit</button>
       </form>
+      <div className="flex flex-col space-y-4 w-full pb-16">
+        <label className="text-lg font-semibold">6. Broadcast Spendbundle</label>
+        <p>SpendBundle available: {JSON.stringify(sb).length == 2 ? 'No' : 'Yes'}</p>
+        <button
+          type="submit"
+          className="px-6 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600"
+          disabled={JSON.stringify(sb).length == 2}
+          onClick={() => {
+            navigator.clipboard.writeText(sbToString(sb));
+            alert('SpendBundle copied to clipboard!');
+          }}
+        >Copy SpendBundle to Clipboard</button>
+        <textarea disabled={true} value={pushTxStatus} rows={(pushTxStatus.match(/\n/g) || []).length + 1} />
+        <button
+          type="submit"
+          className="px-6 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600"
+          onClick={async () => {
+            const res = await pushTx(sb);
+            setPushTxStatus(JSON.stringify(res, null, 2));
+          }}
+          disabled={JSON.stringify(sb).length == 2}
+        >Push Tx</button>
+      </div>
     </main>
   );
 }
