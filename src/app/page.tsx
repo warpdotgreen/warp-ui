@@ -8,7 +8,10 @@ export default function Home() {
       <div className="flex flex-col space-y-4 w-full pb-16">
         <h1 className="text-xl font-bold">Choose your destination:</h1>
         <p className="text-blue-600 underline">
-          <Link href="/to-chia">Bridge from Sepolia to testnet11</Link>
+          <Link href="/to-chia">Bridge TO Chia</Link>
+        </p>
+        <p className="text-blue-600 underline">
+          <Link href="/from-chia">Bridge FROM Chia</Link>
         </p>
       </div>
     </main>

@@ -1,4 +1,4 @@
-import { sbToJSON } from "./mint";
+import { sbToJSON } from "./driver";
 
 const RPC_BASE_URL = process.env.NEXT_PUBLIC_RPC_BASE_URL;
 

@@ -6,9 +6,10 @@ import { BRIDGE_CONTRACT_ABI, BRIDGE_CONTRACT_ADDRESS } from "@/util/bridge";
 import { ethers } from "ethers";
 import * as GreenWeb from 'greenwebjs';
 import { offerToSpendBundle } from "@/util/offer";
-import { mintCATs, sbToString } from "@/util/mint";
+import { mintCATs, sbToString } from "@/util/driver";
 import { getCoinRecordByName, getPuzzleAndSolution, pushTx } from "@/util/rpc";
 import { initializeBLS } from "clvm";
+import Link from "next/link";
 
 export default function ToChia() {
   const [ethAmount, setEthAmount] = useState('0.007');
@@ -116,6 +117,9 @@ export default function ToChia() {
   return (
     <main className="flex min-h-screen flex-col items-center pr-48 pl-48 pt-16 pb-8">
       <div className="flex flex-col space-y-4 w-full pb-16">
+        <p className="text-blue-600 underline">
+          <Link href="/">Back</Link>
+        </p>
         <label className="text-lg font-semibold">1. Send ETH to Bridge</label>
         <p>Using MetaM*sk</p>
         <label className="text-sm font-semibold">ETH Amount:</label>
