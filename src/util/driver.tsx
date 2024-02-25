@@ -1146,7 +1146,7 @@ export async function burnCATs(
   const tempSk = GreenWeb.util.key.mnemonic.privateKeyFromMnemonic(mnemonic);
   const tempPk = tempSk.get_g1();
 
-  const securityCoinPuzzle = GreenWeb.util.sexp.standardCoinPuzzle(tempPk);
+  const securityCoinPuzzle = GreenWeb.util.sexp.standardCoinPuzzle(tempPk, true);
   const securityCoinPuzzleHash = GreenWeb.util.sexp.sha256tree(securityCoinPuzzle);
 
   const securityCoin = new GreenWeb.Coin();
@@ -1305,7 +1305,7 @@ export async function burnCATs(
   );
   const securityDelegatedPuzzleHash = GreenWeb.util.sexp.sha256tree(securityDelegatedPuzzle);
   const dataToSign = securityDelegatedPuzzleHash + GreenWeb.util.coin.getName(securityCoin) + process.env.NEXT_PUBLIC_AGG_SIG_ADDITIONAL_DATA!;
-  const securityCoinSigRaw = AugSchemeMPL.sign(tempSk, hexStringToUint8Array(dataToSign));
+  const securityCoinSigRaw = AugSchemeMPL.sign(tempSk, Buffer.from(dataToSign, "hex"));
   const securityCoinSig = Buffer.from(
     securityCoinSigRaw.serialize()
   ).toString("hex");
