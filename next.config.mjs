@@ -10,7 +10,7 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        source: '/_next/static/chunks/app/blsjs.wasm',
+        source: '/:path*/blsjs.wasm',
         destination: '/blsjs.wasm',
       },
     ]
