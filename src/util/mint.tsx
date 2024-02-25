@@ -76,8 +76,8 @@ const CAT_MINTER_MOD = "ff02ffff01ff02ff12ffff04ff02ffff04ffff0bffff02ffff03ffff
 >>> bytes(CAT_MINT_AND_PAYOUT_MOD).hex()
 >>> CAT_MINT_AND_PAYOUT_MOD_HASH.hex()
 */
-const CAT_MINT_AND_PAYOUT_MOD = "ff02ffff01ff04ffff04ff04ffff04ff17ff808080ffff04ffff04ff06ffff04ff05ffff04ff17ff80808080ffff04ffff04ff06ffff04ff80ffff04ffff01818fffff04ff0bffff04ff2fff808080808080ff80808080ffff04ffff01ff4933ff018080";
-const CAT_MINT_AND_PAYOUT_MOD_HASH = "b7da6592ca3d94e4cd02cb83ca646e55e9b084a4e870db970d6b34b161116df8";
+const CAT_MINT_AND_PAYOUT_MOD = "ff02ffff01ff04ffff04ff04ffff04ff17ff808080ffff04ffff04ff06ffff04ff05ffff04ff17ffff04ffff04ff05ff8080ff8080808080ffff04ffff04ff06ffff04ff80ffff04ffff01818fffff04ff0bffff04ff2fff808080808080ff80808080ffff04ffff01ff4933ff018080";
+const CAT_MINT_AND_PAYOUT_MOD_HASH = "2c78140b52765a1c063062775d31a33a452410e9777c01270c1001db6e821f37";
 
 /*
 >>> from drivers.wrapped_assets import WRAPPED_TAIL_MOD, WRAPPED_TAIL_MOD_HASH
@@ -781,7 +781,7 @@ export function mintCATs(
     for(var j = 0; j < createCoinConds.length; ++j) {
       const cond = createCoinConds[j];
 
-      if(tokenAmount.endsWith(cond.vars[1]) && cond.vars[0] === OFFER_MOD_HASH) {
+      if(cond.vars[0] === OFFER_MOD_HASH) {
         source_coin.parentCoinInfo = GreenWeb.util.coin.getName(coinSpend.coin);
         source_coin.puzzleHash = OFFER_MOD_HASH;
         source_coin.amount = tokenAmountInt;
@@ -937,6 +937,7 @@ export function mintCATs(
     GreenWeb.util.unhexlify(ethAssetContract)!
   );
   const wrappedAssetTAILHash = GreenWeb.util.sexp.sha256tree(wrappedAssetTAIL);
+  console.log({ wrappedAssetTAILHash });
 
   const mintAndPayoutInnerPuzzle = getCATMintAndPayoutInnerPuzzle(
     xchReceiverPh
@@ -984,6 +985,8 @@ export function mintCATs(
 
   initializeBLS().then(() => {
     const { AugSchemeMPL, G2Element } = getBLSModule();
+
+    console.log({ sigs })
 
     const sb = new GreenWeb.util.serializer.types.SpendBundle();
     sb.coinSpends = coin_spends;

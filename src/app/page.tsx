@@ -10,13 +10,13 @@ import { mintCATs } from "@/util/mint";
 import { getCoinRecordByName, getPuzzleAndSolution } from "@/util/rpc";
 
 export default function Home() {
-  const [ethAmount, setEthAmount] = useState('0.007');
-  const [xchAddress, setXchAddress] = useState('txch1ak7dup645fr562t2u9rs30d60qh9t89nyxvezwpkd5v29m62z6aqwmmxge');
-  const [ethTxHash, setEthTxHash] = useState('');
+  const [ethAmount, setEthAmount] = useState('0.042');
+  const [xchAddress, setXchAddress] = useState('txch1s2s3jj6nc2s2aad73wlh3ghvsa2yp7njmcpzxvm0uw3p4gaalkxs3matt5');
+  const [ethTxHash, setEthTxHash] = useState('0x8a12052b6f309aece19feb10d53d2da9c44ef65b3f784329619f87f66657e403');
   const [messageData, setMessageData] = useState({});
   const [coinId, setCoinId] = useState('click button below');
   const [nonces, setNonces] = useState({});
-  const [offer, setOffer] = useState('offer1qqr83wcuu2rykcmqvps8ennjuyr4lnaw6zkw2736tu0swhh430v46vlthzp0uwun0cmt6mvf0adzyaal067jmzwpvnfsf3lw4kde2eclzf2lnm0fktatn2ku3tacevmkq0xjsa3alngqlhjwrhh88hrqsvmlfl7evrcnq74dl07xtd28gkt0xllyuxth7e9wh3natfmn9kxkuzadae0sm8krtjn8ye77gkxm392j80l74q94xeqf9hhlqhnl0hmmr03m86y79hm40pva577m096cn88taarvv8ru2ww0all4r08ulslhxq6ct4secplmf8my7yfka9cehl3gkj5dm7ltmz6nm6jtunuh4qughhhel307dukl9nheacx4gm8jh727z47c9vrzp5lxlupyh6tefkukzl6w4vn5c5lt8zlk42nlhklg4hxpav8jaztnlxeja24jqjrasr8x75nj7h3l0h2m0tt7dmjre6e0fmve0as60mllglmm6ht0pgxvqmwajajwfjalyh00ay5tkfv9dgj7lcfwadut8uvy7d9m74206azhw042lr8rze7khm938wc0nh3vk983ng7rxa73970uw5u48rp47278g5745lqfqqdysnhg57j6nq');
+  const [offer, setOffer] = useState('offer1qqr83wcuu2rykcmqvps9faz76c2n9aa36w62nq5mws2r266hafxk3e6d7wt0629kg6gzrmw6u6grnztn9flms8l6drwh73k3dwpmrw8u6a0g0glth06m5s4xehj9regpnfg7f80nm5taunsaaeeaccyrxax9rjm8x67uv77v8e56x27m7v5gartphxm4j74k4wl0px4xlmhw7x7ap9v4umcj3c9wnhhyv90k98w7myzddksqf9a079uumal77mvve738hdkutu2hd8hkme0xyef6l0ft8pgazlnne0llglcl9ulltgxkqa2dpvjmmqc094v0wa2l7llg53t0mfp3cls4m434ydkw077ys6h3m6lmml6mpvpu27y4sx9yml4hxt7q5779qpjd4lzlzz3nym2rj39hkc0ckkdf5xd4zdn2nlfa906xu5ds5kken98686elu5rs3z6k6wsaezskn00erla7ttflaelrfrku4cgth44q0ew700nwlkulwlakj5m9nhnxjkalc7u7s4v7xvgf6krjewvhmgk8uldl4j77uezge0xmhv09nhdwdlv082n9l47m60xxu5dj2r3f0kv79gh0j6cnwa65wv5gdxwqvq8n8az3vcxpf0t');
   const [sig, setSig] = useState('');
 
   const sendEthToBridge = async () => {
@@ -143,7 +143,7 @@ export default function Home() {
       <div className="flex flex-col space-y-4 w-full pb-16">
         <label className="text-lg font-semibold">3. Fetch Latest Portal Coin</label>
         <p id="coin-id-text">Coin Id: {coinId}</p>
-        <p id="nonces-text">Nonces: {JSON.stringify(nonces)}</p>
+        <textarea disabled={true} value={JSON.stringify(nonces, null, 2)} rows={JSON.stringify(nonces) == '{}' ? 1 : (JSON.stringify(nonces, null, 2).match(/\n/g) || []).length + 1} />
         <button
           type="submit"
           className="px-6 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600"
@@ -153,6 +153,7 @@ export default function Home() {
       <form onSubmit={handleOfferSubmit} className="flex flex-col space-y-4 w-full">
         <label htmlFor="offer" className="block text-lg font-semibold">4. Create & Submit Offer</label>
         <p>You should be offering {(ethers.parseEther(ethAmount) / ethers.parseEther("0.001")).toString()} mojos and a decent fee.</p>
+        <p>chia rpc wallet create_offer_for_ids {"'"}{'{"offer":{"1":-' + (ethers.parseEther(ethAmount) / ethers.parseEther("0.001")).toString() + '},"fee":4200000000,"driver_dict":{},"validate_only":false}'}{"'"}</p>
         <input
           id="offer"
           type="text"

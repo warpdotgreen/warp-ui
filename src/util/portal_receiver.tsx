@@ -1,11 +1,11 @@
 import { getCoinRecordByName, getPuzzleAndSolution } from "./rpc";
 import * as GreenWeb from 'greenwebjs';
+import { Bytes } from "clvm";
 
 const LATEST_PORTAL_STATE_KEY = "latest-portal-data";
 
-const PORTAL_LAUNCHER_ID = process.env.NEXT_PUBLIC_PORTAL_LAUNCHER_ID;
-
 export async function findLatestPortalState() {
+  console.log({ loc: "findLatestPortalState" }); // todo: debug
   let {coinId, nonces} = JSON.parse(window.localStorage.getItem(LATEST_PORTAL_STATE_KEY) ?? "{}")
   nonces = nonces ?? {};
   coinId = coinId ?? process.env.NEXT_PUBLIC_PORTAL_BOOTSTRAP_COIN_ID;
@@ -34,7 +34,28 @@ export async function findLatestPortalState() {
 
     const uncurried = GreenWeb.util.sexp.uncurry(puzzleReveal);
     if(uncurried !== null && coinRecord.coin.puzzle_hash.slice(2) !== GreenWeb.util.sexp.SINGLETON_LAUNCHER_PROGRAM_HASH) {
-      alert("todo: parse spent portal coin to update nonces");
+      const innerSolution = GreenWeb.util.sexp.fromHex(
+        GreenWeb.util.sexp.asAtomList(solution)[2]
+      );
+      
+      const usedChainsAndNonces = GreenWeb.util.sexp.asAtomList(
+        GreenWeb.util.sexp.fromHex(
+          GreenWeb.util.sexp.asAtomList(innerSolution)[1]
+        )
+      );
+
+      for(var i = 0; i < usedChainsAndNonces.length; i++) {
+        const chainAndNonce = GreenWeb.util.sexp.fromHex(
+          usedChainsAndNonces[i]
+        );
+        const chain = (chainAndNonce.first().as_javascript() as Bytes).hex();
+        const nonce = (chainAndNonce.rest().as_javascript() as Bytes).hex();
+        
+        if(nonces[chain] === undefined) {
+          nonces[chain] = {};
+        }
+        nonces[chain][nonce] = coinId;
+      }
     }
 
     const newCoin = new GreenWeb.Coin()
@@ -44,12 +65,9 @@ export async function findLatestPortalState() {
 
     coinId = GreenWeb.util.coin.getName(newCoin);
     coinRecord = await getCoinRecordByName(coinId);
-
-    break;
   }
 
-  // todo: uncomment this
-  // window.localStorage.setItem(LATEST_PORTAL_STATE_KEY, JSON.stringify({coinId, nonces}))
+  window.localStorage.setItem(LATEST_PORTAL_STATE_KEY, JSON.stringify({coinId, nonces}))
 
   return {
     coinId,
