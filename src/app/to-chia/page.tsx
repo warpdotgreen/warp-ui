@@ -11,10 +11,12 @@ import { getCoinRecordByName, getPuzzleAndSolution, pushTx } from "@/util/rpc";
 import { initializeBLS } from "clvm";
 import Link from "next/link";
 
+const milliETHFactor: bigint = BigInt(1000);
+
 export default function ToChia() {
-  const [ethAmount, setEthAmount] = useState('0.007');
+  const [ethAmount, setEthAmount] = useState('0.042');
   const [xchAddress, setXchAddress] = useState('txch1s2s3jj6nc2s2aad73wlh3ghvsa2yp7njmcpzxvm0uw3p4gaalkxs3matt5');
-  const [ethTxHash, setEthTxHash] = useState('0xc7c5af822251219547a06a61572db2b1a28b7df2927cc9d99d87cbb589323680');
+  const [ethTxHash, setEthTxHash] = useState('');
   const [messageData, setMessageData] = useState({});
   const [coinId, setCoinId] = useState('click button below');
   const [nonces, setNonces] = useState({});
@@ -178,8 +180,8 @@ export default function ToChia() {
       </div>
       <form onSubmit={handleOfferSubmit} className="flex flex-col space-y-4 w-full pb-16">
         <label htmlFor="offer" className="block text-lg font-semibold">5. Create & Submit Offer</label>
-        <p>You should be offering {(ethers.parseEther(ethAmount) / ethers.parseEther("0.001")).toString()} mojos and a decent fee.</p>
-        <p>chia rpc wallet create_offer_for_ids {"'"}{'{"offer":{"1":-' + (ethers.parseEther(ethAmount) / ethers.parseEther("0.001")).toString() + '},"fee":4200000000,"driver_dict":{},"validate_only":false}'}{"'"}</p>
+        <p>You should be offering {(ethers.parseEther(ethAmount) / ethers.parseEther("0.000001") * BigInt(997) / BigInt(1000)).toString()} mojos and a decent fee.</p>
+        <p>chia rpc wallet create_offer_for_ids {"'"}{'{"offer":{"1":-' + (ethers.parseEther(ethAmount) / ethers.parseEther("0.000001") * BigInt(997) / BigInt(1000)).toString() + '},"fee":4200000000,"driver_dict":{},"validate_only":false}'}{"'"}</p>
         <input
           id="offer"
           type="text"

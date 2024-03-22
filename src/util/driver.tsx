@@ -58,7 +58,7 @@ const MULTISIG_THRESHOLD = 1;
 const MULTISIG_KEYS = [
   "b93c773fd448927ad5a77d543aa9a2043dad8ab9d8a8ac505317d6542ffdb1b6b74e9e85e734b8ca8264de49b6231a38",
   "b38dc1238afb47296ea89d57c9355be08fa7cf6e732d9d234f234a20473c8576c1cb851d7e756a75c2af0b7fb3110e30",
-  "9796fa4b1fa20600e1ab44f5ff77aec6d48ab27e0af89009f269cb918fa2afd2b4bb00dc2560f643cd7e53d786d69c65"
+  "8a5c3c9d08d667775d0045335b8c90941763cd00a8cd6ed867c03db243da9b4c227a7012859b9355376df297bd5d8811"
 ]
 const P2_M_OF_N_DELEGATE_DIRECT_MOD = "ff02ffff01ff02ffff03ffff09ff05ffff02ff16ffff04ff02ffff04ff17ff8080808080ffff01ff02ff0cffff04ff02ffff04ffff02ff0affff04ff02ffff04ff17ffff04ff0bff8080808080ffff04ffff02ff1effff04ff02ffff04ff2fff80808080ffff04ff2fffff04ff5fff80808080808080ffff01ff088080ff0180ffff04ffff01ffff31ff02ffff03ff05ffff01ff04ffff04ff08ffff04ff09ffff04ff0bff80808080ffff02ff0cffff04ff02ffff04ff0dffff04ff0bffff04ff17ffff04ff2fff8080808080808080ffff01ff02ff17ff2f8080ff0180ffff02ffff03ff05ffff01ff02ffff03ff09ffff01ff04ff13ffff02ff0affff04ff02ffff04ff0dffff04ff1bff808080808080ffff01ff02ff0affff04ff02ffff04ff0dffff04ff1bff808080808080ff0180ff8080ff0180ffff02ffff03ff05ffff01ff10ffff02ff16ffff04ff02ffff04ff0dff80808080ffff02ffff03ff09ffff01ff0101ff8080ff018080ff8080ff0180ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff1effff04ff02ffff04ff09ff80808080ffff02ff1effff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080";
 
@@ -373,7 +373,7 @@ def get_cat_burner_puzzle(
     destination
   )
 */
-function getCATBurnerPuzzle(
+export function getCATBurnerPuzzle(
   bridging_puzzle_hash: string,
   destination_chain: string,
   destination: string,
@@ -1089,35 +1089,31 @@ export function getBurnSendFullPuzzleHash(
 }
 
 export async function burnCATs(
-  burnSendCoinParentInfo: string,
-  burnSendCoinAmount: number,
-  burnSendCoinParentSpend: any,
   offer: string,
   destination_chain: string,
   token_contract_address: string,
   eth_target_address: string
-) {
+): Promise<[any, string]> {
   token_contract_address = GreenWeb.util.unhexlify(token_contract_address)!;
   token_contract_address = "0".repeat(64 - token_contract_address.length) + token_contract_address;
-  burnSendCoinParentInfo = GreenWeb.util.unhexlify(burnSendCoinParentInfo)!;
 
   const offer_sb = offerToSpendBundle(offer);
 
   /* find source coin = coin with OFFER_MOD that will create CAT minter */
-  var source_coin = new GreenWeb.Coin();
-  source_coin.amount = Math.max(1, BRIDGING_FEE_MOJOS - burnSendCoinAmount);
-
-  const sourceCoinAmountHex = GreenWeb.util.coin.amountToBytes(source_coin.amount);
+  var xch_source_coin = new GreenWeb.Coin();
+  var cat_source_coin = new GreenWeb.Coin();
 
   for(var i = 0; i < offer_sb.coinSpends.length; ++i) {
     const coinSpend = offer_sb.coinSpends[i];
 
-    var [_, conditionsDict, __] = GreenWeb.util.sexp.conditionsDictForSolution(
-      coinSpend.puzzleReveal,
-      coinSpend.solution,
-      GreenWeb.util.sexp.MAX_BLOCK_COST_CLVM
+    var conditions = GreenWeb.util.sexp.asAtomList(
+        GreenWeb.util.sexp.run(
+          coinSpend.puzzleReveal,
+          coinSpend.solution,
+        )
     );
-    var createCoinConds = conditionsDict!.get("33") ?? [];
+
+    // todo: work from here
 
     for(var j = 0; j < createCoinConds.length; ++j) {
       const cond = createCoinConds[j];
@@ -1319,5 +1315,12 @@ export async function burnCATs(
     ).serialize()
   ).toString("hex");
 
-  return sb;
+  // calculate tx nonce
+  const messagCoin = new GreenWeb.Coin();
+  messagCoin.parentCoinInfo = GreenWeb.util.coin.getName(catBurnerCoin);
+  messagCoin.puzzleHash = BRIDGING_PUZZLE_HASH;
+  messagCoin.amount = BRIDGING_FEE_MOJOS;
+
+  const nonce = GreenWeb.util.coin.getName(messagCoin);
+  return [sb, nonce];
 }
