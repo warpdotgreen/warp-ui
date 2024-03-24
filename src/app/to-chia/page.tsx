@@ -17,7 +17,7 @@ const milliETHFactor: bigint = BigInt(1000);
 export default function ToChia() {
   const [ethAmount, setEthAmount] = useState('0.042');
   const [xchAddress, setXchAddress] = useState('txch1s2s3jj6nc2s2aad73wlh3ghvsa2yp7njmcpzxvm0uw3p4gaalkxs3matt5');
-  const [ethTxHash, setEthTxHash] = useState('0x77c4326ab8a44f11c11b9661c659e0ffad9ad31a534e35682e056a71e3e7f7de');
+  const [ethTxHash, setEthTxHash] = useState('');
   const [messageData, setMessageData] = useState({});
   const [coinId, setCoinId] = useState('click button below');
   const [nonces, setNonces] = useState({});

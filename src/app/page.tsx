@@ -13,6 +13,9 @@ export default function Home() {
         <p className="text-blue-600 underline">
           <Link href="/from-chia">Bridge FROM Chia</Link>
         </p>
+        <p className="text-blue-600 underline">
+          <Link href="/ui">UI (WIP)</Link>
+        </p>
       </div>
     </main>
   );
