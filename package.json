@@ -13,6 +13,7 @@
     "ethers": "^6.11.1",
     "greenwebjs": "^1.1.9",
     "next": "14.1.0",
+    "nostr-tools": "^2.3.2",
     "pako": "^2.1.0",
     "react": "^18",
     "react-dom": "^18"

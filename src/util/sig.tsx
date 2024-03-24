@@ -1,5 +1,8 @@
 import * as GreenWeb from 'greenwebjs';
+import { bech32m } from "bech32";
+import { SimplePool } from 'nostr-tools/pool'
 
+const RELAY = "wss://relay.fireacademy.io";
 
 /*
 def decode_signature(enc_sig: str) -> Tuple[
@@ -39,4 +42,35 @@ export function decodeSignature(sig: string): [
   console.log({ parts })
 
   return [originChain, destinationChain, nonce, coinId, sigData];
+}
+
+export async function getSig(
+  sourceChain: string,
+  destinationChain: string,
+  nonce: string,
+  coinId: string | null
+): Promise<string> {
+  const routingDataBuff = Buffer.from(sourceChain + destinationChain + nonce.replace("0x", ""), "hex");
+  const routingData = bech32m.encode("r", bech32m.toWords(routingDataBuff));
+  var coinData = "";
+  if(coinId !== null) {
+    coinData = GreenWeb.util.address.puzzleHashToAddress(coinId, "c");
+  }
+
+  const pool = new SimplePool();
+  const events = await pool.querySync(
+    [RELAY],
+    {
+      kinds: [1],
+      "#c": [coinData],
+      "#r": [routingData]
+    }
+  )
+
+  if(events.length === 0) {
+    alert("Not yet!")
+    return "";
+  }
+
+  return routingData + "-" + coinData + "-" + events[0].content;
 }

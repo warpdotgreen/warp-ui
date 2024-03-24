@@ -10,13 +10,14 @@ import { mintCATs, sbToString } from "@/util/driver";
 import { getCoinRecordByName, getPuzzleAndSolution, pushTx } from "@/util/rpc";
 import { initializeBLS } from "clvm";
 import Link from "next/link";
+import { getSig } from "@/util/sig";
 
 const milliETHFactor: bigint = BigInt(1000);
 
 export default function ToChia() {
   const [ethAmount, setEthAmount] = useState('0.042');
   const [xchAddress, setXchAddress] = useState('txch1s2s3jj6nc2s2aad73wlh3ghvsa2yp7njmcpzxvm0uw3p4gaalkxs3matt5');
-  const [ethTxHash, setEthTxHash] = useState('');
+  const [ethTxHash, setEthTxHash] = useState('0x77c4326ab8a44f11c11b9661c659e0ffad9ad31a534e35682e056a71e3e7f7de');
   const [messageData, setMessageData] = useState({});
   const [coinId, setCoinId] = useState('click button below');
   const [nonces, setNonces] = useState({});
@@ -116,6 +117,16 @@ export default function ToChia() {
     setSb(sb);
   };
 
+  const getValidatorSig = async () => {
+    const sig = await getSig( 
+      "657468", // eth
+      "786368", // xch
+      (messageData as any).nonce,
+      coinId
+    );
+    setSig(sig);
+  }
+
   return (
     <main className="flex min-h-screen flex-col items-center pr-48 pl-48 pt-16 pb-8">
       <div className="flex flex-col space-y-4 w-full pb-16">
@@ -178,7 +189,7 @@ export default function ToChia() {
           }}
         >Initialize BLS</button>
       </div>
-      <form onSubmit={handleOfferSubmit} className="flex flex-col space-y-4 w-full pb-16">
+      <div className="flex flex-col space-y-4 w-full pb-16">
         <label htmlFor="offer" className="block text-lg font-semibold">5. Create & Submit Offer</label>
         <p>You should be offering {(ethers.parseEther(ethAmount) / ethers.parseEther("0.000001") - ethers.parseEther(ethAmount) / ethers.parseEther("0.000001") * BigInt(30) / BigInt(10000)).toString()} mojos and a decent fee.</p>
         <p>chia rpc wallet create_offer_for_ids {"'"}{'{"offer":{"1":-' + (ethers.parseEther(ethAmount) / ethers.parseEther("0.000001") - ethers.parseEther(ethAmount) / ethers.parseEther("0.000001") * BigInt(30) / BigInt(10000)).toString() + '},"fee":4200000000,"driver_dict":{},"validate_only":false}'}{"'"}</p>
@@ -198,8 +209,9 @@ export default function ToChia() {
           placeholder="Enter validator sig"
           className="w-full p-4 text-lg border-2 border-gray-300 rounded-md"
         />
-        <button type="submit" className="px-6 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600">Submit</button>
-      </form>
+        <button onClick={getValidatorSig} className="px-6 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600">Fetch Validator Sig</button>
+        <button onClick={handleOfferSubmit} className="px-6 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600">Submit</button>
+      </div>
       <div className="flex flex-col space-y-4 w-full pb-16">
         <label className="text-lg font-semibold">6. Broadcast Spendbundle</label>
         <p>SpendBundle available: {JSON.stringify(sb).length == 2 ? 'No' : 'Yes'}</p>

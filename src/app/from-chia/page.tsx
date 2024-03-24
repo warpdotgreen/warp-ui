@@ -7,7 +7,7 @@ import * as GreenWeb from 'greenwebjs';
 import Link from "next/link";
 import { initializeBLS } from "clvm";
 import { BRIDGE_CONTRACT_ADDRESS } from "@/util/bridge";
-import { decodeSignature } from "@/util/sig";
+import { decodeSignature, getSig } from "@/util/sig";
 
 export const PORTAL_ADDRESS = process.env.NEXT_PUBLIC_PORTAL_ADDRESS!; 
 
@@ -99,6 +99,16 @@ export default function FromChia() {
     await tx.wait();
 
     alert('done! check wallet :)');
+  }
+
+  const getValidatorSig = async () => {
+    const sig = await getSig(
+      "786368", // xch 
+      "657468", // eth
+      nonce,
+      null
+    );
+    setSig(sig);
   }
 
   return (
@@ -199,6 +209,10 @@ export default function FromChia() {
           placeholder="Signature"
           className="w-full p-4 text-lg border-2 border-gray-300 rounded-md"
         />
+        <button
+          className="px-6 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600"
+          onClick={getValidatorSig}
+        >Get Signature via Nostr</button>
         <button
           className="px-6 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600"
           onClick={claimOnEthSide}
