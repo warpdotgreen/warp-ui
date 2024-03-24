@@ -180,8 +180,8 @@ export default function ToChia() {
       </div>
       <form onSubmit={handleOfferSubmit} className="flex flex-col space-y-4 w-full pb-16">
         <label htmlFor="offer" className="block text-lg font-semibold">5. Create & Submit Offer</label>
-        <p>You should be offering {(ethers.parseEther(ethAmount) / ethers.parseEther("0.000001") * BigInt(997) / BigInt(1000)).toString()} mojos and a decent fee.</p>
-        <p>chia rpc wallet create_offer_for_ids {"'"}{'{"offer":{"1":-' + (ethers.parseEther(ethAmount) / ethers.parseEther("0.000001") * BigInt(997) / BigInt(1000)).toString() + '},"fee":4200000000,"driver_dict":{},"validate_only":false}'}{"'"}</p>
+        <p>You should be offering {(ethers.parseEther(ethAmount) / ethers.parseEther("0.000001") - ethers.parseEther(ethAmount) / ethers.parseEther("0.000001") * BigInt(30) / BigInt(10000)).toString()} mojos and a decent fee.</p>
+        <p>chia rpc wallet create_offer_for_ids {"'"}{'{"offer":{"1":-' + (ethers.parseEther(ethAmount) / ethers.parseEther("0.000001") - ethers.parseEther(ethAmount) / ethers.parseEther("0.000001") * BigInt(30) / BigInt(10000)).toString() + '},"fee":4200000000,"driver_dict":{},"validate_only":false}'}{"'"}</p>
         <input
           id="offer"
           type="text"
