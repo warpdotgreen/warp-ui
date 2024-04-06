@@ -627,9 +627,9 @@ function getCATMintAndPayoutInnerPuzzleSolution(
 }
 
 function getMessageAsSExp(message_contents: any): GreenWeb.clvm.SExp {
-  return message_contents.map((content: string) => GreenWeb.util.sexp.bytesToAtom(
+  return SExp.to(message_contents.map((content: string) => GreenWeb.util.sexp.bytesToAtom(
     GreenWeb.util.unhexlify(content)!
-  ));
+  )));
 }
 
 /*
@@ -919,6 +919,7 @@ export function mintCATs(
       getMessageAsSExp(contents)
     )
   );
+  console.log({ messageSExp: GreenWeb.util.sexp.toHex(getMessageAsSExp(contents)) })
 
   const messageCoin = new GreenWeb.Coin();
   messageCoin.parentCoinInfo = GreenWeb.util.coin.getName(portalCoinSpend.coin);

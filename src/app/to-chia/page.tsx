@@ -108,7 +108,7 @@ export default function ToChia() {
       offer,
       [sig],
       [true, false, false], // todo
-      "657468", // eth
+      "627365", // bse | "657468", // eth
       process.env.NEXT_PUBLIC_BRIDGE_ADDRESS!.slice(2)
     );
 
@@ -119,7 +119,7 @@ export default function ToChia() {
 
   const getValidatorSig = async () => {
     const sig = await getSig( 
-      "657468", // eth
+      "627365", // bse | "657468", // eth
       "786368", // xch
       (messageData as any).nonce,
       coinId
