@@ -14,8 +14,8 @@ export const PORTAL_ADDRESS = process.env.NEXT_PUBLIC_PORTAL_ADDRESS!;
 export default function FromChia() {
   const [ethAddress, setEthAddress] = useState("0x113f132a978B7679Aa72c02B0234a32569507043");
   const [ethTokenAddress, setEthTokenAddress] = useState("0xa2dC46aC13A4E153e66DeF2b6C6168919d349e42");
-  const [tokenAmountStr, setTokenAmounStr] = useState("41.874");
-  const [tokenWalletId, setTokenWalletId] = useState("4");
+  const [tokenAmountStr, setTokenAmounStr] = useState("1.416");
+  const [tokenWalletId, setTokenWalletId] = useState("6");
   const [blsInitialized, setBlsInitialized] = useState(false);
   const [offer, setOffer] = useState("");
   const [sb, setSb] = useState({});
