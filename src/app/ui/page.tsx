@@ -24,14 +24,20 @@ export default function Home() {
                 </select>
               </div>
               <div className="flex items-center justify-between">
-                <BlockchainDropdown />
+                <BlockchainDropdown
+                  label="From"
+                  defaultSelected="xch"
+                />
                 <button
                   type="button"
                   className="mx-2 p-2 text-zinc-300 hover:bg-zinc-700 rounded-xl"
                 >
                   <ChangeArrow />
                 </button>
-                <BlockchainDropdown />
+                <BlockchainDropdown
+                  label="To"
+                  defaultSelected="bse"
+                />
               </div>
               <input
                 type="text"
@@ -49,7 +55,7 @@ export default function Home() {
             <div className="flex justify-center">
               <button
                 type="submit"
-                className="w-64 p-2 border border-zinc-700 rounded-3xl bg-green-500 font-medium text-zinc-950 hover:bg-green-700 transition-colors duration-300"
+                className="w-64 px-2 py-3 border border-zinc-700 rounded-3xl bg-green-500 text-bg font-medium text-zinc-950 hover:bg-green-700 transition-colors duration-300"
               >
                 Bridge
               </button>
@@ -65,15 +71,27 @@ export default function Home() {
   );
 }
 
-function BlockchainDropdown() {
+
+type BlockchainDropdownProps = {
+  label: string;
+  defaultSelected: string | number;
+};
+function BlockchainDropdown({ label, defaultSelected }: BlockchainDropdownProps) {
   return (
-    <select className="px-2 py-2 border flex-1 border-zinc-700 rounded bg-zinc-800 text-zinc-300 outline-none">
-      <option>Ethereum</option>
-      <option>Base</option>
-      <option>Chia</option>
-    </select>
+    <div className="px-2 py-2 relative flex w-full flex-col border border-zinc-700 rounded bg-zinc-800">
+      <label className="text-zinc-500 text-sm mb-1">{label}</label>
+      <select
+        defaultValue={defaultSelected}
+        className="flex-1 bg-zinc-800 text-zinc-300 outline-none appearance-none"
+      >
+        <option value="eth">Ethereum</option>
+        <option value="bse">Base</option>
+        <option value="xch">Chia</option>
+      </select>
+    </div>
   );
 }
+
 
 // https://heroicons.com/ 
 function ChangeArrow() {
