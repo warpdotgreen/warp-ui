@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { TOKENS } from "./config";
+import { Network, NETWORKS, TOKENS } from "./config";
 import { useState } from "react";
 import { Listbox } from "@headlessui/react";
 
@@ -15,6 +15,12 @@ export default function Home() {
   const [
     destinationNetworkId, setDestinationNetworkId
   ] = useState(TOKENS[0].supported[0].destinationNetworkId);
+
+  const swapNetworks = () => {
+    const temp = sourceNetworkId;
+    setSourceNetworkId(destinationNetworkId);
+    setDestinationNetworkId(temp);
+  };
 
   return (
     <div className="bg-zinc-950 min-h-screen flex flex-col justify-between">
@@ -46,17 +52,22 @@ export default function Home() {
               <div className="flex items-center justify-between">
                 <BlockchainDropdown
                   label="From"
-                  defaultSelected="xch"
+                  options={NETWORKS}
+                  selectedValue={sourceNetworkId}
+                  updateSelectedValue={setSourceNetworkId}
                 />
                 <button
                   type="button"
                   className="mx-2 p-2 text-zinc-300 hover:bg-zinc-700 rounded-xl"
+                  onClick={swapNetworks}
                 >
                   <ChangeArrow />
                 </button>
                 <BlockchainDropdown
                   label="To"
-                  defaultSelected="bse"
+                  options={NETWORKS}
+                  selectedValue={destinationNetworkId}
+                  updateSelectedValue={setDestinationNetworkId}
                 />
               </div>
               <input
@@ -100,19 +111,22 @@ export default function Home() {
 
 type BlockchainDropdownProps = {
   label: string;
-  defaultSelected: string | number;
+  options: Network[];
+  selectedValue: string;
+  updateSelectedValue: (value: string) => void;
 };
-function BlockchainDropdown({ label, defaultSelected }: BlockchainDropdownProps) {
+function BlockchainDropdown({ label, options, selectedValue, updateSelectedValue }: BlockchainDropdownProps) {
   return (
     <div className="px-2 py-2 relative flex w-full flex-col border border-zinc-700 rounded bg-zinc-800">
       <label className="text-zinc-500 text-sm mb-1">{label}</label>
       <select
-        defaultValue={defaultSelected}
+        value={selectedValue}
+        onChange={(e) => updateSelectedValue(e.target.value)}
         className="flex-1 bg-zinc-800 text-zinc-300 outline-none appearance-none"
       >
-        <option value="eth">Ethereum</option>
-        <option value="bse">Base</option>
-        <option value="xch">Chia</option>
+        {options.map((n) => (
+          <option key={n.id} value={n.id}>{n.displayName}</option>
+        ))}
       </select>
     </div>
   );
