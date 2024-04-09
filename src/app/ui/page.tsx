@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { Network, NETWORKS, TOKENS } from "./config";
 import { useState } from "react";
-import { Listbox } from "@headlessui/react";
 
 export default function Home() {
   const [
@@ -15,6 +14,12 @@ export default function Home() {
   const [
     destinationNetworkId, setDestinationNetworkId
   ] = useState(TOKENS[0].supported[0].destinationNetworkId);
+  const [
+    amount, setAmount
+  ] = useState("");
+  const [
+    destinationAddress, setDestinationAddress
+  ] = useState("");
 
   const swapNetworks = () => {
     const temp = sourceNetworkId;
@@ -75,11 +80,15 @@ export default function Home() {
                 placeholder="Amount"
                 className="w-full px-2 py-2 border border-zinc-700 rounded outline-none bg-zinc-800 text-zinc-300 placeholder-zinc-500 text-lg"
                 pattern="^\d*(\.\d{0,8})?$"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
               />
               <input
                 type="text"
                 placeholder="Receive Address"
                 className="w-full px-2 py-2 border border-zinc-700 rounded outline-none bg-zinc-800 text-zinc-300 placeholder-zinc-500 text-lg"
+                value={destinationAddress}
+                onChange={(e) => setDestinationAddress(e.target.value)}
               />
             </div>
 
@@ -102,7 +111,6 @@ export default function Home() {
         <Link href="https://docs.warp.green" className="px-2 underline hover:text-zinc-100">Docs</Link> | 
         <Link href="https://twitter.com/warpdotgreen" className="px-2 underline hover:text-zinc-100">Twitter</Link> |
         <Link href="https://github.com/warpdotgreen" className="pl-2 underline hover:text-zinc-100">Github</Link>
-
       </div>
     </div>
   );
