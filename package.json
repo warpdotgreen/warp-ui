@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@headlessui/react": "^1.7.18",
     "buffer": "^6.0.3",
     "ethers": "^6.11.1",
     "greenwebjs": "^1.1.9",

@@ -88,20 +88,36 @@ export const NETWORKS = [
   ETHEREUM_NETWORK
 ];
 
-export type TokenInfoOnNetwork = {
-  network_id: string,
-  asset_id_or_contract_address: string
+export type TokenInfo = {
+  source_network_id: string,
+  destination_network_id: string,
+  asset_id: string,
+  contract_address: string
 };
 
 export type Token = {
   symbol: string,
-  supported: TokenInfoOnNetwork[]
+  supported: TokenInfo[]
 };
 
-export const USDC_TOKEN: Token = {};
-export const ETH_TOKEN: Token = {}; 
+export const ETH_TOKEN: Token = {
+  symbol: 'ETH',
+  supported: [
+    // {
+    //   source_network_id: 'eth',
+    //   destination_network_id: 'xch',
+    //   asset_id: 'eth',
+    //   contract_address: ''
+    // }
+    {
+      source_network_id: 'bse',
+      destination_network_id: 'xch',
+      asset_id: 'ddb39b5ba8fcbc58b4b06be6978d61536365e50a3563566c1d2c896ab1062788',
+      contract_address: '0xa2dC46aC13A4E153e66DeF2b6C6168919d349e42'
+    }
+  ]
+};
 
 export const tokens = [
-  USDC_TOKEN,
   ETH_TOKEN
 ]
