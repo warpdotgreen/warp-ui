@@ -89,10 +89,10 @@ export const NETWORKS = [
 ];
 
 export type TokenInfo = {
-  source_network_id: string,
-  destination_network_id: string,
-  asset_id: string,
-  contract_address: string
+  sourceNetworkId: string,
+  destinationNetworkId: string,
+  assetId: string,
+  contractAddress: string
 };
 
 export type Token = {
@@ -110,14 +110,14 @@ export const ETH_TOKEN: Token = {
     //   contract_address: ''
     // }
     {
-      source_network_id: 'bse',
-      destination_network_id: 'xch',
-      asset_id: 'ddb39b5ba8fcbc58b4b06be6978d61536365e50a3563566c1d2c896ab1062788',
-      contract_address: '0xa2dC46aC13A4E153e66DeF2b6C6168919d349e42'
+      sourceNetworkId: 'bse',
+      destinationNetworkId: 'xch',
+      assetId: 'ddb39b5ba8fcbc58b4b06be6978d61536365e50a3563566c1d2c896ab1062788',
+      contractAddress: '0xa2dC46aC13A4E153e66DeF2b6C6168919d349e42'
     }
   ]
 };
 
-export const tokens = [
+export const TOKENS = [
   ETH_TOKEN
 ]
