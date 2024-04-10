@@ -1,3 +1,6 @@
+import Link from "next/link";
+import { ClientProvider } from "./client_provider";
+import { ChiaWalletButton } from "./ChiaWalletButton";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -6,24 +9,54 @@ import CreateBuffer from "./create_buffer";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Bridge UI",
-  description: "Chia <-> Ethereum Bridge UI",
+  title: "Bridging Interface",
+  description: "Interface for an EVM-Chia bridge powered by the warp.green cross-chain messaging protocol. Currently supported networks include Chia, Ethereum, and Base.",
 };
 
-export default function RootLayout({
+export default function UILayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html lang="en">
       <head>
+        <title>Bridging Interface</title>
       </head>
       <body className={inter.className}>
-        <CreateBuffer>
-          {children}
-        </CreateBuffer>
+        <ClientProvider>
+          <div className="bg-zinc-950 min-h-screen flex flex-col justify-between">
+            <div className="flex justify-between px-8 py-4 border-b border-zinc-700 bg-zinc-950">
+              <div className="text-zinc-300 text-2xl font-normal pt-1">Bridging Interface</div>
+              <div className="flex space-x-2">
+                <w3m-button />
+                <ChiaWalletButton />
+              </div>
+            </div>
+
+            {children}
+
+            <div className="flex justify-center pb-4 text-zinc-300">
+              <Sparkles />
+              <span className="pl-1">powered by</span>
+              <Link href="https://warp.green" className="text-green-500 hover:text-green-300 pl-1 pr-2 font-medium underline">warp.green</Link> |
+              <Link href="https://docs.warp.green" className="px-2 underline hover:text-zinc-100">Docs</Link> | 
+              <Link href="https://twitter.com/warpdotgreen" className="px-2 underline hover:text-zinc-100">Twitter</Link> |
+              <Link href="https://github.com/warpdotgreen" className="pl-2 underline hover:text-zinc-100">Github</Link>
+            </div>
+          </div>
+        </ClientProvider>
       </body>
     </html>
+  )
+}
+
+
+// https://heroicons.com/ 
+function Sparkles() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
+    </svg>
   );
 }

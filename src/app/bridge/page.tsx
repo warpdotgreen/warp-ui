@@ -22,11 +22,14 @@ export default function BridgingFirstStep() {
       <ChiaWalletContext.Consumer>
         {(chiaWalletContext) => {
           if(step === 1 || false) {
+            const recipient = searchParams.get('recipient');
+            const amount = searchParams.get('amount');
+            
             return (
               <>
                 { token.symbol === "ETH" && (
-                  <div className="border italic border-zinc-500 bg-zinc-700 rounded-lg px-2 py-2">
-                    Note: You{"'"}re transferring ether. You{"'"}ll send {sourceChain.type == NetworkType.EVM ? 'ETH' : 'milliETH'}, which will be converted to {destinationChain.type == NetworkType.EVM ? 'ETH' : 'milliETH'} at a rate of {sourceChain.type == NetworkType.EVM ? '1:1000' : '1000:1'}.
+                  <div className="border italic border-zinc-500 bg-zinc-700 rounded-lg px-4 py-2">
+                    Note: You{"'"}re bridging ether. You{"'"}ll send {sourceChain.type == NetworkType.EVM ? 'ETH' : 'milliETH'}, which will be automatically converted to {destinationChain.type == NetworkType.EVM ? 'ETH' : 'milliETH'} at a rate of {sourceChain.type == NetworkType.EVM ? '1:1000' : '1000:1'}.
                   </div> 
                 )}
               </>
