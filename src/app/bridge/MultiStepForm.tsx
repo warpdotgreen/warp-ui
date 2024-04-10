@@ -16,7 +16,7 @@ export function MultiStepForm({
   ]
 
   return (
-    <div className="max-w-lg w-full mx-auto py-8">
+    <div className="max-w-xl w-full mx-auto py-8">
       <div className="mx-auto border-zinc-700 rounded-lg border p-6 bg-zinc-900 space-y-6">
         {steps.map((step, index) => {
           return (
