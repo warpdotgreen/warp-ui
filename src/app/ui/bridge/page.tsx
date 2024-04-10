@@ -1,9 +1,12 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { ChiaWalletContext } from "../chia_wallet_context";
 import { MultiStepForm } from "./MultiStepForm";
 
 export default function BridgingFirstStep() {
+  const searchParams = useSearchParams();
+  const step = parseInt(searchParams.get("step")!);
 
   const sourceChain = "Base";
   const destinationChain = "Chia";
@@ -15,7 +18,7 @@ export default function BridgingFirstStep() {
           <MultiStepForm
             sourceChain={sourceChain}
             destinationChain={destinationChain}
-            activeStep={1}
+            activeStep={step}
             >
               <p>Hello, sir!</p>
           </MultiStepForm>
