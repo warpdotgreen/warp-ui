@@ -12,7 +12,7 @@ export function ChiaWalletButton() {
             const displayStr = chiaWalletContext.address.slice(0, 6) + '...' + chiaWalletContext.address.slice(-6);
             return (
               <button
-                className="text-md px-4 rounded-full text-zinc-300 bg-zinc-800 hover:bg-zinc-900 py-0 font-semibold text-center"
+                className="text-md border border-zinc-800 px-4 rounded-full text-zinc-300 bg-zinc-950 hover:bg-zinc-900 py-0 font-semibold text-center"
                 onClick={() => { alert("Disconnect functionality not implemented yet") }}
               >
                 {displayStr}

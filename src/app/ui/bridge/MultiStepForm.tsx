@@ -1,18 +1,18 @@
 export function MultiStepForm({
-  sourceChain,
-  destinationChain,
+  sourceChainName,
+  destinationChainName,
   activeStep,
   children,
 }: {
-  sourceChain: string,
-  destinationChain: string,
+  sourceChainName: string,
+  destinationChainName: string,
   activeStep: number,
   children: React.ReactNode,
 }) {
   const steps = [
-    { text: `Send tokens on ${sourceChain}`, icon: <FeeIcon />, iconText: "Fee" },
+    { text: `Send tokens on ${sourceChainName}`, icon: <FeeIcon />, iconText: "Fee" },
     { text: "Wait for transaction confirmation", icon: <ClockIcon />, iconText: "18 min" },
-    { text: `Claim tokens on ${destinationChain}`, icon: <FeeIcon />, iconText: "Fee" },
+    { text: `Claim tokens on ${destinationChainName}`, icon: <FeeIcon />, iconText: "Fee" },
   ]
 
   return (
@@ -28,8 +28,10 @@ export function MultiStepForm({
                   <span className="ml-1">{step.iconText}</span>
                 </div>
               </div>
-              <div className="mx-6">
-                {activeStep - 1 == index && children}
+              <div className="mx-4">
+                {activeStep - 1 == index && (
+                  <div className="pt-2 pb-4">{children}</div>
+                )}
               </div>
             </div>
           );
