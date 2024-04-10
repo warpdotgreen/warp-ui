@@ -4,8 +4,10 @@ import { useAccount, useAccountEffect } from "wagmi";
 import { Network, NETWORKS, NetworkType, TOKENS } from "./config";
 import { useState } from "react";
 import { ChiaWalletContext } from "./chia_wallet_context";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
   const [
     tokenSymbol, setTokenSymbol
   ] = useState(TOKENS[0].symbol);
@@ -31,8 +33,17 @@ export default function Home() {
     }
   });
 
-  const goToFirstStep = () => {
-    alert('Time to bridge!');
+  const goToFirstStep = async () => {
+    const queryString = new URLSearchParams({
+      step: "1",
+      source: sourceNetworkId,
+      destination: destinationNetworkId,
+      token: tokenSymbol,
+      recipient: destinationAddress,
+      amount,
+    }).toString();
+
+    router.push(`/bridge?${queryString}`);
   }
 
   return (
@@ -127,14 +138,13 @@ export default function Home() {
                     ) : (
                       <button
                           type="submit"
-                          className="w-64 px-2 py-3 text-zinc-100 rounded-3xl bg-green-500 text-bg hover:bg-green-700 font-semibold transition-colors duration-300"
+                          className="w-64 px-2 py-3 text-zinc-300 rounded-3xl bg-green-900 font-semibold"
                           disabled={true}
                         >
-                          Connect wallets first.
+                          Connect wallets first
                         </button>
                     )
                   }
-                 
                 </div>
               </div>
             </div>

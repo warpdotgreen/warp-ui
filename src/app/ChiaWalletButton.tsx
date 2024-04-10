@@ -41,7 +41,7 @@ export function ChiaWalletButton() {
               className="text-md px-4 rounded-full text-zinc-100 bg-green-500 hover:bg-green-600 py-2 font-semibold text-center"
               onClick={connectWallet}
             >
-              Connect Wallet
+              Connect Chia Wallet
             </button>
           );
         }

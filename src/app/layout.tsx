@@ -4,7 +4,6 @@ import { ChiaWalletButton } from "./ChiaWalletButton";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import CreateBuffer from "./create_buffer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -29,7 +28,7 @@ export default function UILayout({
             <div className="flex justify-between px-8 py-4 border-b border-zinc-700 bg-zinc-950">
               <div className="text-zinc-300 text-2xl font-normal pt-1">Bridging Interface</div>
               <div className="flex space-x-2">
-                <w3m-button />
+                <w3m-button balance='hide' label="Connect Ethereum Wallet"/>
                 <ChiaWalletButton />
               </div>
             </div>
@@ -50,7 +49,6 @@ export default function UILayout({
     </html>
   )
 }
-
 
 // https://heroicons.com/ 
 function Sparkles() {
