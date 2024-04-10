@@ -1,4 +1,7 @@
 import { ethers } from "ethers";
+import { http, createConfig } from 'wagmi'
+import { sepolia, baseSepolia } from 'wagmi/chains'
+import { injected, coinbaseWallet, metaMask, walletConnect } from "wagmi/connectors"
 
 export const TESTNET = true;
 
@@ -121,3 +124,24 @@ export const ETH_TOKEN: Token = {
 export const TOKENS = [
   ETH_TOKEN
 ]
+
+declare module 'wagmi' { 
+  interface Register { 
+    config: typeof wagmiConfig 
+  } 
+}
+
+export const wagmiConfig = createConfig({
+  chains: [sepolia, baseSepolia],
+  ssr: true,
+  transports: {
+    [sepolia.id]: http(ETHEREUM_NETWORK.rpcUrl),
+    [baseSepolia.id]: http(BASE_NETWORK.rpcUrl),
+  },
+  connectors: [
+    injected(),
+    metaMask(),
+    coinbaseWallet({ appName: 'Bridge Interface', darkMode: true }),
+    walletConnect({ projectId: 'e47a64f2fc7214f6c9f71b8b71e5e786' })
+  ]
+})

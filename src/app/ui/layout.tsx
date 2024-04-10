@@ -1,4 +1,10 @@
+"use client";
 import Link from "next/link";
+import { WagmiProvider } from "wagmi";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query' 
+import { wagmiConfig } from "./config";
+
+const queryClient = new QueryClient() 
 
 export default function UILayout({
   children,
@@ -6,26 +12,30 @@ export default function UILayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="bg-zinc-950 min-h-screen flex flex-col justify-between">
-      <div className="flex justify-between px-8 py-4 border-b border-zinc-700 bg-zinc-950">
-        <div className="text-zinc-300 text-2xl font-normal">Bridge Interface</div>
-        <div className="flex">
-          <div className="h-8 px-4 rounded-full bg-zinc-500 pt-1 mr-2">Wallet 1 here</div>
-          <div className="h-8 px-4 rounded-full bg-zinc-500 pt-1">Wallet 2 here</div>
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={queryClient}> 
+        <div className="bg-zinc-950 min-h-screen flex flex-col justify-between">
+          <div className="flex justify-between px-8 py-4 border-b border-zinc-700 bg-zinc-950">
+            <div className="text-zinc-300 text-2xl font-normal">Bridge Interface</div>
+            <div className="flex">
+              <div className="h-8 px-4 rounded-full bg-zinc-500 pt-1 mr-2">Wallet 1 here</div>
+              <div className="h-8 px-4 rounded-full bg-zinc-500 pt-1">Wallet 2 here</div>
+            </div>
+          </div>
+
+          {children}
+
+          <div className="flex justify-center pb-4 text-zinc-300">
+            <Sparkles />
+            <span className="pl-1">powered by</span>
+            <Link href="https://warp.green" className="text-green-500 hover:text-green-300 pl-1 pr-2 font-medium underline">warp.green</Link> |
+            <Link href="https://docs.warp.green" className="px-2 underline hover:text-zinc-100">Docs</Link> | 
+            <Link href="https://twitter.com/warpdotgreen" className="px-2 underline hover:text-zinc-100">Twitter</Link> |
+            <Link href="https://github.com/warpdotgreen" className="pl-2 underline hover:text-zinc-100">Github</Link>
+          </div>
         </div>
-      </div>
-
-      {children}
-
-      <div className="flex justify-center pb-4 text-zinc-300">
-        <Sparkles />
-        <span className="pl-1">powered by</span>
-        <Link href="https://warp.green" className="text-green-500 hover:text-green-300 pl-1 pr-2 font-medium underline">warp.green</Link> |
-        <Link href="https://docs.warp.green" className="px-2 underline hover:text-zinc-100">Docs</Link> | 
-        <Link href="https://twitter.com/warpdotgreen" className="px-2 underline hover:text-zinc-100">Twitter</Link> |
-        <Link href="https://github.com/warpdotgreen" className="pl-2 underline hover:text-zinc-100">Github</Link>
-      </div>
-    </div>
+      </QueryClientProvider>
+    </WagmiProvider>
   )
 }
 
