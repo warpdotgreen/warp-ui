@@ -22,6 +22,7 @@ export type Network = {
   confirmationMinHeight: number,
 
   // Chia only
+  prefix?: string,
   bridgingPuzzleHash?: string,
   portalLauncherId?: string,
   aggSigData?: string,
@@ -45,6 +46,7 @@ export const CHIA_NETWORK: Network = {
     "9796fa4b1fa20600e1ab44f5ff77aec6d48ab27e0af89009f269cb918fa2afd2b4bb00dc2560f643cd7e53d786d69c65"
   ],
   confirmationMinHeight: 1,
+  prefix: "txch",
   bridgingPuzzleHash: "ac0dc3716c3d9fe85a27805f5c49aed6f903a1191458f552f331a08595c4ee4f",
   portalLauncherId: "2897cd458b03dcf30d42f4bd8a0f3509d2edb541efccd426cf5c831f8ce05005",
   aggSigData: "37a90eb5185a9c4439a91ddc98bbadce7b4feba060d50116a067de66bf236615",

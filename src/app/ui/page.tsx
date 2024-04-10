@@ -31,6 +31,10 @@ export default function Home() {
     }
   });
 
+  const goToFirstStep = () => {
+    alert('Time to bridge!');
+  }
+
   return (
     <ChiaWalletContext.Consumer>
       {(chiaWalletContext) => {
@@ -111,12 +115,26 @@ export default function Home() {
                 </div>
 
                 <div className="flex justify-center">
-                  <button
-                    type="submit"
-                      className="w-64 px-2 py-3 text-zinc-100 rounded-3xl bg-green-500 text-bg hover:bg-green-700 font-semibold transition-colors duration-300"
-                  >
-                    Bridge
-                  </button>
+                  {
+                    chiaWalletContext.connected && account?.address !== undefined ? (
+                       <button
+                          type="submit"
+                          className="w-64 px-2 py-3 text-zinc-100 rounded-3xl bg-green-500 text-bg hover:bg-green-700 font-semibold transition-colors duration-300"
+                          onClick={goToFirstStep}
+                        >
+                          Bridge
+                        </button>
+                    ) : (
+                      <button
+                          type="submit"
+                          className="w-64 px-2 py-3 text-zinc-100 rounded-3xl bg-green-500 text-bg hover:bg-green-700 font-semibold transition-colors duration-300"
+                          disabled={true}
+                        >
+                          Connect wallets first.
+                        </button>
+                    )
+                  }
+                 
                 </div>
               </div>
             </div>

@@ -1,6 +1,7 @@
 "use client";
 import { ChiaWalletContext } from "./chia_wallet_context";
 import * as GreenWeb from 'greenwebjs';
+import { CHIA_NETWORK } from "./config";
 
 export function ChiaWalletButton() {
   return (
@@ -23,7 +24,7 @@ export function ChiaWalletButton() {
             try {
                 await window.chia.request({ method: "connect" });
                 const puzzle_hash = window.chia.selectedAddress;
-                const address = GreenWeb.util.address.puzzleHashToAddress(puzzle_hash);
+                const address = GreenWeb.util.address.puzzleHashToAddress(puzzle_hash, CHIA_NETWORK.prefix);
 
                 chiaWalletContext.setChiaWalletContext({
                   ...chiaWalletContext,
