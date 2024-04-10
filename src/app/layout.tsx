@@ -28,7 +28,7 @@ export default function UILayout({
           {TESTNET && <div className="text-yellow-300 bg-red-500 text-center w-full py-2 px-4 font-bold">
             This is a testnet interface. Do not use mainnet funds. Make sure Goby is on <span className="text-blue-500">testnet11</span> and your Ethereum wallet is on <span className="text-blue-500">Sepolia</span> or <span className="text-blue-500">Base Sepolia</span>.
           </div>}
-          <div className="bg-zinc-950 min-h-screen flex flex-col justify-between">
+          <div className={`bg-zinc-950 min-h-screen flex flex-col justify-between ${TESTNET ? 'pb-16' : ''}`}>
             <div className="flex justify-between px-8 py-4 border-b border-zinc-700 bg-zinc-950">
               <div className="text-zinc-300 text-2xl font-normal pt-1">Bridging Interface</div>
               <div className="flex space-x-2">
