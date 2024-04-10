@@ -1,5 +1,6 @@
 "use client";
 
+import { useAccountEffect } from "wagmi";
 import { Network, NETWORKS, TOKENS } from "./config";
 import { useState } from "react";
 
@@ -20,6 +21,12 @@ export default function Home() {
     destinationAddress, setDestinationAddress
   ] = useState("");
 
+  useAccountEffect({
+    onConnect: (account) => {
+      setDestinationAddress(account.address);
+    }
+  })
+
   const swapNetworks = () => {
     const temp = sourceNetworkId;
     setSourceNetworkId(destinationNetworkId);
@@ -29,7 +36,7 @@ export default function Home() {
   return (
     <div className="max-w-md mx-auto py-8">
       <div className="mx-auto border-zinc-700 rounded-lg border p-6 bg-zinc-900">
-        <form className="space-y-6">
+        <div className="space-y-6">
           <div className="space-y-2">
             <div className="flex justify-right items-center">
               <label className="text-zinc-300 text-xl font-medium pr-4">Token</label>
@@ -85,12 +92,12 @@ export default function Home() {
           <div className="flex justify-center">
             <button
               type="submit"
-              className="w-64 px-2 py-3 border border-zinc-700 rounded-3xl bg-green-500 text-bg font-medium text-zinc-950 hover:bg-green-700 transition-colors duration-300"
+                className="w-64 px-2 py-3 text-zinc-100 rounded-3xl bg-green-500 text-bg hover:bg-green-700 font-semibold transition-colors duration-300"
             >
               Bridge
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );

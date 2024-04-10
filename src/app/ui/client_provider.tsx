@@ -9,7 +9,8 @@ const queryClient = new QueryClient()
 createWeb3Modal({
   wagmiConfig: wagmiConfig,
   projectId: WALLETCONNECT_PROJECT_ID,
-  enableOnramp: true
+  enableOnramp: true,
+  themeMode: 'dark',
 })
 
 export function ClientProvider({ children }: {

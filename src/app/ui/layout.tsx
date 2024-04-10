@@ -14,7 +14,7 @@ export default function UILayout({
           <div className="text-zinc-300 text-2xl font-normal pt-1">Bridge Interface</div>
           <div className="flex space-x-2">
             <w3m-button />
-            <button className="px-4 rounded-full text-zinc-100 bg-green-500 hover:bg-green-600 py-2 font-semibold text-center">Connect Wallet</button>
+            <button className="text-md px-4 rounded-full text-zinc-100 bg-green-500 hover:bg-green-600 py-2 font-semibold text-center">Connect Wallet</button>
           </div>
         </div>
 
