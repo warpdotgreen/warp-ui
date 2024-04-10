@@ -5,6 +5,8 @@ const nextConfig = {
       // Replace 'fs' with an empty module on the client-side
       config.resolve.fallback = { fs: false };
     }
+
+    config.externals.push('pino-pretty', 'lokijs', 'encoding')
     return config;
   },
   async rewrites() {

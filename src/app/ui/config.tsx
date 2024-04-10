@@ -1,7 +1,7 @@
+import { defaultWagmiConfig } from "@web3modal/wagmi";
 import { ethers } from "ethers";
 import { http, createConfig } from 'wagmi'
 import { sepolia, baseSepolia } from 'wagmi/chains'
-import { injected, coinbaseWallet, metaMask, walletConnect } from "wagmi/connectors"
 
 export const TESTNET = true;
 
@@ -131,17 +131,22 @@ declare module 'wagmi' {
   } 
 }
 
-export const wagmiConfig = createConfig({
+export const WALLETCONNECT_PROJECT_ID = 'e47a64f2fc7214f6c9f71b8b71e5e786';
+
+const metadata = {
+  name: 'warp.green Bridge Interface',
+  description: 'Bridging powered by the warp.green cross-chain messaging protocol',
+  url: 'https://warp.green',
+  icons: []
+}
+
+export const wagmiConfig = defaultWagmiConfig({
   chains: [sepolia, baseSepolia],
+  projectId: WALLETCONNECT_PROJECT_ID,
   ssr: true,
+  metadata,
   transports: {
     [sepolia.id]: http(ETHEREUM_NETWORK.rpcUrl),
     [baseSepolia.id]: http(BASE_NETWORK.rpcUrl),
   },
-  connectors: [
-    injected(),
-    metaMask(),
-    coinbaseWallet({ appName: 'Bridge Interface', darkMode: true }),
-    walletConnect({ projectId: 'e47a64f2fc7214f6c9f71b8b71e5e786' })
-  ]
 })
