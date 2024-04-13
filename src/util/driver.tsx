@@ -948,6 +948,8 @@ export function mintCATs(
   );
   const wrappedAssetTAILHash = GreenWeb.util.sexp.sha256tree(wrappedAssetTAIL);
 
+  console.log({ wrappedAssetTAILHash });
+
   const mintAndPayoutInnerPuzzle = getCATMintAndPayoutInnerPuzzle(
     xchReceiverPh
   );

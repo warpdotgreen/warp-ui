@@ -45,7 +45,7 @@ export default function UILayout({
               <Link href="https://warp.green" className="text-green-500 hover:text-green-300 pl-1 pr-2 font-medium underline">warp.green</Link> |
               <Link href="https://docs.warp.green" target="_blank" className="px-2 underline hover:text-zinc-100">Docs</Link> | 
               <Link href="https://twitter.com/warpdotgreen" target="_blank" className="px-2 underline hover:text-zinc-100">Twitter</Link> |
-              <Link href="https://github.com/warpdotgreen" target="_blank" className="pl-2 underline hover:text-zinc-100">Github</Link>
+              <Link href="https://github.com/warpdotgreen" target="_blank" className="pl-2 underline hover:text-zinc-100">GitHub</Link>
             </div>
           </div>
         </ClientProvider>
