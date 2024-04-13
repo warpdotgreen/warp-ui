@@ -1,13 +1,13 @@
 "use client";
-import { BRIDGING_FEE_MOJOS, burnCATs, getBurnSendAddress, getBurnSendFullPuzzleHash, getCATBurnerPuzzle, sbToString } from "@/util/driver";
-import { getCoinRecordByName, getCoinRecordsByPuzzleHash, getPuzzleAndSolution, pushTx } from "@/util/rpc";
+import { BRIDGING_FEE_MOJOS, burnCATs, getBurnSendAddress, getBurnSendFullPuzzleHash, getCATBurnerPuzzle, sbToString } from "@/app/bridge/util/driver";
+import { getCoinRecordByName, getCoinRecordsByPuzzleHash, getPuzzleAndSolution, pushTx } from "@/app/bridge/util/rpc";
 import { ethers } from "ethers";
 import { useState } from "react";
 import * as GreenWeb from 'greenwebjs';
 import Link from "next/link";
 import { initializeBLS } from "clvm";
 import { BRIDGE_CONTRACT_ADDRESS } from "@/util/bridge";
-import { decodeSignature, getSig } from "@/util/sig";
+import { decodeSignature, getSig } from "@/app/bridge/util/sig";
 
 export const PORTAL_ADDRESS = process.env.NEXT_PUBLIC_PORTAL_ADDRESS!; 
 

@@ -5,14 +5,15 @@ import { MultiStepForm } from "./../MultiStepForm";
 import { NETWORKS, Network } from "../config";
 import { useEffect, useState } from "react";
 import { initializeBLS } from "clvm";
-import { findLatestPortalState } from "@/util/portal_receiver";
+import { findLatestPortalState } from "@/app/bridge/util/portal_receiver";
 import { WindToy } from "react-svg-spinners";
-import { getSigs, stringToHex } from "@/util/sig";
-import { getCoinRecordByName, getPuzzleAndSolution, pushTx } from "@/util/rpc";
-import { mintCATs, sbToString } from "@/util/driver";
+import { getSigs, stringToHex } from "@/app/bridge/util/sig";
+import { getCoinRecordByName, getPuzzleAndSolution, pushTx } from "@/app/bridge/util/rpc";
+import { mintCATs, sbToString } from "@/app/bridge/util/driver";
 import Link from "next/link";
+import { getStepThreeURL } from "./urls";
 
-export default function BridgePageThree() {
+export default function StepThree() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -33,7 +34,7 @@ export default function BridgePageThree() {
   const [lastPortalInfo, setLastPortalInfo] = useState<any>(null);
   const [sigs, setSigs] = useState<string[]>([]);
 
-  const destTxId = searchParams.get("dest_tx_id");
+  const destTxId = searchParams.get("tx");
 
   useEffect(() => {
     if(
@@ -116,7 +117,15 @@ export default function BridgePageThree() {
           alert("Failed to push transaction - please check console for more details.");
           console.error(pushTxResp);
         } else {
-          router.push(`/bridge-step-3?${searchParams.toString()}&dest_tx_id=${txId}`);
+          router.push(getStepThreeURL({
+            sourceNetworkId: sourceChain.id,
+            destinationNetworkId: destinationChain.id,
+            nonce: nonce,
+            source,
+            destination,
+            contents,
+            destTransactionId: txId
+          }));
         }
       }
       buildAndSubmitTx();
@@ -125,7 +134,7 @@ export default function BridgePageThree() {
   }, [
     offer, sigs, destinationChain.signatureThreshold, blsInitialized, setBlsInitialized, lastPortalInfo, setLastPortalInfo, destTxId,
     sourceChain.id, destinationChain.id, nonce, receiverPhOnChia, sourceChain.erc20BridgeAddress, contents, destinationChain.rpcUrl,
-    destination, router, searchParams
+    destination, router, searchParams, source
   ]);
 
   return (
@@ -139,17 +148,15 @@ export default function BridgePageThree() {
           destinationChain={destinationChain}
           amount={amount}
           onOfferGenerated={(offer) => {
-            const queryString = new URLSearchParams({
-              source: sourceChain.id,
-              destination: destinationChain.id,
-              nonce: nonce,
-              from: source,
-              to: destination,
-              contents: JSON.stringify(contents),
-              offer: offer
-            }).toString();
-
-            router.push(`/bridge-step-3?${queryString}`);
+            router.push(getStepThreeURL({
+              sourceNetworkId: sourceChain.id,
+              destinationNetworkId: destinationChain.id,
+              nonce,
+              source,
+              destination,
+              contents,
+              offer,
+            }));
           }}
         />
       ) : (

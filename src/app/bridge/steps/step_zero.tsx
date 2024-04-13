@@ -1,12 +1,14 @@
 "use client";
 
 import { useAccount, useAccountEffect } from "wagmi";
-import { Network, NETWORKS, NetworkType, TOKENS } from "./config";
+import { Network, NETWORKS, NetworkType, TOKENS } from "./../config";
 import { useState } from "react";
-import { ChiaWalletContext } from "./chia_wallet_context";
+import { ChiaWalletContext } from "./../chia_wallet_context";
 import { useRouter } from "next/navigation";
+import { Token } from "../config";
+import { getStepOneURL } from "./urls";
 
-export default function Home() {
+export default function StepZero() {
   const router = useRouter();
   const [
     tokenSymbol, setTokenSymbol
@@ -27,28 +29,26 @@ export default function Home() {
 
   useAccountEffect({
     onConnect: (account) => {
-      if(account?.address !== undefined && NETWORKS.find(n => n.id === destinationNetworkId)?.type === NetworkType.EVM) {
+      if(account?.address !== undefined && NETWORKS.find((n: Network) => n.id === destinationNetworkId)?.type === NetworkType.EVM) {
         setDestinationAddress(account!.address);
       }
     }
   });
 
   const goToFirstStep = async () => {
-    const queryString = new URLSearchParams({
-      source: sourceNetworkId,
-      destination: destinationNetworkId,
-      token: tokenSymbol,
+    router.push(getStepOneURL({
+      sourceNetworkId,
+      destinationNetworkId,
+      tokenSymbol,
       recipient: destinationAddress,
-      amount,
-    }).toString();
-
-    router.push(`/bridge-step-1?${queryString}`);
+      amount
+    }));
   }
 
   return (
     <ChiaWalletContext.Consumer>
-      {(chiaWalletContext) => {
-        if(chiaWalletContext.connected && NETWORKS.find(n => n.id === destinationNetworkId)?.type === NetworkType.COINSET) {
+      {(chiaWalletContext: any) => {
+        if(chiaWalletContext.connected && NETWORKS.find((n: Network) => n.id === destinationNetworkId)?.type === NetworkType.COINSET) {
             setDestinationAddress(chiaWalletContext.address);
           }
 
@@ -57,10 +57,10 @@ export default function Home() {
           setSourceNetworkId(destinationNetworkId);
           setDestinationNetworkId(temp);
           
-          if(account?.address !== undefined && NETWORKS.find(n => n.id === temp)?.type === NetworkType.EVM) {
+          if(account?.address !== undefined && NETWORKS.find((n: Network) => n.id === temp)?.type === NetworkType.EVM) {
             setDestinationAddress(account!.address);
           } else {
-            if(chiaWalletContext.connected && NETWORKS.find(n => n.id === temp)?.type === NetworkType.COINSET) {
+            if(chiaWalletContext.connected && NETWORKS.find((n: Network) => n.id === temp)?.type === NetworkType.COINSET) {
               setDestinationAddress(chiaWalletContext.address);
             } else {
               setDestinationAddress("");
@@ -81,7 +81,7 @@ export default function Home() {
                       value={tokenSymbol}
                       onChange={(e) => setTokenSymbol(e.target.value)}
                     >
-                      {TOKENS.map((t) => (
+                      {TOKENS.map((t: Token) => (
                         <option key={t.symbol} value={t.symbol}>{t.symbol}</option>
                       ))}
                     </select>

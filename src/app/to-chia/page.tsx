@@ -1,16 +1,16 @@
 "use client";
 import Image from "next/image";
 import { useState } from 'react';
-import { findLatestPortalState } from '../../util/portal_receiver';  
-import { BRIDGE_CONTRACT_ABI, BRIDGE_CONTRACT_ADDRESS } from "@/util/abis";
+import { findLatestPortalState } from '../bridge/util/portal_receiver';  
+import { BRIDGE_CONTRACT_ABI, BRIDGE_CONTRACT_ADDRESS } from "@/app/bridge/util/abis";
 import { ethers } from "ethers";
 import * as GreenWeb from 'greenwebjs';
-import { offerToSpendBundle } from "@/util/offer";
-import { mintCATs, sbToString } from "@/util/driver";
-import { getCoinRecordByName, getPuzzleAndSolution, pushTx } from "@/util/rpc";
+import { offerToSpendBundle } from "@/app/bridge/util/offer";
+import { mintCATs, sbToString } from "@/app/bridge/util/driver";
+import { getCoinRecordByName, getPuzzleAndSolution, pushTx } from "@/app/bridge/util/rpc";
 import { initializeBLS } from "clvm";
 import Link from "next/link";
-import { getSig } from "@/util/sig";
+import { getSig } from "@/app/bridge/util/sig";
 
 const milliETHFactor: bigint = BigInt(1000);
 

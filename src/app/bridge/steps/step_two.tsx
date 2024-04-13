@@ -7,9 +7,10 @@ import { useBlockNumber, useContractRead, useReadContract, useWaitForTransaction
 import { WindToy } from "react-svg-spinners";
 import { useEffect } from "react";
 import { ethers } from "ethers";
-import { L1BlockABI } from "@/util/abis";
+import { L1BlockABI } from "@/app/bridge/util/abis";
+import { getStepThreeURL, getStepTwoURL } from "./urls";
 
-export default function BridgePageTwo() {
+export default function StepTwo() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -20,13 +21,11 @@ export default function BridgePageTwo() {
   const txReceipt = useWaitForTransactionReceipt({
     hash: tx_hash,
     onReplaced: (replacement) => {
-      const queryString = new URLSearchParams({
-        source: sourceChain.id,
-        destination: destinationChain.id,
+      router.push(getStepTwoURL({
+        sourceNetworkId: sourceChain.id,
+        destinationNetworkId: destinationChain.id,
         tx_hash: replacement.replacedTransaction.hash,
-      }).toString();
-
-      router.push(`/bridge-step-2?${queryString}`);
+      }));
     },
   });
 
@@ -92,6 +91,7 @@ const getNonceAndNavigate = (
   );
 
   const queryString = new URLSearchParams({
+    step: "3",
     source: sourceChainId,
     destination: destinationChainId,
     nonce: nonce,
@@ -100,7 +100,14 @@ const getNonceAndNavigate = (
     contents: JSON.stringify(decodedData[3])
   }).toString();
 
-  router.push(`/bridge-step-3?${queryString}`);
+  router.push(getStepThreeURL({
+    sourceNetworkId: sourceChainId,
+    destinationNetworkId: destinationChainId,
+    nonce,
+    source: decodedData[0],
+    destination: decodedData[2],
+    contents: decodedData[3]
+  }))
 }
 
 function EthereumValidationTextElement({

@@ -5,11 +5,12 @@ import { MultiStepForm } from "./../MultiStepForm";
 import { NETWORKS, NetworkType, TOKENS } from "../config";
 import { ethers } from "ethers";
 import { useWriteContract } from "wagmi";
-import { BRIDGE_CONTRACT_ABI } from "@/util/abis";
+import { BRIDGE_CONTRACT_ABI } from "@/app/bridge/util/abis";
 import * as GreenWeb from 'greenwebjs';
 import { useEffect, useState } from "react";
+import { getStepTwoURL } from "./urls";
 
-export default function BridgePageOne() {
+export default function StepOne() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: hash, writeContract } = useWriteContract();
@@ -21,13 +22,11 @@ export default function BridgePageOne() {
 
   useEffect(() => {
     if(hash !== undefined) {
-      const queryString = new URLSearchParams({
-      source: sourceChain.id,
-      destination: destinationChain.id,
-      tx_hash: hash,
-    }).toString();
-
-    router.push(`/bridge-step-2?${queryString}`);
+      router.push(getStepTwoURL({
+        sourceNetworkId: sourceChain.id,
+        destinationNetworkId: destinationChain.id,
+        tx_hash: hash
+      }));
     }
   });
 
