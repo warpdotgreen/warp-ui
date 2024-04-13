@@ -13,12 +13,16 @@ import { mintCATs, sbToString } from "@/app/bridge/util/driver";
 import Link from "next/link";
 import { getStepThreeURL } from "./urls";
 
-export default function StepThree() {
+export default function StepThree({
+  sourceChain,
+  destinationChain,
+}: {
+  sourceChain: Network,
+  destinationChain: Network,
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const sourceChain = NETWORKS.find((network) => network.id === searchParams.get("source"))!;
-  const destinationChain = NETWORKS.find((network) => network.id === searchParams.get("destination"))!;
   const nonce: `0x${string}` = searchParams.get("nonce")! as `0x${string}`;
   const source = searchParams.get("from")!;
   const destination = searchParams.get("to")!;
@@ -137,51 +141,47 @@ export default function StepThree() {
     destination, router, searchParams, source
   ]);
 
+  if(offer == null) {
+    return (
+      <GenerateOfferPrompt
+        destinationChain={destinationChain}
+        amount={amount}
+        onOfferGenerated={(offer) => {
+          router.push(getStepThreeURL({
+            sourceNetworkId: sourceChain.id,
+            destinationNetworkId: destinationChain.id,
+            nonce,
+            source,
+            destination,
+            contents,
+            offer,
+          }));
+        }}
+      />
+    );
+  }
+
+  if(destTxId === null) {
+    <div className="text-zinc-300 flex font-medium text-md items-center justify-center">
+      <div className="flex items-center">
+        <WindToy color="rgb(212 212 216)" />
+        <p className="pl-2"> {
+          blsInitialized ? (
+            lastPortalInfo !== null ? (
+              sigs.length >= destinationChain.signatureThreshold ? (
+                "Building transaction..."
+              ) : (
+                `Collecting signatures (${sigs.length}/${destinationChain.signatureThreshold})`
+              )
+            ) : "Syncing portal..."
+          ) : "Initializing BLS..."
+        } </p>
+      </div>
+    </div>
+  }
+
   return (
-    <MultiStepForm
-    sourceChainName={sourceChain.displayName}
-    destinationChainName={destinationChain.displayName}
-    activeStep={3}
-    >
-      {offer === null ? (
-        <GenerateOfferPrompt
-          destinationChain={destinationChain}
-          amount={amount}
-          onOfferGenerated={(offer) => {
-            router.push(getStepThreeURL({
-              sourceNetworkId: sourceChain.id,
-              destinationNetworkId: destinationChain.id,
-              nonce,
-              source,
-              destination,
-              contents,
-              offer,
-            }));
-          }}
-        />
-      ) : (
-        destTxId === null ? (
-          <div className="text-zinc-300 flex font-medium text-md items-center justify-center">
-            <div className="flex items-center">
-              <WindToy color="rgb(212 212 216)" />
-              <p className="pl-2"> {
-                blsInitialized ? (
-                  lastPortalInfo !== null ? (
-                    sigs.length >= destinationChain.signatureThreshold ? (
-                      "Building transaction..."
-                    ) : (
-                      `Collecting signatures (${sigs.length}/${destinationChain.signatureThreshold})`
-                    )
-                  ) : "Syncing portal..."
-                ) : "Initializing BLS..."
-              } </p>
-            </div>
-          </div>
-        ) : (
-          <FinalTxConfirmer destinationChain={destinationChain} txId={destTxId} />
-        )
-      )}
-    </MultiStepForm>
+    <FinalTxConfirmer destinationChain={destinationChain} txId={destTxId!} />
   );
 }
 

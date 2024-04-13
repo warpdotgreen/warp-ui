@@ -2,20 +2,24 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { MultiStepForm } from "./../MultiStepForm";
-import { Network, NETWORKS } from "../config";
-import { useBlockNumber, useContractRead, useReadContract, useWaitForTransactionReceipt } from "wagmi";
+import { Network } from "../config";
+import { useBlockNumber, useReadContract, useWaitForTransactionReceipt } from "wagmi";
 import { WindToy } from "react-svg-spinners";
 import { useEffect } from "react";
 import { ethers } from "ethers";
 import { L1BlockABI } from "@/app/bridge/util/abis";
 import { getStepThreeURL, getStepTwoURL } from "./urls";
 
-export default function StepTwo() {
+export default function StepTwo({
+  sourceChain,
+  destinationChain,
+}: {
+  sourceChain: Network,
+  destinationChain: Network,
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const sourceChain = NETWORKS.find((network) => network.id === searchParams.get("source"))!;
-  const destinationChain = NETWORKS.find((network) => network.id === searchParams.get("destination"))!;
   const tx_hash: `0x${string}` = searchParams.get("tx_hash")! as `0x${string}`;
 
   const txReceipt = useWaitForTransactionReceipt({
@@ -30,36 +34,30 @@ export default function StepTwo() {
   });
 
   return (
-    <MultiStepForm
-    sourceChainName={sourceChain.displayName}
-    destinationChainName={destinationChain.displayName}
-    activeStep={2}
-    >
-      <div className="text-zinc-300 flex font-medium text-md items-center justify-center">
-        <div className="flex items-center">
-          <WindToy color="rgb(212 212 216)" />
-          {
-            txReceipt.isSuccess ? (
-              sourceChain.l1BlockContractAddress ? (
-                <BaseValidationTextElement
-                  txReceipt={txReceipt}
-                  sourceChain={sourceChain}
-                  destinationChain={destinationChain}
-                />
-              ) : (
-                <EthereumValidationTextElement
-                  txReceipt={txReceipt}
-                  sourceChain={sourceChain}
-                  destinationChain={destinationChain}
-                />
-              )
+    <div className="text-zinc-300 flex font-medium text-md items-center justify-center">
+      <div className="flex items-center">
+        <WindToy color="rgb(212 212 216)" />
+        {
+          txReceipt.isSuccess ? (
+            sourceChain.l1BlockContractAddress ? (
+              <BaseValidationTextElement
+                txReceipt={txReceipt}
+                sourceChain={sourceChain}
+                destinationChain={destinationChain}
+              />
             ) : (
-              <p className="pl-2">Waiting for transaction to be included in a block...</p>
+              <EthereumValidationTextElement
+                txReceipt={txReceipt}
+                sourceChain={sourceChain}
+                destinationChain={destinationChain}
+              />
             )
-          }
-        </div>
+          ) : (
+            <p className="pl-2">Waiting for transaction to be included in a block...</p>
+          )
+        }
       </div>
-    </MultiStepForm>
+    </div>
   );
 }
 
@@ -110,6 +108,7 @@ const getNonceAndNavigate = (
   }))
 }
 
+
 function EthereumValidationTextElement({
   txReceipt,
   sourceChain,
@@ -141,6 +140,7 @@ function EthereumValidationTextElement({
     <span className="ml-2">Confirming transaction ({currentConfirmations.toString()}/{sourceChain.confirmationMinHeight})</span>
   )
 }
+
 
 function BaseValidationTextElement({
   txReceipt,

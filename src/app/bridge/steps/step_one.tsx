@@ -1,8 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { MultiStepForm } from "./../MultiStepForm";
-import { NETWORKS, NetworkType, TOKENS } from "../config";
+import { Network, NetworkType, Token, TOKENS } from "../config";
 import { ethers } from "ethers";
 import { useWriteContract } from "wagmi";
 import { BRIDGE_CONTRACT_ABI } from "@/app/bridge/util/abis";
@@ -10,15 +9,19 @@ import * as GreenWeb from 'greenwebjs';
 import { useEffect, useState } from "react";
 import { getStepTwoURL } from "./urls";
 
-export default function StepOne() {
+export default function StepOne({
+  sourceChain,
+  destinationChain,
+}: {
+  sourceChain: Network,
+  destinationChain: Network,
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const token = TOKENS.find((token) => token.symbol === searchParams.get("token"))!;
+
   const { data: hash, writeContract } = useWriteContract();
   const [waitingForTx, setWaitingForTx] = useState(false);
-
-  const sourceChain = NETWORKS.find((network) => network.id === searchParams.get("source"))!;
-  const destinationChain = NETWORKS.find((network) => network.id === searchParams.get("destination"))!;
-  const token = TOKENS.find((token) => token.symbol === searchParams.get("token"))!;
 
   useEffect(() => {
     if(hash !== undefined) {
@@ -82,11 +85,7 @@ export default function StepOne() {
   }
 
   return (
-    <MultiStepForm
-    sourceChainName={sourceChain.displayName}
-    destinationChainName={destinationChain.displayName}
-    activeStep={1}
-    >
+    <>
       { token.symbol === "ETH" && (
         <div className="border italic border-zinc-500 bg-zinc-700 rounded-lg px-4 py-2 mb-2">
           Note: Ether will be automatically converted to {destinationChain.type == NetworkType.EVM ? 'ETH' : 'milliETH'} at a rate of {sourceChain.type == NetworkType.EVM ? '1 ETH for 1000 milliETH' : '1000 milliETH for 1 ETH'}.
@@ -121,6 +120,6 @@ export default function StepOne() {
           </button>
         )}
       </div>
-    </MultiStepForm>
+    </>
   );
 }
