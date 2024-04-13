@@ -1,16 +1,15 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { ChiaWalletContext } from "../chia_wallet_context";
 import { MultiStepForm } from "./../MultiStepForm";
 import { NETWORKS, NetworkType, TOKENS } from "../config";
 import { ethers } from "ethers";
-import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
-import { BRIDGE_CONTRACT_ABI } from "@/util/bridge";
+import { useWriteContract } from "wagmi";
+import { BRIDGE_CONTRACT_ABI } from "@/util/abis";
 import * as GreenWeb from 'greenwebjs';
 import { useEffect, useState } from "react";
 
-export default function BridgePage() {
+export default function BridgePageOne() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: hash, writeContract } = useWriteContract();

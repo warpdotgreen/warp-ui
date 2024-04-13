@@ -11,12 +11,12 @@ export function MultiStepForm({
 }) {
   const steps = [
     { text: `Send tokens on ${sourceChainName}`, icon: <FeeIcon />, iconText: "Fee" },
-    { text: "Wait for transaction confirmation", icon: <ClockIcon />, iconText: "18 min" },
+    { text: "Wait for transaction confirmation", icon: <ClockIcon />, iconText: "~18 min" },
     { text: `Claim tokens on ${destinationChainName}`, icon: <FeeIcon />, iconText: "Fee" },
   ]
 
   return (
-    <div className="max-w-xl w-full mx-auto py-8">
+    <div className="max-w-xl w-full mx-auto py-8 break-words">
       <div className="mx-auto border-zinc-700 rounded-lg border p-6 bg-zinc-900 space-y-6">
         {steps.map((step, index) => {
           return (
