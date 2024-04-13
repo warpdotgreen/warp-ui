@@ -71,7 +71,9 @@ export async function getSigs(
       "#c": [coinData],
       "#r": [routingData]
     }
-  )
+  );
+
+  pool.close(RELAYS);
 
   if(events.length === 0) {
     return [];

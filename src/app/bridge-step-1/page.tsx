@@ -63,7 +63,7 @@ export default function BridgePageOne() {
         args: [
           ("0x" + receiver) as `0x${string}`,
         ],
-        value: ethers.parseEther(amount),
+        value: ethers.parseEther(amount) + sourceChain.messageFee,
         chainId: sourceChain.chainId
       });
     } else {
@@ -76,7 +76,8 @@ export default function BridgePageOne() {
           ("0x" + receiver) as `0x${string}`,
           amountMojo
         ],
-        chainId: sourceChain.chainId
+        chainId: sourceChain.chainId,
+        value: sourceChain.messageFee
       });
     }
   }
@@ -89,7 +90,7 @@ export default function BridgePageOne() {
     >
       { token.symbol === "ETH" && (
         <div className="border italic border-zinc-500 bg-zinc-700 rounded-lg px-4 py-2 mb-2">
-          Note: Ether will be automatically converted to {destinationChain.type == NetworkType.EVM ? 'ETH' : 'milliETH'} at a rate of {sourceChain.type == NetworkType.EVM ? '1:1000' : '1000:1'}.
+          Note: Ether will be automatically converted to {destinationChain.type == NetworkType.EVM ? 'ETH' : 'milliETH'} at a rate of {sourceChain.type == NetworkType.EVM ? '1 ETH for 1000 milliETH' : '1000 milliETH for 1 ETH'}.
         </div> 
       )}
       <p className="mb-4">
@@ -98,6 +99,7 @@ export default function BridgePageOne() {
       </p>
       <p className="text-zinc-500">Sending:</p>
       <p className="px-6">{amount} {token.symbol} ({sourceChain.displayName})</p>
+      <p className="px-6">+ {ethers.formatEther(sourceChain.messageFee)} ETH ({sourceChain.displayName}) (anti-spam toll)</p>
       <p className="text-zinc-500">Receiving (after 0.3% protocol tip):</p>
       <p className="px-6">{ethers.formatUnits(amountMojoAfterFee, 3)} {token.symbol === "ETH" ? "milliETH" : token.symbol} ({destinationChain.displayName})</p>
       <p className="text-zinc-500">Recipient address:</p>

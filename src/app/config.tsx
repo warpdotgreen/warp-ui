@@ -69,7 +69,7 @@ export const BASE_NETWORK: Network = {
     "0x5C6BB61AFfEF75C358d432fdE36580824E355036",
     "0x974937Abe6B517968b8614D1E19e75FB106327f2"
   ],
-  confirmationMinHeight: 5,
+  confirmationMinHeight: 10,
   portalAddress: "0xf2bE8EB1225803E721aC20A98e97A1CAa1817e33",
   erc20BridgeAddress: "0xBaF8071bCEfbd8e21dF9E569258abF2bAc5608F3",
   l1BlockContractAddress: "0x4200000000000000000000000000000000000015"
