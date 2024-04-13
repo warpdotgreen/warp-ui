@@ -7,7 +7,7 @@ import { useBlockNumber, useContractRead, useReadContract, useWaitForTransaction
 import { WindToy } from "react-svg-spinners";
 import { useEffect } from "react";
 import { ethers } from "ethers";
-import { L1BlockAbi } from "@/util/abis";
+import { L1BlockABI } from "@/util/abis";
 
 export default function BridgePageTwo() {
   const router = useRouter();
@@ -77,10 +77,28 @@ const getNonceAndNavigate = (
   const nonce = eventLog.topics[1];
   console.log({ nonce });
 
+  /* 
+  event MessageSent(
+      bytes32 indexed nonce,
+      address source,
+      bytes3 destination_chain,
+      bytes32 destination,
+      bytes32[] contents
+  );
+  */
+
+  const decodedData = ethers.AbiCoder.defaultAbiCoder().decode(
+      ["address", "bytes3", "bytes32", "bytes32[]"],
+      eventLog.data
+  );
+
   const queryString = new URLSearchParams({
     source: sourceChainId,
     destination: destinationChainId,
     nonce: nonce,
+    from: decodedData[0],
+    to: decodedData[2],
+    contents: JSON.stringify(decodedData[3])
   }).toString();
 
   router.push(`/bridge-step-3?${queryString}`);
@@ -130,13 +148,13 @@ function BaseValidationTextElement({
   const router = useRouter();
   const blockNumberWhenTxConfirmedResp = useReadContract({
     address: sourceChain.l1BlockContractAddress!,
-    abi: L1BlockAbi,
+    abi: L1BlockABI,
     functionName: "number",
     blockNumber: (txReceipt.data as any).blockNumber,
   });
   const blockNumberNowResp = useReadContract({
     address: sourceChain.l1BlockContractAddress!,
-    abi: L1BlockAbi,
+    abi: L1BlockABI,
     functionName: "number",
     blockTag: "latest",
     query: {
