@@ -389,4 +389,4 @@ export const BRIDGE_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_BRIDGE_ADDRESS!;
         "stateMutability": "payable",
         "type": "receive"
       }
-    ];
+    ] as const;

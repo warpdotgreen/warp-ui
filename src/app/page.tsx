@@ -35,7 +35,6 @@ export default function Home() {
 
   const goToFirstStep = async () => {
     const queryString = new URLSearchParams({
-      step: "1",
       source: sourceNetworkId,
       destination: destinationNetworkId,
       token: tokenSymbol,
@@ -43,7 +42,7 @@ export default function Home() {
       amount,
     }).toString();
 
-    router.push(`/bridge?${queryString}`);
+    router.push(`/bridge-step-1?${queryString}`);
   }
 
   return (

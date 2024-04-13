@@ -97,7 +97,7 @@ export type TokenInfo = {
   sourceNetworkId: string,
   destinationNetworkId: string,
   assetId: string,
-  contractAddress: string
+  contractAddress: `0x${string}`
 };
 
 export type Token = {
