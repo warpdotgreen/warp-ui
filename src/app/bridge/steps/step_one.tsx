@@ -28,7 +28,7 @@ export default function StepOne({
       router.push(getStepTwoURL({
         sourceNetworkId: sourceChain.id,
         destinationNetworkId: destinationChain.id,
-        tx_hash: hash
+        txHash: hash
       }));
     }
   });

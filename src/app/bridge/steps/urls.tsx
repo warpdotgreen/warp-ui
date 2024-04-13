@@ -27,17 +27,17 @@ export function getStepOneURL({
 export function getStepTwoURL({
   sourceNetworkId,
   destinationNetworkId,
-  tx_hash
+  txHash
 }: {
   sourceNetworkId: string,
   destinationNetworkId: string,
-  tx_hash: string,
+  txHash: string,
 }): string {
   const queryString = new URLSearchParams({
     step: "2",
     from: sourceNetworkId,
     to: destinationNetworkId,
-    tx_hash
+    tx: txHash
   }).toString();
 
   return `/bridge?${queryString}`;
@@ -56,10 +56,10 @@ export function getStepThreeURL({
 }: {
   sourceNetworkId: string,
   destinationNetworkId: string,
-  nonce: string,
-  source: string,
-  destination: string,
-  contents: any,
+  nonce?: string,
+  source?: string,
+  destination?: string,
+  contents?: any,
   destTransactionId?: string,
   offer?: string,
 }): string {
@@ -67,12 +67,17 @@ export function getStepThreeURL({
     step: "3",
     from: sourceNetworkId,
     to: destinationNetworkId,
-    nonce,
-    source,
-    destination,
-    contents: JSON.stringify(contents),
   };
 
+  if(nonce) {
+    params = {
+      ...params,
+      nonce,
+      source,
+      destination,
+      contents: JSON.stringify(contents),
+    };
+  }
   if(destTransactionId) {
     params = {
       ...params,
@@ -85,7 +90,7 @@ export function getStepThreeURL({
       offer,
     };
   }
-
+  
   const queryString = new URLSearchParams(params).toString();
 
   return `/bridge?${queryString}`;

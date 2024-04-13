@@ -1,3 +1,5 @@
+"use client";
+
 import { useSearchParams } from "next/navigation";
 import StepZero from "./steps/step_zero";
 import { NETWORKS, TOKENS } from "./config";
@@ -10,11 +12,10 @@ export default function BridgeInterface() {
   const searchParams = useSearchParams();
 
   const step = searchParams.get("step");
-  const sourceChain = NETWORKS.find((network) => network.id === searchParams.get("source"));
-  const destinationChain = NETWORKS.find((network) => network.id === searchParams.get("destination"));
-  const token = TOKENS.find((token) => token.symbol === searchParams.get("token"));
+  const sourceChain = NETWORKS.find((network) => network.id === searchParams.get("from"));
+  const destinationChain = NETWORKS.find((network) => network.id === searchParams.get("to"));
 
-  if(!step || !sourceChain || !destinationChain || !token || !["1", "2", "3"].includes(step)) {
+  if(!step || !sourceChain || !destinationChain || !["1", "2", "3"].includes(step)) {
     return <StepZero />;
   }
 

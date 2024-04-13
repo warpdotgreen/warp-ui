@@ -22,15 +22,6 @@ export default function StepThree({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-
-  const nonce: `0x${string}` = searchParams.get("nonce")! as `0x${string}`;
-  const source = searchParams.get("from")!;
-  const destination = searchParams.get("to")!;
-  const contents = JSON.parse(searchParams.get("contents")!);
-
-  const erc20ContractAddress = contents[0];
-  const receiverPhOnChia = contents[1];
-  const amount = parseInt(contents[2], 16);
   
   const offer: string | null = searchParams.get("offer");
 
@@ -44,6 +35,15 @@ export default function StepThree({
     if(
       offer !== null && destTxId === null
     ) {
+      const nonce: `0x${string}` = searchParams.get("nonce")! as `0x${string}`;
+      const source = searchParams.get("source")!;
+      const destination = searchParams.get("destination")!;
+      const contents = JSON.parse(searchParams.get("contents")!);
+
+      const erc20ContractAddress = contents[0];
+      const receiverPhOnChia = contents[1];
+      const amount = parseInt(contents[2], 16);
+
       if(!blsInitialized) {
         initializeBLS().then(() => {
           console.log("BLS initialized.");
@@ -124,10 +124,6 @@ export default function StepThree({
           router.push(getStepThreeURL({
             sourceNetworkId: sourceChain.id,
             destinationNetworkId: destinationChain.id,
-            nonce: nonce,
-            source,
-            destination,
-            contents,
             destTransactionId: txId
           }));
         }
@@ -137,11 +133,16 @@ export default function StepThree({
     }
   }, [
     offer, sigs, destinationChain.signatureThreshold, blsInitialized, setBlsInitialized, lastPortalInfo, setLastPortalInfo, destTxId,
-    sourceChain.id, destinationChain.id, nonce, receiverPhOnChia, sourceChain.erc20BridgeAddress, contents, destinationChain.rpcUrl,
-    destination, router, searchParams, source
+    sourceChain.id, destinationChain.id, sourceChain.erc20BridgeAddress, destinationChain.rpcUrl, router, searchParams
   ]);
 
-  if(offer == null) {
+  if(!offer && !destTxId) {
+    const nonce: `0x${string}` = searchParams.get("nonce")! as `0x${string}`;
+    const source = searchParams.get("source")!;
+    const destination = searchParams.get("destination")!;
+    const contents = JSON.parse(searchParams.get("contents")!);
+    const amount = parseInt(contents[2], 16);
+
     return (
       <GenerateOfferPrompt
         destinationChain={destinationChain}
@@ -161,23 +162,25 @@ export default function StepThree({
     );
   }
 
-  if(destTxId === null) {
-    <div className="text-zinc-300 flex font-medium text-md items-center justify-center">
-      <div className="flex items-center">
-        <WindToy color="rgb(212 212 216)" />
-        <p className="pl-2"> {
-          blsInitialized ? (
-            lastPortalInfo !== null ? (
-              sigs.length >= destinationChain.signatureThreshold ? (
-                "Building transaction..."
-              ) : (
-                `Collecting signatures (${sigs.length}/${destinationChain.signatureThreshold})`
-              )
-            ) : "Syncing portal..."
-          ) : "Initializing BLS..."
-        } </p>
+  if(!destTxId) {
+    return (
+      <div className="text-zinc-300 flex font-medium text-md items-center justify-center">
+        <div className="flex items-center">
+          <WindToy color="rgb(212 212 216)" />
+          <p className="pl-2"> {
+            blsInitialized ? (
+              lastPortalInfo !== null ? (
+                sigs.length >= destinationChain.signatureThreshold ? (
+                  "Building transaction..."
+                ) : (
+                  `Collecting signatures (${sigs.length}/${destinationChain.signatureThreshold})`
+                )
+              ) : "Syncing portal..."
+            ) : "Initializing BLS..."
+          } </p>
+        </div>
       </div>
-    </div>
+    );
   }
 
   return (

@@ -1,19 +1,9 @@
 import Link from "next/link";
 import { ClientProvider } from "./client_provider";
 import { ChiaWalletButton } from "./ChiaWalletButton";
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
 import { TESTNET } from "./config";
 
-const inter = Inter({ subsets: ["latin"] });
-
-export const metadata: Metadata = {
-  title: "Bridging Interface",
-  description: "Interface for an EVM-Chia bridge powered by the warp.green cross-chain messaging protocol. Currently supported networks include Chia, Ethereum, and Base.",
-};
-
-export default function UILayout({
+export default function BridgeUILayout({
   children,
 }: {
   children: React.ReactNode

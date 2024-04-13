@@ -20,7 +20,7 @@ export default function StepTwo({
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const tx_hash: `0x${string}` = searchParams.get("tx_hash")! as `0x${string}`;
+  const tx_hash: `0x${string}` = searchParams.get("tx")! as `0x${string}`;
 
   const txReceipt = useWaitForTransactionReceipt({
     hash: tx_hash,
