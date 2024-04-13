@@ -63,7 +63,8 @@ export default function BridgePageOne() {
         args: [
           ("0x" + receiver) as `0x${string}`,
         ],
-        value: ethers.parseEther(amount)
+        value: ethers.parseEther(amount),
+        chainId: sourceChain.chainId
       });
     } else {
       writeContract({
@@ -74,7 +75,8 @@ export default function BridgePageOne() {
           token.supported.find((supported) => supported.sourceNetworkId === sourceChain.id)!.contractAddress,
           ("0x" + receiver) as `0x${string}`,
           amountMojo
-        ]
+        ],
+        chainId: sourceChain.chainId
       });
     }
   }

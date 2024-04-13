@@ -3,10 +3,11 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { MultiStepForm } from "./../MultiStepForm";
 import { Network, NETWORKS } from "../config";
-import { useBlockNumber, useWaitForTransactionReceipt } from "wagmi";
+import { useBlockNumber, useContractRead, useReadContract, useWaitForTransactionReceipt } from "wagmi";
 import { WindToy } from "react-svg-spinners";
 import { useEffect } from "react";
 import { ethers } from "ethers";
+import { L1BlockAbi } from "@/util/abis";
 
 export default function BridgePageTwo() {
   const router = useRouter();
@@ -41,7 +42,11 @@ export default function BridgePageTwo() {
           {
             txReceipt.isSuccess ? (
               sourceChain.l1BlockContractAddress ? (
-                <p className="pl-2">TODO ser</p>
+                <BaseValidationTextElement
+                  txReceipt={txReceipt}
+                  sourceChain={sourceChain}
+                  destinationChain={destinationChain}
+                />
               ) : (
                 <EthereumValidationTextElement
                   txReceipt={txReceipt}
@@ -58,6 +63,27 @@ export default function BridgePageTwo() {
 
     </MultiStepForm>
   );
+}
+
+const getNonceAndNavigate = (
+  txReceipt: any,
+  sourceChainId: string,
+  destinationChainId: string,
+  router: any
+) => {
+  const eventSignature = ethers.id("MessageSent(bytes32,address,bytes3,bytes32,bytes32[])");
+  const eventLog = (txReceipt!.data as any).logs.filter((log: any) => log.topics[0] === eventSignature)[0];
+
+  const nonce = eventLog.topics[1];
+  console.log({ nonce });
+
+  const queryString = new URLSearchParams({
+    source: sourceChainId,
+    destination: destinationChainId,
+    nonce: nonce,
+  }).toString();
+
+  router.push(`/bridge-step-3?${queryString}`);
 }
 
 function EthereumValidationTextElement({
@@ -81,19 +107,49 @@ function EthereumValidationTextElement({
 
   useEffect(() => {
     if(txReceipt.isSuccess && currentConfirmations >= BigInt(sourceChain.confirmationMinHeight)) {
-      const eventSignature = ethers.id("MessageSent(bytes32,address,bytes3,bytes32,bytes32[])");
-      const eventLog = (txReceipt!.data as any).logs.filter((log: any) => log.topics[0] === eventSignature)[0];
+      getNonceAndNavigate(txReceipt, sourceChain.id, destinationChain.id, router);
+    }
+  }, [
+    txReceipt, currentConfirmations, sourceChain.confirmationMinHeight, sourceChain.id, destinationChain.id, router
+  ]);
 
-      const nonce = eventLog.topics[1];
-      console.log({ nonce });
+  return (
+    <span className="ml-2">Confirming transaction ({currentConfirmations.toString()}/{sourceChain.confirmationMinHeight})</span>
+  )
+}
 
-      const queryString = new URLSearchParams({
-        source: sourceChain.id,
-        destination: destinationChain.id,
-        nonce: nonce,
-      }).toString();
+function BaseValidationTextElement({
+  txReceipt,
+  sourceChain,
+  destinationChain
+}: {
+  txReceipt: ReturnType<typeof useWaitForTransactionReceipt>,
+  sourceChain: Network,
+  destinationChain: Network,
+}) {
+  const router = useRouter();
+  const blockNumberWhenTxConfirmedResp = useReadContract({
+    address: sourceChain.l1BlockContractAddress!,
+    abi: L1BlockAbi,
+    functionName: "number",
+    blockNumber: (txReceipt.data as any).blockNumber,
+  });
+  const blockNumberNowResp = useReadContract({
+    address: sourceChain.l1BlockContractAddress!,
+    abi: L1BlockAbi,
+    functionName: "number",
+    blockTag: "latest",
+    query: {
+      refetchInterval: 5000,
+    }
+  });
 
-      router.push(`/bridge-step-3?${queryString}`);
+  const currentConfirmations = blockNumberWhenTxConfirmedResp.isSuccess && blockNumberNowResp.isSuccess ?
+    (blockNumberNowResp.data as bigint) - (blockNumberWhenTxConfirmedResp.data as bigint) : BigInt(0);
+
+  useEffect(() => {
+    if(txReceipt.isSuccess && currentConfirmations >= BigInt(sourceChain.confirmationMinHeight)) {
+      getNonceAndNavigate(txReceipt, sourceChain.id, destinationChain.id, router);
     }
   }, [
     txReceipt, currentConfirmations, sourceChain.confirmationMinHeight, sourceChain.id, destinationChain.id, router

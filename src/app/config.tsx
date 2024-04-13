@@ -28,9 +28,10 @@ export type Network = {
   aggSigData?: string,
 
   // EVM only
-  portalAddress?: string,
-  erc20BridgeAddress?: string,
-  l1BlockContractAddress?: string // Optimism L2 only
+  chainId?: number,
+  portalAddress?: `0x${string}`,
+  erc20BridgeAddress?: `0x${string}`,
+  l1BlockContractAddress?: `0x${string}` // Optimism L2 only
 }
 
 export const CHIA_NETWORK: Network = {
@@ -55,6 +56,7 @@ export const CHIA_NETWORK: Network = {
 export const BASE_NETWORK: Network = {
   displayName: 'Base',
   id: 'bse',
+  chainId: baseSepolia.id,
   type: NetworkType.EVM,
   rpcUrl: 'https://sepolia.base.org',
   messageFee: ethers.parseEther("0.00001"),
@@ -74,6 +76,7 @@ export const ETHEREUM_NETWORK: Network = {
   displayName: 'Ethereum',
   id: 'eth',
   type: NetworkType.EVM,
+  chainId: sepolia.id,
   rpcUrl: 'https://rpc2.sepolia.org',
   messageFee: ethers.parseEther("0.00001"),
   signatureThreshold: 1,
