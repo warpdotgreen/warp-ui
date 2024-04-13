@@ -60,7 +60,6 @@ export default function BridgePageTwo() {
           }
         </div>
       </div>
-
     </MultiStepForm>
   );
 }

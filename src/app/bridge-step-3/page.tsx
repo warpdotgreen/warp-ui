@@ -2,11 +2,15 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { MultiStepForm } from "./../MultiStepForm";
-import { NETWORKS, Network, wagmiConfig } from "../config";
+import { NETWORKS, Network } from "../config";
 import { useEffect, useState } from "react";
-import { useClient, useReadContract, useWatchContractEvent } from "wagmi";
-import { PortalABI } from "@/util/abis";
-import { getLogs } from "viem/actions";
+import { initializeBLS } from "clvm";
+import { findLatestPortalState } from "@/util/portal_receiver";
+import { WindToy } from "react-svg-spinners";
+import { getSigs, stringToHex } from "@/util/sig";
+import { getCoinRecordByName, getPuzzleAndSolution, pushTx } from "@/util/rpc";
+import { mintCATs, sbToString } from "@/util/driver";
+import Link from "next/link";
 
 export default function BridgePageThree() {
   const router = useRouter();
@@ -24,6 +28,105 @@ export default function BridgePageThree() {
   const amount = parseInt(contents[2], 16);
   
   const offer: string | null = searchParams.get("offer");
+
+  const [blsInitialized, setBlsInitialized] = useState(false);
+  const [lastPortalInfo, setLastPortalInfo] = useState<any>(null);
+  const [sigs, setSigs] = useState<string[]>([]);
+
+  const destTxId = searchParams.get("dest_tx_id");
+
+  useEffect(() => {
+    if(
+      offer !== null && destTxId === null
+    ) {
+      if(!blsInitialized) {
+        initializeBLS().then(() => {
+          console.log("BLS initialized.");
+          setBlsInitialized(true)
+        });
+        return;
+      }
+
+      if(lastPortalInfo === null) {
+        findLatestPortalState(destinationChain.rpcUrl).then((
+          { coinId, nonces, lastUsedChainAndNonces }
+        ) => {
+          console.log({ msg: 'portal synced', coinId, nonces, lastUsedChainAndNonces });
+          setLastPortalInfo({ coinId, nonces, lastUsedChainAndNonces });
+        });
+        return;
+      }
+
+      if(sigs.length < destinationChain.signatureThreshold) {
+        const { coinId } = lastPortalInfo;
+        const fetchSigsUntilThreshold = async () => {
+          while(true) {
+            const sigs = await getSigs(
+              stringToHex(sourceChain.id),
+              stringToHex(destinationChain.id),
+              nonce,
+              coinId
+            );
+            setSigs(sigs);
+
+            if(sigs.length >= destinationChain.signatureThreshold) {
+              break;
+            }
+            await new Promise((resolve) => setTimeout(resolve, 5000));
+          }
+        }
+
+        fetchSigsUntilThreshold();
+        return;
+      }
+
+      // all data available, build the tx!
+      const buildAndSubmitTx = async () => {
+        const { coinId, nonces, lastUsedChainAndNonces } = lastPortalInfo;
+        const portalCoinRecord = await getCoinRecordByName(
+          destinationChain.rpcUrl,
+          coinId
+        );
+        const portalParentSpend = await getPuzzleAndSolution(
+          destinationChain.rpcUrl,
+          portalCoinRecord.coin.parent_coin_info,
+          portalCoinRecord.confirmed_block_index
+        );
+
+        const messageData = {
+          nonce,
+          destination,
+          contents
+        }
+        const { sb, txId} = mintCATs(
+          messageData,
+          portalCoinRecord,
+          portalParentSpend,
+          nonces,
+          lastUsedChainAndNonces,
+          offer,
+          sigs,
+          [true, false, false], // todo
+          stringToHex(sourceChain.id),
+          sourceChain.erc20BridgeAddress!
+        );
+
+        const pushTxResp = await pushTx(destinationChain.rpcUrl, sb);
+        if(!pushTxResp.success) {
+          alert("Failed to push transaction - please check console for more details.");
+          console.error(pushTxResp);
+        } else {
+          router.push(`/bridge-step-3?${searchParams.toString()}&dest_tx_id=${txId}`);
+        }
+      }
+      buildAndSubmitTx();
+      return;
+    }
+  }, [
+    offer, sigs, destinationChain.signatureThreshold, blsInitialized, setBlsInitialized, lastPortalInfo, setLastPortalInfo, destTxId,
+    sourceChain.id, destinationChain.id, nonce, receiverPhOnChia, sourceChain.erc20BridgeAddress, contents, destinationChain.rpcUrl,
+    destination, router, searchParams
+  ]);
 
   return (
     <MultiStepForm
@@ -50,7 +153,26 @@ export default function BridgePageThree() {
           }}
         />
       ) : (
-        <p>TODO Ser</p>
+        destTxId === null ? (
+          <div className="text-zinc-300 flex font-medium text-md items-center justify-center">
+            <div className="flex items-center">
+              <WindToy color="rgb(212 212 216)" />
+              <p className="pl-2"> {
+                blsInitialized ? (
+                  lastPortalInfo !== null ? (
+                    sigs.length >= destinationChain.signatureThreshold ? (
+                      "Building transaction..."
+                    ) : (
+                      `Collecting signatures (${sigs.length}/${destinationChain.signatureThreshold})`
+                    )
+                  ) : "Syncing portal..."
+                ) : "Initializing BLS..."
+              } </p>
+            </div>
+          </div>
+        ) : (
+          <FinalTxConfirmer destinationChain={destinationChain} txId={destTxId} />
+        )
       )}
     </MultiStepForm>
   );
@@ -115,4 +237,52 @@ function GenerateOfferPrompt({
         </div>
     </div>
   );
+}
+
+function FinalTxConfirmer({
+  destinationChain,
+  txId,
+}: {
+  destinationChain: Network,
+  txId: string
+}) {
+  const [includedInBlock, setIncludedInBlock] = useState(false);
+
+  useEffect(() => {
+    const checkTxIncluded = async () => {
+      while(true) {
+        const coinRecord = await getCoinRecordByName(destinationChain.rpcUrl, txId);
+        if(coinRecord?.spent) {
+          setIncludedInBlock(true);
+          break;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+      }
+    }
+
+    checkTxIncluded();
+  }, [txId, destinationChain.rpcUrl]);
+
+  return <>
+    Transaction id: {txId}
+    <div className="pt-8 text-zinc-300 flex font-medium text-md items-center justify-center">
+      <div className="flex items-center">
+        {
+          includedInBlock ? (
+            <>
+              <p>Transaction confirmed.</p>
+              <Link href={`${destinationChain.explorerUrl}/coin/0x${txId}`} target="_blank" className="pl-2 underline text-green-500 hover:text-green-300">Verify on SpaceScan.</Link>
+            </>
+          ) : (
+            <>
+              <WindToy color="rgb(212 212 216)" />
+              <p className="pl-2">
+                Waiting for transaction to be included in a block...
+              </p>
+            </>
+          )
+        }
+      </div>
+    </div>
+  </>
 }

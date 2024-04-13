@@ -1,9 +1,7 @@
 import { sbToJSON } from "./driver";
 
-const RPC_BASE_URL = process.env.NEXT_PUBLIC_RPC_BASE_URL;
-
-export async function getCoinRecordByName(coinName: string) {
-  const res = await fetch(`${RPC_BASE_URL}/get_coin_record_by_name`, {
+export async function getCoinRecordByName(rpcBaseUrl: string, coinName: string) {
+  const res = await fetch(`${rpcBaseUrl}/get_coin_record_by_name`, {
     method: "POST",
     body: JSON.stringify({ name: coinName }),
     headers: {
@@ -14,8 +12,8 @@ export async function getCoinRecordByName(coinName: string) {
   return j.coin_record;
 }
 
-export async function getPuzzleAndSolution(coinId: string, spentBlockIndex: number) {
-  const res = await fetch(`${RPC_BASE_URL}/get_puzzle_and_solution`, {
+export async function getPuzzleAndSolution(rpcBaseUrl: string, coinId: string, spentBlockIndex: number) {
+  const res = await fetch(`${rpcBaseUrl}/get_puzzle_and_solution`, {
     method: "POST",
     body: JSON.stringify({ coin_id: coinId, height: spentBlockIndex }),
     headers: {
@@ -26,8 +24,8 @@ export async function getPuzzleAndSolution(coinId: string, spentBlockIndex: numb
   return j.coin_solution;
 }
 
-export async function pushTx(sb: any): Promise<any> {
-  const res = await fetch(`${RPC_BASE_URL}/push_tx`, {
+export async function pushTx(rpcBaseUrl: string, sb: any): Promise<any> {
+  const res = await fetch(`${rpcBaseUrl}/push_tx`, {
     method: "POST",
     body: JSON.stringify({ spend_bundle: sbToJSON(sb) }),
     headers: {
@@ -39,9 +37,10 @@ export async function pushTx(sb: any): Promise<any> {
 }
 
 export async function getCoinRecordsByPuzzleHash(
+  rpcBaseUrl: string,
   puzzleHash: string,
 ): Promise<any> {
-  const res = await fetch(`${RPC_BASE_URL}/get_coin_records_by_puzzle_hash`, {
+  const res = await fetch(`${rpcBaseUrl}/get_coin_records_by_puzzle_hash`, {
     method: "POST",
     body: JSON.stringify({ puzzle_hash: puzzleHash }),
     headers: {

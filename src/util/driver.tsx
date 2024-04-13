@@ -1,8 +1,8 @@
-import { hexStringToUint8Array, offerToSpendBundle, uint8ArrayToHexString } from "./offer";
+import { offerToSpendBundle } from "./offer";
 import * as GreenWeb from 'greenwebjs';
-import { SExp, Tuple, Bytes, getBLSModule, initializeBLS } from "clvm";
+import { SExp, Tuple, Bytes, getBLSModule } from "clvm";
 import { decodeSignature } from "./sig";
-import { BRIDGE_CONTRACT_ADDRESS } from "./bridge";
+import { BRIDGE_CONTRACT_ADDRESS } from "./abis";
 
 /*
 >>> from chia.wallet.trading.offer import OFFER_MOD
@@ -766,7 +766,6 @@ export function mintCATs(
 ) {
   const {
     nonce,
-    destination_chain,
     destination,
     contents
   } = message;
@@ -1011,7 +1010,6 @@ export function mintCATs(
   });
 
   const { AugSchemeMPL, G2Element } = getBLSModule();
-  console.log({ sigs })
 
   const sb = new GreenWeb.util.serializer.types.SpendBundle();
   sb.coinSpends = coin_spends;
@@ -1022,7 +1020,10 @@ export function mintCATs(
   ).toString("hex");
   // console.log( sbToString(sb) );
 
-  return sb;
+  return {
+    sb,
+    txId: GreenWeb.util.coin.getName(messageCoin)
+  };
 }
 
 export function getBurnSendAddress(

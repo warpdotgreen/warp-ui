@@ -16,6 +16,7 @@ export type Network = {
   id: string,
   type: NetworkType,
   rpcUrl: string,
+  explorerUrl: string,
   messageFee: bigint,
   signatureThreshold: number,
   validatorInfos: string[], // public key or address
@@ -39,6 +40,7 @@ export const CHIA_NETWORK: Network = {
   id: 'xch',
   type: NetworkType.COINSET,
   rpcUrl: 'http://localhost:5000/',
+  explorerUrl: 'https://testnet11.spacescan.io/',
   messageFee: BigInt(1000000000),
   signatureThreshold: 1,
   validatorInfos: [
@@ -59,6 +61,7 @@ export const BASE_NETWORK: Network = {
   chainId: baseSepolia.id,
   type: NetworkType.EVM,
   rpcUrl: 'https://sepolia.base.org',
+  explorerUrl: 'https://sepolia.basescan.org',
   messageFee: ethers.parseEther("0.00001"),
   signatureThreshold: 1,
   validatorInfos: [
@@ -78,6 +81,7 @@ export const ETHEREUM_NETWORK: Network = {
   type: NetworkType.EVM,
   chainId: sepolia.id,
   rpcUrl: 'https://rpc2.sepolia.org',
+  explorerUrl: 'https://sepolia.etherscan.io',
   messageFee: ethers.parseEther("0.00001"),
   signatureThreshold: 1,
   validatorInfos: [

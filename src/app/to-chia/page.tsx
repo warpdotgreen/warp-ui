@@ -2,7 +2,7 @@
 import Image from "next/image";
 import { useState } from 'react';
 import { findLatestPortalState } from '../../util/portal_receiver';  
-import { BRIDGE_CONTRACT_ABI, BRIDGE_CONTRACT_ADDRESS } from "@/util/bridge";
+import { BRIDGE_CONTRACT_ABI, BRIDGE_CONTRACT_ADDRESS } from "@/util/abis";
 import { ethers } from "ethers";
 import * as GreenWeb from 'greenwebjs';
 import { offerToSpendBundle } from "@/util/offer";

@@ -2,7 +2,9 @@ import * as GreenWeb from 'greenwebjs';
 import { bech32m } from "bech32";
 import { SimplePool } from 'nostr-tools/pool'
 
-const RELAY = "wss://relay.fireacademy.io";
+const RELAYS = [
+  "wss://relay.fireacademy.io"
+];
 
 /*
 def decode_signature(enc_sig: str) -> Tuple[
@@ -44,13 +46,17 @@ export function decodeSignature(sig: string): [
   return [originChain, destinationChain, nonce, coinId, sigData];
 }
 
-export async function getSig(
-  sourceChain: string,
-  destinationChain: string,
+export function stringToHex(str: string): string {
+    return str.split('').map(c => c.charCodeAt(0).toString(16).padStart(2, '0')).join('');
+}
+
+export async function getSigs(
+  sourceChainHex: string,
+  destinationChainHex: string,
   nonce: string,
   coinId: string | null
-): Promise<string> {
-  const routingDataBuff = Buffer.from(sourceChain + destinationChain + nonce.replace("0x", ""), "hex");
+): Promise<string[]> {
+  const routingDataBuff = Buffer.from(sourceChainHex + destinationChainHex + nonce.replace("0x", ""), "hex");
   const routingData = bech32m.encode("r", bech32m.toWords(routingDataBuff));
   var coinData = "";
   if(coinId !== null) {
@@ -59,7 +65,7 @@ export async function getSig(
 
   const pool = new SimplePool();
   const events = await pool.querySync(
-    [RELAY],
+    RELAYS,
     {
       kinds: [1],
       "#c": [coinData],
@@ -68,9 +74,8 @@ export async function getSig(
   )
 
   if(events.length === 0) {
-    alert("Not yet!")
-    return "";
+    return [];
   }
 
-  return routingData + "-" + coinData + "-" + events[0].content;
+  return events.map((event) => routingData + "-" + coinData + "-" + event.content);
 }
