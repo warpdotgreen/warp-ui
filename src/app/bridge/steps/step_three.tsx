@@ -1,8 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { MultiStepForm } from "./../MultiStepForm";
-import { NETWORKS, Network } from "../config";
+import {  Network } from "../config";
 import { useEffect, useState } from "react";
 import { initializeBLS } from "clvm";
 import { findLatestPortalState } from "@/app/bridge/util/portal_receiver";

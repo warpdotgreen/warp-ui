@@ -101,8 +101,8 @@ export const NETWORKS = [
 ];
 
 export type TokenInfo = {
-  sourceNetworkId: string,
-  destinationNetworkId: string,
+  evmNetworkId: string,
+  coinsetNetworkId: string,
   assetId: string,
   contractAddress: `0x${string}`
 };
@@ -115,17 +115,17 @@ export type Token = {
 export const ETH_TOKEN: Token = {
   symbol: 'ETH',
   supported: [
-    // {
-    //   source_network_id: 'eth',
-    //   destination_network_id: 'xch',
-    //   asset_id: 'eth',
-    //   contract_address: ''
-    // }
     {
-      sourceNetworkId: 'bse',
-      destinationNetworkId: 'xch',
+      evmNetworkId: 'bse',
+      coinsetNetworkId: 'xch',
       assetId: 'ddb39b5ba8fcbc58b4b06be6978d61536365e50a3563566c1d2c896ab1062788',
       contractAddress: '0xa2dC46aC13A4E153e66DeF2b6C6168919d349e42'
+    },
+    {
+      evmNetworkId: 'eth',
+      coinsetNetworkId: 'xch',
+      assetId: '3c4bee8d6e68b05cf24a51b0705cb684603a6b71a833db21b928609c08637787',
+      contractAddress: '0xC5b751683ef236EbBC41edD337482e8E571ca549'
     }
   ]
 };
