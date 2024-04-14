@@ -94,7 +94,6 @@ export default function StepOne({
     await initializeBLS();
 
     const tokenInfo = token.supported.find((supported) => supported.coinsetNetworkId === sourceChain.id && supported.evmNetworkId === destinationChain.id)!;
-    console.log({ tokenInfo })
     const offerMojoAmount = BigInt(sourceChain.messageFee) - amountMojo;
     var offer = null;
     try {
@@ -142,7 +141,10 @@ export default function StepOne({
       router.push(getStepTwoURL({
         sourceNetworkId: sourceChain.id,
         destinationNetworkId: destinationChain.id,
-        txHash: nonce
+        txHash: nonce,
+        token: token.symbol,
+        recipient,
+        amount,
       }));
     }
   };

@@ -50,3 +50,17 @@ export async function getCoinRecordsByPuzzleHash(
   const j = await res.json();
   return j.coin_records;
 }
+
+export async function getBlockchainState(
+  rpcBaseUrl: string,
+): Promise<any> {
+  const res = await fetch(`${rpcBaseUrl}/get_blockchain_state`, {
+    method: "POST",
+    body: JSON.stringify({}),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const j = await res.json();
+  return j.blockchain_state;
+}

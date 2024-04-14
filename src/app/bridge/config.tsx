@@ -48,7 +48,7 @@ export const CHIA_NETWORK: Network = {
     "b38dc1238afb47296ea89d57c9355be08fa7cf6e732d9d234f234a20473c8576c1cb851d7e756a75c2af0b7fb3110e30",
     "9796fa4b1fa20600e1ab44f5ff77aec6d48ab27e0af89009f269cb918fa2afd2b4bb00dc2560f643cd7e53d786d69c65"
   ],
-  confirmationMinHeight: 1,
+  confirmationMinHeight: 3,
   prefix: "txch",
   bridgingPuzzleHash: "ac0dc3716c3d9fe85a27805f5c49aed6f903a1191458f552f331a08595c4ee4f",
   portalLauncherId: "2897cd458b03dcf30d42f4bd8a0f3509d2edb541efccd426cf5c831f8ce05005",

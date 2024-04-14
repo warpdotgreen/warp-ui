@@ -15,10 +15,10 @@ export default function StepZero() {
   ] = useState(TOKENS[0].symbol);
   const [
     sourceNetworkId, setSourceNetworkId
-  ] = useState(TOKENS[0].supported[0].sourceNetworkId);
+  ] = useState(TOKENS[0].supported[0].evmNetworkId);
   const [
     destinationNetworkId, setDestinationNetworkId
-  ] = useState(TOKENS[0].supported[0].destinationNetworkId);
+  ] = useState(TOKENS[0].supported[0].coinsetNetworkId);
   const [
     amount, setAmount
   ] = useState("");
