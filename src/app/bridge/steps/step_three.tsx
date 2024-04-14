@@ -383,22 +383,18 @@ function FinalCoinsetTxConfirmer({
   destinationChain: Network,
   txId: string
 }) {
-  const [includedInBlock, setIncludedInBlock] = useState(false);
+  const [coinRecord, setCoinRecord] = useState<any>(null);
+  const includedInBlock = coinRecord?.spent === true;
 
-  useEffect(() => {
-    const checkTxIncluded = async () => {
-      while(true) {
-        const coinRecord = await getCoinRecordByName(destinationChain.rpcUrl, txId);
-        if(coinRecord?.spent) {
-          setIncludedInBlock(true);
-          break;
-        }
-        await new Promise((resolve) => setTimeout(resolve, 5000));
-      }
-    }
-
-    checkTxIncluded();
-  }, [txId, destinationChain.rpcUrl]);
+  const { data } = useQuery({
+    queryKey: ['StepThree_getCoinRecordByName', txId],
+    queryFn: () => getCoinRecordByName(destinationChain.rpcUrl, txId).then((res) => {
+      setCoinRecord(res);
+      return 1;
+    }),
+    enabled: !includedInBlock,
+    refetchInterval: 5000,
+  });
 
   return <>
     Transaction id: {txId}
