@@ -1,4 +1,3 @@
-export const BRIDGE_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_BRIDGE_ADDRESS!;
 export const BRIDGE_CONTRACT_ABI = [
     {
       "inputs": [

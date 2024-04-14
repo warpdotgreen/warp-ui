@@ -178,7 +178,7 @@ function StepThreeCoinsetDestination({
       }
 
       if(lastPortalInfo === null) {
-        findLatestPortalState(destinationChain.rpcUrl).then((
+        findLatestPortalState(destinationChain.rpcUrl, destinationChain.portalLauncherId!).then((
           { coinId, nonces, lastUsedChainAndNonces }
         ) => {
           console.log({ msg: 'portal synced', coinId, nonces, lastUsedChainAndNonces });
@@ -238,7 +238,9 @@ function StepThreeCoinsetDestination({
           sigs,
           [true, false, false], // todo
           stringToHex(sourceChain.id),
-          sourceChain.erc20BridgeAddress!
+          sourceChain.erc20BridgeAddress!,
+          destinationChain.portalLauncherId!,
+          destinationChain.bridgingPuzzleHash!,
         );
 
         const pushTxResp = await pushTx(destinationChain.rpcUrl, sb);
@@ -257,7 +259,7 @@ function StepThreeCoinsetDestination({
       return;
     }
   }, [
-    offer, sigs, destinationChain.signatureThreshold, blsInitialized, setBlsInitialized, lastPortalInfo, setLastPortalInfo, destTxId,
+    offer, sigs, destinationChain, blsInitialized, setBlsInitialized, lastPortalInfo, setLastPortalInfo, destTxId,
     sourceChain.id, destinationChain.id, sourceChain.erc20BridgeAddress, destinationChain.rpcUrl, router, searchParams
   ]);
 

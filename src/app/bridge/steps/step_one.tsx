@@ -78,7 +78,7 @@ export default function StepOne({
         abi: BRIDGE_CONTRACT_ABI,
         functionName: "bridgeToChia",
         args: [
-          token.supported.find((supported) => supported.sourceNetworkId === sourceChain.id)!.contractAddress,
+          token.supported.find((supported) => supported.evmNetworkId === sourceChain.id)!.contractAddress,
           ("0x" + receiver) as `0x${string}`,
           amountMojo
         ],
@@ -128,7 +128,12 @@ export default function StepOne({
       offer,
       stringToHex(destinationChain.id),
       tokenInfo.contractAddress,
-      recipient
+      recipient,
+      destinationChain.erc20BridgeAddress!,
+      sourceChain.portalLauncherId!,
+      sourceChain.bridgingPuzzleHash!,
+      parseInt(sourceChain.messageFee.toString()),
+      sourceChain.aggSigData!
     );
 
     const pushTxResp = await pushTx(sourceChain.rpcUrl, sb);

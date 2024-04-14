@@ -2,7 +2,7 @@ import { offerToSpendBundle } from "./offer";
 import * as GreenWeb from 'greenwebjs';
 import { SExp, Tuple, Bytes, getBLSModule } from "clvm";
 import { decodeSignature } from "./sig";
-import { BRIDGE_CONTRACT_ADDRESS } from "./abis";
+import { ConditionOpcode } from "greenwebjs/util/sexp/condition_opcodes";
 
 /*
 >>> from chia.wallet.trading.offer import OFFER_MOD
@@ -43,9 +43,6 @@ const SINGLETON_MOD_HASH = "7faa3253bfddd1e0decb0906b2dc6247bbc4cf608f58345d173a
 const SINGLETON_LAUNCHER_HASH = "eff07522495060c066f66f32acc2a77e3a3e737aca8baea4d1a64ea4cdc13da9";
 
 const MESSAGE_COIN_PUZZLE_MOD = "ff02ffff01ff02ff16ffff04ff02ffff04ff05ffff04ff82017fffff04ff8202ffffff04ffff0bffff02ffff03ffff09ffff0dff82013f80ffff012080ffff0182013fffff01ff088080ff0180ffff02ffff03ffff09ffff0dff2f80ffff012080ffff012fffff01ff088080ff0180ff8201bf80ff80808080808080ffff04ffff01ffffff3d46ff473cffff02ffffa04bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459aa09dcf97a184f32623d11a73124ceb99a5709b083721e878a16d78f596718ba7b2ffa102a12871fee210fb8619291eaea194581cbd2531e4b23759d225f6806923f63222a102a8d5dd63fba471ebcb1f3e8f7c1e1879b7152a6e7298a91ce119a63400ade7c5ffff04ffff04ff18ffff04ff17ff808080ffff04ffff04ff14ffff04ffff0bff13ffff0bff5affff0bff12ffff0bff12ff6aff0980ffff0bff12ffff0bff7affff0bff12ffff0bff12ff6affff02ff1effff04ff02ffff04ff05ff8080808080ffff0bff12ffff0bff7affff0bff12ffff0bff12ff6aff1b80ffff0bff12ff6aff4a808080ff4a808080ff4a808080ffff010180ff808080ffff04ffff04ff1cffff04ff2fff808080ffff04ffff04ff10ffff04ffff0bff2fff1780ff808080ff8080808080ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff1effff04ff02ffff04ff09ff80808080ffff02ff1effff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080"
-const PORTAL_RECEIVER_LAUNCHER_ID = process.env.NEXT_PUBLIC_PORTAL_LAUNCHER_ID!;
-const BRIDGING_PUZZLE_HASH = process.env.NEXT_PUBLIC_BRIDGING_PUZZLE_HASH!;
-export const BRIDGING_FEE_MOJOS = parseInt(process.env.NEXT_PUBLIC_BRIDGING_FEE_MOJOS!);
 
 const PORTAL_MOD = "ff02ffff01ff02ffff03ff81bfffff01ff02ffff03ffff09ffff02ff2effff04ff02ffff04ff82013fff80808080ff1780ffff01ff02ff82013fff8201bf80ffff01ff088080ff0180ffff01ff04ffff04ff10ffff04ffff02ff12ffff04ff02ffff04ff2fffff04ffff0bffff0101ff2f80ffff04ffff02ff2effff04ff02ffff04ff82017fff80808080ff808080808080ffff01ff01808080ffff02ff16ffff04ff02ffff04ff05ffff04ff0bffff04ff82017fffff04ff8202ffff808080808080808080ff0180ffff04ffff01ffffff3302ffff02ffff03ff05ffff01ff0bff7cffff02ff1affff04ff02ffff04ff09ffff04ffff02ff14ffff04ff02ffff04ff0dff80808080ff808080808080ffff016c80ff0180ffffa04bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459aa09dcf97a184f32623d11a73124ceb99a5709b083721e878a16d78f596718ba7b2ffa102a12871fee210fb8619291eaea194581cbd2531e4b23759d225f6806923f63222a102a8d5dd63fba471ebcb1f3e8f7c1e1879b7152a6e7298a91ce119a63400ade7c5ffffff0bff5cffff02ff1affff04ff02ffff04ff05ffff04ffff02ff14ffff04ff02ffff04ff07ff80808080ff808080808080ff0bff18ffff0bff18ff6cff0580ffff0bff18ff0bff4c8080ffff02ff3effff04ff02ffff04ff09ffff04ff80ffff04ff0dffff04ff818fffff04ffff02ff2effff04ff02ffff04ffff04ff47ffff04ff67ffff04ff82014fffff04ff8202cfffff04ff8205cfff808080808080ff80808080ffff04ffff04ffff04ff10ffff04ffff02ff12ffff04ff02ffff04ff0bffff04ffff0bffff0102ffff0bffff0101ff4780ffff0bffff0101ff678080ffff04ffff0bffff0101ff82014f80ffff04ffff0bffff0101ff8202cf80ffff04ffff0bffff0101ffff02ff2effff04ff02ffff04ff8205cfff8080808080ff8080808080808080ffff01ff80808080ffff02ffff03ff37ffff01ff02ff16ffff04ff02ffff04ff05ffff04ff0bffff04ff37ffff04ff6fff80808080808080ff8080ff018080ff808080808080808080ffff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff2effff04ff02ffff04ff09ff80808080ffff02ff2effff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff02ffff03ff37ffff01ff02ff3effff04ff02ffff04ff05ffff04ffff10ff0bffff06ffff14ff2fffff0102808080ffff04ff37ffff04ffff05ffff14ff2fffff01028080ffff04ff5fffff04ffff02ffff03ffff09ffff06ffff14ff2fffff01028080ff8080ffff0181bfffff01ff04ffff04ffff0132ffff04ff27ffff04ff5fff80808080ff81bf8080ff0180ff808080808080808080ffff01ff02ffff03ffff15ff05ff0b80ffff01ff0880ffff0181bf80ff018080ff0180ff018080";
 const PORTAL_THRESHOLD = 1;
@@ -763,6 +760,8 @@ export function mintCATs(
   sig_switches: boolean[],
   source_chain: string,
   source_contract: string,
+  portal_receiver_launcher_id: string,
+  bridging_puzzle_hash: string
 ) {
   const {
     nonce,
@@ -784,7 +783,7 @@ export function mintCATs(
       coinSpend.solution,
       GreenWeb.util.sexp.MAX_BLOCK_COST_CLVM
     );
-    var createCoinConds = conditionsDict!.get("33") ?? [];
+    var createCoinConds = conditionsDict!.get("33" as ConditionOpcode) ?? [];
 
     for(var j = 0; j < createCoinConds.length; ++j) {
       const cond = createCoinConds[j];
@@ -811,13 +810,13 @@ export function mintCATs(
     MULTISIG_KEYS
   );
   const portalInnerPuzzle = getPortalReceiverInnerPuzzle(
-    PORTAL_RECEIVER_LAUNCHER_ID,
+    portal_receiver_launcher_id,
     PORTAL_THRESHOLD,
     PORTAL_KEYS,
     GreenWeb.util.sexp.sha256tree(updatePuzzle),
     chains_and_nonces_used_last_spend
   );
-  const portalPuzzle = GreenWeb.util.sexp.singletonPuzzle(PORTAL_RECEIVER_LAUNCHER_ID, portalInnerPuzzle);
+  const portalPuzzle = GreenWeb.util.sexp.singletonPuzzle(portal_receiver_launcher_id, portalInnerPuzzle);
 
   var portalParentInnerPuzHash = null;
   const parentPuzzle = GreenWeb.util.sexp.fromHex(
@@ -863,8 +862,8 @@ export function mintCATs(
 
   /* spend source coin to create minter */
   const minterPuzzle = getCATMinterPuzzle(
-    PORTAL_RECEIVER_LAUNCHER_ID,
-    BRIDGING_PUZZLE_HASH,
+    portal_receiver_launcher_id,
+    bridging_puzzle_hash,
     source_chain,
     GreenWeb.util.unhexlify(source_contract)!
   );
@@ -909,7 +908,7 @@ export function mintCATs(
   
   /* spend message coin */
   const messageCoinPuzzle = getMessageCoinPuzzle(
-    PORTAL_RECEIVER_LAUNCHER_ID,
+    portal_receiver_launcher_id,
     source_chain,
     GreenWeb.util.unhexlify(source_contract)!,
     GreenWeb.util.unhexlify(nonce)!,
@@ -940,8 +939,8 @@ export function mintCATs(
 
   /* spend eve CAT coin */
   const wrappedAssetTAIL = getWrappedTAIL(
-    PORTAL_RECEIVER_LAUNCHER_ID,
-    BRIDGING_PUZZLE_HASH,
+    portal_receiver_launcher_id,
+    bridging_puzzle_hash,
     source_chain,
     GreenWeb.util.unhexlify(source_contract)!,
     GreenWeb.util.unhexlify(ethAssetContract)!
@@ -1033,18 +1032,20 @@ export function getBurnSendAddress(
   destination: string,
   source_chain_token_contract_address: string,
   target_receiver: string,
-  prefix: string = "xch"
+  prefix: string = "xch",
+  bridging_puzzle_hash: string,
+  bridging_fee_mojos: number
 ) {
   source_chain_token_contract_address = GreenWeb.util.unhexlify(source_chain_token_contract_address)!;
   source_chain_token_contract_address = "0".repeat(64 - source_chain_token_contract_address.length) + source_chain_token_contract_address;
 
   const burnInnerPuzzle = getCATBurnInnerPuzzle(
-    BRIDGING_PUZZLE_HASH,
+    bridging_puzzle_hash,
     destination_chain,
     destination,
     source_chain_token_contract_address,
     target_receiver,
-    BRIDGING_FEE_MOJOS
+    bridging_fee_mojos
   );
 
   const burnInnerPuzzleHash = GreenWeb.util.sexp.sha256tree(burnInnerPuzzle);
@@ -1060,22 +1061,25 @@ export function getBurnSendFullPuzzleHash(
   destination: string,
   source_chain_token_contract_address: string,
   target_receiver: string,
+  portal_receiver_launcher_id: string,
+  bridging_puzzle_hash: string,
+  bridging_fee_mojos: number,
 ): string {
   source_chain_token_contract_address = GreenWeb.util.unhexlify(source_chain_token_contract_address)!;
   source_chain_token_contract_address = "0".repeat(64 - source_chain_token_contract_address.length) + source_chain_token_contract_address;
 
   const burnInnerPuzzle = getCATBurnInnerPuzzle(
-    BRIDGING_PUZZLE_HASH,
+    bridging_puzzle_hash,
     destination_chain,
     destination,
     source_chain_token_contract_address,
     target_receiver,
-    BRIDGING_FEE_MOJOS
+    bridging_fee_mojos
   );
 
   const wrappedTAIL = getWrappedTAIL(
-    PORTAL_RECEIVER_LAUNCHER_ID,
-    BRIDGING_PUZZLE_HASH,
+    portal_receiver_launcher_id,
+    bridging_puzzle_hash,
     destination_chain,
     destination,
     source_chain_token_contract_address
@@ -1096,7 +1100,12 @@ export async function burnCATs(
   offer: string,
   destination_chain: string,
   token_contract_address: string,
-  eth_target_address: string
+  eth_target_address: string,
+  bridge_contract_address: string,
+  portal_receiver_launcher_id: string,
+  bridging_puzzle_hash: string,
+  bridging_fee_mojos: number,
+  agg_sig_additional_data: string,
 ): Promise<[any, string]> {
   token_contract_address = GreenWeb.util.unhexlify(token_contract_address)!;
   token_contract_address = "0".repeat(64 - token_contract_address.length) + token_contract_address;
@@ -1187,7 +1196,7 @@ export async function burnCATs(
   const securityCoin = new GreenWeb.Coin();
   securityCoin.parentCoinInfo = GreenWeb.util.coin.getName(xch_source_coin);
   securityCoin.puzzleHash = securityCoinPuzzleHash;
-  securityCoin.amount = BRIDGING_FEE_MOJOS;
+  securityCoin.amount = bridging_fee_mojos;
 
   /* spend xch source coin = offer coin */
 
@@ -1198,7 +1207,7 @@ export async function burnCATs(
       ),
       [
         GreenWeb.util.sexp.bytesToAtom(securityCoinPuzzleHash),
-        BRIDGING_FEE_MOJOS
+        bridging_fee_mojos
       ]
     ],
   ])
@@ -1212,12 +1221,12 @@ export async function burnCATs(
 
   /* spend CAT source coin */
   const burnInnerPuzzle = getCATBurnInnerPuzzle(
-    BRIDGING_PUZZLE_HASH,
+    bridging_puzzle_hash,
     destination_chain,
-    BRIDGE_CONTRACT_ADDRESS.slice(2),
+    bridge_contract_address.slice(2),
     token_contract_address,
     eth_target_address.slice(2),
-    BRIDGING_FEE_MOJOS
+    bridging_fee_mojos
   );
   const burnInnerPuzzleHash = GreenWeb.util.sexp.sha256tree(burnInnerPuzzle);
 
@@ -1257,20 +1266,20 @@ export async function burnCATs(
 
   /* spend CAT burner */
   const catBurnerPuzzle = getCATBurnerPuzzle(
-    BRIDGING_PUZZLE_HASH,
+    bridging_puzzle_hash,
     destination_chain,
-    BRIDGE_CONTRACT_ADDRESS.slice(2)
+    bridge_contract_address.slice(2)
   );
   const catBurnerCoin = new GreenWeb.Coin();
   catBurnerCoin.parentCoinInfo = GreenWeb.util.coin.getName(securityCoin);
   catBurnerCoin.puzzleHash = GreenWeb.util.sexp.sha256tree(catBurnerPuzzle);
-  catBurnerCoin.amount = BRIDGING_FEE_MOJOS;
+  catBurnerCoin.amount = bridging_fee_mojos;
 
   const wrappedTAIL = getWrappedTAIL(
-    PORTAL_RECEIVER_LAUNCHER_ID,
-    BRIDGING_PUZZLE_HASH,
+    portal_receiver_launcher_id,
+    bridging_puzzle_hash,
     destination_chain,
-    BRIDGE_CONTRACT_ADDRESS.slice(2),
+    bridge_contract_address.slice(2),
     token_contract_address
   );
   const wrappedTAILHash = GreenWeb.util.sexp.sha256tree(wrappedTAIL);
@@ -1364,7 +1373,7 @@ export async function burnCATs(
       ])
   );
   const securityDelegatedPuzzleHash = GreenWeb.util.sexp.sha256tree(securityDelegatedPuzzle);
-  const dataToSign = securityDelegatedPuzzleHash + GreenWeb.util.coin.getName(securityCoin) + process.env.NEXT_PUBLIC_AGG_SIG_ADDITIONAL_DATA!;
+  const dataToSign = securityDelegatedPuzzleHash + GreenWeb.util.coin.getName(securityCoin) + agg_sig_additional_data;
   const securityCoinSigRaw = AugSchemeMPL.sign(tempSk, Buffer.from(dataToSign, "hex"));
   const securityCoinSig = Buffer.from(
     securityCoinSigRaw.serialize()
@@ -1382,8 +1391,8 @@ export async function burnCATs(
   // calculate tx nonce
   const messagCoin = new GreenWeb.Coin();
   messagCoin.parentCoinInfo = GreenWeb.util.coin.getName(catBurnerCoin);
-  messagCoin.puzzleHash = BRIDGING_PUZZLE_HASH;
-  messagCoin.amount = BRIDGING_FEE_MOJOS;
+  messagCoin.puzzleHash = bridging_puzzle_hash;
+  messagCoin.amount = bridging_fee_mojos;
 
   const nonce = GreenWeb.util.coin.getName(messagCoin);
   return [sb, nonce];

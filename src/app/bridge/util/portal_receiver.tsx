@@ -4,11 +4,11 @@ import { Bytes } from "clvm";
 
 const LATEST_PORTAL_STATE_KEY = "latest-portal-data";
 
-export async function findLatestPortalState(rpcUrl: string) {
+export async function findLatestPortalState(rpcUrl: string, portalBootstrapCoinId: string) {
   console.log({ loc: "findLatestPortalState" }); // todo: debug
   let {coinId, nonces, lastUsedChainAndNonces} = JSON.parse(window.localStorage.getItem(LATEST_PORTAL_STATE_KEY) ?? "{}")
   nonces = nonces ?? {};
-  coinId = coinId ?? process.env.NEXT_PUBLIC_PORTAL_BOOTSTRAP_COIN_ID;
+  coinId = coinId ?? portalBootstrapCoinId;
   lastUsedChainAndNonces = lastUsedChainAndNonces ?? []
   
   var coinRecord = await getCoinRecordByName(rpcUrl, coinId);
