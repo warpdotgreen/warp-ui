@@ -1,18 +1,144 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import {  Network } from "../config";
+import {  Network, NetworkType } from "../config";
 import { useEffect, useState } from "react";
 import { initializeBLS } from "clvm";
 import { findLatestPortalState } from "@/app/bridge/util/portal_receiver";
 import { WindToy } from "react-svg-spinners";
-import { getSigs, stringToHex } from "@/app/bridge/util/sig";
+import { decodeSignature, getSigs, stringToHex } from "@/app/bridge/util/sig";
 import { getCoinRecordByName, getPuzzleAndSolution, pushTx } from "@/app/bridge/util/rpc";
-import { mintCATs, sbToString } from "@/app/bridge/util/driver";
+import { mintCATs } from "@/app/bridge/util/driver";
 import Link from "next/link";
 import { getStepThreeURL } from "./urls";
+import { useQuery } from "@tanstack/react-query";
+import { useWriteContract } from "wagmi";
+import { BRIDGE_CONTRACT_ABI, PortalABI } from "../util/abis";
 
 export default function StepThree({
+  sourceChain,
+  destinationChain,
+} : {
+  sourceChain: Network,
+  destinationChain: Network,
+}) {
+  return destinationChain.type === NetworkType.COINSET ? (
+    <StepThreeCoinsetDestination
+      sourceChain={sourceChain}
+      destinationChain={destinationChain}
+    />
+  ) : (
+    <StepThreeEVMDestination
+      sourceChain={sourceChain}
+      destinationChain={destinationChain}
+    />
+  )
+}
+
+function getSigStringFromSigs(sigs: string[]): `0x${string}` {
+  // todo: multi-validator support
+  let sigsSoFar = "";
+  for(const sig of sigs) {
+    const [originChain, destinationChain, nonce, coinId, sigData] = decodeSignature(sig);
+    sigsSoFar += sigData;
+  }
+  return ("0x" + sigsSoFar) as `0x${string}`;
+}
+
+function StepThreeEVMDestination({
+  sourceChain,
+  destinationChain,
+}: {
+  sourceChain: Network,
+  destinationChain: Network,
+}) {
+  const searchParams = useSearchParams();
+  const nonce = searchParams.get("nonce")!;
+  const source = searchParams.get("source")!;
+  const destination = searchParams.get("destination")! as `0x${string}`;
+  const contents = JSON.parse(searchParams.get("contents")!);
+  const [waitingForTx, setWaitingForTx] = useState(false);
+  const { data: hash, writeContract } = useWriteContract();
+
+  const [sigs, setSigs] = useState<string[]>([]);
+  const { data } = useQuery({
+    queryKey: ['StepThree_fetchSigs', nonce],
+    queryFn: () => getSigs(
+      stringToHex(sourceChain.id), stringToHex(destinationChain.id), nonce, null
+    ).then((sigs) => {
+      setSigs(sigs);
+      return 1;
+    }),
+    enabled: hash !== undefined || sigs.length < destinationChain.signatureThreshold,
+    refetchInterval: 5000,
+  });
+
+  if(hash) {
+    return (
+      <FinalEVMTxConfirmer destinationChain={destinationChain} txId={hash} />
+    );
+  }
+
+  if(sigs.length < destinationChain.signatureThreshold) {
+    return (
+      <div className="text-zinc-300 flex font-medium text-md items-center justify-center">
+        <div className="flex items-center">
+          <WindToy color="rgb(212 212 216)" />
+          <p className="pl-2"> {
+             `Collecting signatures (${sigs?.length ?? 0}/${destinationChain.signatureThreshold})`
+          } </p>
+        </div>
+      </div>)
+  }
+
+  const generateTxPls = async () => {
+    setWaitingForTx(true);
+    writeContract({
+      address: destinationChain.portalAddress! as `0x${string}`,
+      abi: PortalABI,
+      functionName: "receiveMessage",
+      args: [
+        ("0x" + nonce) as `0x${string}`,
+        ("0x" + stringToHex(sourceChain.id)) as `0x${string}`,
+        ("0x" + source) as `0x${string}`,
+        destination,
+        contents,
+        getSigStringFromSigs(sigs)
+      ],
+      chainId: destinationChain.chainId
+    });
+  }
+
+  return (
+    <div className="text-zinc-300"> 
+      <p className="pb-6">
+        Please use the button below to generate an offer that will be used to receive your assets on {destinationChain.displayName}.
+        Note that using a low fee will result in longer confirmation times.  
+      </p>
+      <div className="flex">
+        {!waitingForTx ? (
+            <button
+              className="rounded-full text-zinc-100 bg-green-500 hover:bg-green-700 max-w-xs w-full px-4 py-2 font-semibold mx-auto"
+              onClick={generateTxPls}  
+            >
+              Generate Transaction
+            </button>
+          ) : (
+            <button
+              className="rounded-full text-zinc-100 bg-zinc-800 max-w-xs w-full px-4 py-2 font-medium mx-auto"
+              onClick={() => {}}
+              disabled={true}  
+            >
+              Waiting for transaction approval
+            </button>
+          )}
+        </div>
+    </div>
+  );
+}
+
+
+function StepThreeCoinsetDestination({
   sourceChain,
   destinationChain,
 }: {
@@ -183,7 +309,7 @@ export default function StepThree({
   }
 
   return (
-    <FinalTxConfirmer destinationChain={destinationChain} txId={destTxId!} />
+    <FinalCoinsetTxConfirmer destinationChain={destinationChain} txId={destTxId!} />
   );
 }
 
@@ -248,7 +374,7 @@ function GenerateOfferPrompt({
   );
 }
 
-function FinalTxConfirmer({
+function FinalCoinsetTxConfirmer({
   destinationChain,
   txId,
 }: {
@@ -291,6 +417,24 @@ function FinalTxConfirmer({
             </>
           )
         }
+      </div>
+    </div>
+  </>
+}
+
+function FinalEVMTxConfirmer({
+  destinationChain,
+  txId,
+}: {
+  destinationChain: Network,
+  txId: string
+}) {
+  return <>
+    Transaction id: {txId}
+    <div className="pt-8 text-zinc-300 flex font-medium text-md items-center justify-center">
+      <div className="flex items-center">
+        <p>Transaction confirmed.</p>
+        <Link href={`${destinationChain.explorerUrl}/tx/${txId}`} target="_blank" className="pl-2 underline text-green-500 hover:text-green-300">View on explorer.</Link>
       </div>
     </div>
   </>
