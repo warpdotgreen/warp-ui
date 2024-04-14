@@ -117,7 +117,7 @@ function XCHMempoolFollower({
 }) {
   const { data, refetch } = useQuery({
     queryKey: ['StepTwo_fetchCoinRecordByName', coinId],
-    queryFn: () => getCoinRecordByName(sourceChainRpcUrl, coinId),
+    queryFn: () => getCoinRecordByName(sourceChainRpcUrl, coinId).then((record) => record ?? false),
     enabled: true,
     refetchInterval: 5000,
   });

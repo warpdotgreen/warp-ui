@@ -1,6 +1,7 @@
 import { getCoinRecordByName, getPuzzleAndSolution } from "./rpc";
 import * as GreenWeb from 'greenwebjs';
 import { Bytes } from "clvm";
+import { ConditionOpcode } from "greenwebjs/util/sexp/condition_opcodes";
 
 const LATEST_PORTAL_STATE_KEY = "latest-portal-data";
 
@@ -25,7 +26,7 @@ export async function findLatestPortalState(rpcUrl: string, portalBootstrapCoinI
     );
 
     var newPh: string | null = null;
-    const createCoinConds = conditionDict?.get("33");
+    const createCoinConds = conditionDict?.get("33" as ConditionOpcode);
 
     for(var i = 0; i < createCoinConds!.length; i++) {
       if(createCoinConds![i].vars[1] === "01") {

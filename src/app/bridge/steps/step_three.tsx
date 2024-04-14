@@ -13,7 +13,7 @@ import Link from "next/link";
 import { getStepThreeURL } from "./urls";
 import { useQuery } from "@tanstack/react-query";
 import { useWriteContract } from "wagmi";
-import { BRIDGE_CONTRACT_ABI, PortalABI } from "../util/abis";
+import { PortalABI } from "../util/abis";
 
 export default function StepThree({
   sourceChain,
@@ -192,7 +192,7 @@ function StepThreeCoinsetDestination({
       setLastPortalInfo({ coinId, nonces, lastUsedChainAndNonces });
       return 1;
     }),
-    enabled: offer !== null && destTxId === null && lastPortalInfo === null,
+    enabled: offer !== null && destTxId === null && lastPortalInfo === null && blsInitialized,
   });
   useQuery({
     queryKey: ['StepThree_getSigs'],
@@ -253,6 +253,8 @@ function StepThreeCoinsetDestination({
           destTransactionId: txId
         }));
       }
+
+      return 1;
     },
     enabled: offer !== null && destTxId === null && sigs.length >= destinationChain.signatureThreshold,
   });
@@ -397,7 +399,7 @@ function FinalCoinsetTxConfirmer({
         {
           includedInBlock ? (
             <>
-              <p>Transaction confirmed.</p>
+              <p>Transaction sent.</p>
               <Link href={`${destinationChain.explorerUrl}/coin/0x${txId}`} target="_blank" className="pl-2 underline text-green-500 hover:text-green-300">Verify on SpaceScan.</Link>
             </>
           ) : (
