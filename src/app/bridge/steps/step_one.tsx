@@ -131,7 +131,6 @@ export default function StepOne({
       recipient,
       destinationChain.erc20BridgeAddress!,
       sourceChain.portalLauncherId!,
-      sourceChain.bridgingPuzzleHash!,
       parseInt(sourceChain.messageFee.toString()),
       sourceChain.aggSigData!
     );

@@ -239,7 +239,6 @@ function StepThreeCoinsetDestination({
         stringToHex(sourceChain.id),
         sourceChain.erc20BridgeAddress!,
         destinationChain.portalLauncherId!,
-        destinationChain.bridgingPuzzleHash!,
       );
 
       const pushTxResp = await pushTx(destinationChain.rpcUrl, sb);

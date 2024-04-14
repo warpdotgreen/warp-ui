@@ -75,7 +75,6 @@ function XCHValidationElement({
       onConfirmation={() => {
         const nonce = txHash;
         const sourcePuzzle = getCATBurnerPuzzle(
-          sourceChain.bridgingPuzzleHash!,
           stringToHex(destinationChain.id),
           destinationChain.erc20BridgeAddress!.slice(2) // remove 0x
         );
