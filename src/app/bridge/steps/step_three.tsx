@@ -154,114 +154,108 @@ function StepThreeCoinsetDestination({
   const [lastPortalInfo, setLastPortalInfo] = useState<any>(null);
   const [sigs, setSigs] = useState<string[]>([]);
 
+  const nonce: `0x${string}` = (searchParams.get("nonce") ?? "0x") as `0x${string}`;
+  const source = searchParams.get("source") ?? "";
+  const destination = searchParams.get("destination") ?? "";
+  const contents = JSON.parse(searchParams.get("contents") ?? "[]");
+
+  const erc20ContractAddress = contents.length > 0 ? contents[0] : "";
+  const receiverPhOnChia = contents.length > 0 ? contents[1] : "";
+  const amount = parseInt(contents.length > 0 ? contents[2] : "0", 16);
+
   const destTxId = searchParams.get("tx");
 
-  useEffect(() => {
-    if(
-      offer !== null && destTxId === null
-    ) {
-      const nonce: `0x${string}` = searchParams.get("nonce")! as `0x${string}`;
-      const source = searchParams.get("source")!;
-      const destination = searchParams.get("destination")!;
-      const contents = JSON.parse(searchParams.get("contents")!);
+  useQuery({
+    queryKey: ['StepThree_initializeBLS'],
+    queryFn: () => initializeBLS().then(() => {
+      setBlsInitialized(true);
+      return 1;
+    }),
+    enabled: offer !== null && destTxId === null && !blsInitialized,
+    refetchInterval: 10000,
+  });
+  useQuery({
+    queryKey: ['StepThree_findLatestPortalState'],
+    queryFn: () => initializeBLS().then(() => {
+      setBlsInitialized(true);
+      return 1;
+    }),
+    enabled: offer !== null && destTxId === null && !blsInitialized,
+    refetchInterval: 10000,
+  });
+  useQuery({
+    queryKey: ['StepThree_findLatestPortalState'],
+    queryFn: () => findLatestPortalState(destinationChain.rpcUrl, destinationChain.portalLauncherId!).then((
+      { coinId, nonces, lastUsedChainAndNonces }
+    ) => {
+      console.log({ msg: 'portal synced', coinId, nonces, lastUsedChainAndNonces });
+      setLastPortalInfo({ coinId, nonces, lastUsedChainAndNonces });
+      return 1;
+    }),
+    enabled: offer !== null && destTxId === null && lastPortalInfo === null,
+  });
+  useQuery({
+    queryKey: ['StepThree_getSigs'],
+    queryFn: () => getSigs(
+      stringToHex(sourceChain.id),
+      stringToHex(destinationChain.id),
+      nonce,
+      lastPortalInfo.coinId!
+    ).then((sigs) => {
+      setSigs(sigs);
+      return 1;
+    }),
+    enabled: lastPortalInfo?.coinId && offer !== null && destTxId === null && sigs.length < destinationChain.signatureThreshold,
+    refetchInterval: 5000,
+  });
+  useQuery({
+    queryKey: ['StepThree_buildAndSubmitTx'],
+    queryFn: async () => {
+      const { coinId, nonces, lastUsedChainAndNonces } = lastPortalInfo;
+      const portalCoinRecord = await getCoinRecordByName(
+        destinationChain.rpcUrl,
+        coinId
+      );
+      const portalParentSpend = await getPuzzleAndSolution(
+        destinationChain.rpcUrl,
+        portalCoinRecord.coin.parent_coin_info,
+        portalCoinRecord.confirmed_block_index
+      );
 
-      const erc20ContractAddress = contents[0];
-      const receiverPhOnChia = contents[1];
-      const amount = parseInt(contents[2], 16);
-
-      if(!blsInitialized) {
-        initializeBLS().then(() => {
-          console.log("BLS initialized.");
-          setBlsInitialized(true)
-        });
-        return;
+      const messageData = {
+        nonce,
+        destination,
+        contents
       }
+      const { sb, txId} = mintCATs(
+        messageData,
+        portalCoinRecord,
+        portalParentSpend,
+        nonces,
+        lastUsedChainAndNonces,
+        offer!,
+        sigs,
+        [true, false, false], // todo
+        stringToHex(sourceChain.id),
+        sourceChain.erc20BridgeAddress!,
+        destinationChain.portalLauncherId!,
+        destinationChain.bridgingPuzzleHash!,
+      );
 
-      if(lastPortalInfo === null) {
-        findLatestPortalState(destinationChain.rpcUrl, destinationChain.portalLauncherId!).then((
-          { coinId, nonces, lastUsedChainAndNonces }
-        ) => {
-          console.log({ msg: 'portal synced', coinId, nonces, lastUsedChainAndNonces });
-          setLastPortalInfo({ coinId, nonces, lastUsedChainAndNonces });
-        });
-        return;
+      const pushTxResp = await pushTx(destinationChain.rpcUrl, sb);
+      if(!pushTxResp.success) {
+        alert("Failed to push transaction - please check console for more details.");
+        console.error(pushTxResp);
+      } else {
+        router.push(getStepThreeURL({
+          sourceNetworkId: sourceChain.id,
+          destinationNetworkId: destinationChain.id,
+          destTransactionId: txId
+        }));
       }
-
-      if(sigs.length < destinationChain.signatureThreshold) {
-        const { coinId } = lastPortalInfo;
-        const fetchSigsUntilThreshold = async () => {
-          while(true) {
-            const sigs = await getSigs(
-              stringToHex(sourceChain.id),
-              stringToHex(destinationChain.id),
-              nonce,
-              coinId
-            );
-            setSigs(sigs);
-
-            if(sigs.length >= destinationChain.signatureThreshold) {
-              break;
-            }
-            await new Promise((resolve) => setTimeout(resolve, 5000));
-          }
-        }
-
-        fetchSigsUntilThreshold();
-        return;
-      }
-
-      // all data available, build the tx!
-      const buildAndSubmitTx = async () => {
-        const { coinId, nonces, lastUsedChainAndNonces } = lastPortalInfo;
-        const portalCoinRecord = await getCoinRecordByName(
-          destinationChain.rpcUrl,
-          coinId
-        );
-        const portalParentSpend = await getPuzzleAndSolution(
-          destinationChain.rpcUrl,
-          portalCoinRecord.coin.parent_coin_info,
-          portalCoinRecord.confirmed_block_index
-        );
-
-        const messageData = {
-          nonce,
-          destination,
-          contents
-        }
-        const { sb, txId} = mintCATs(
-          messageData,
-          portalCoinRecord,
-          portalParentSpend,
-          nonces,
-          lastUsedChainAndNonces,
-          offer,
-          sigs,
-          [true, false, false], // todo
-          stringToHex(sourceChain.id),
-          sourceChain.erc20BridgeAddress!,
-          destinationChain.portalLauncherId!,
-          destinationChain.bridgingPuzzleHash!,
-        );
-
-        const pushTxResp = await pushTx(destinationChain.rpcUrl, sb);
-        if(!pushTxResp.success) {
-          alert("Failed to push transaction - please check console for more details.");
-          console.error(pushTxResp);
-        } else {
-          router.push(getStepThreeURL({
-            sourceNetworkId: sourceChain.id,
-            destinationNetworkId: destinationChain.id,
-            destTransactionId: txId
-          }));
-        }
-      }
-      buildAndSubmitTx();
-      return;
-    }
-  }, [
-    offer, sigs, destinationChain, blsInitialized, setBlsInitialized, lastPortalInfo, setLastPortalInfo, destTxId,
-    sourceChain.id, destinationChain.id, sourceChain.erc20BridgeAddress, destinationChain.rpcUrl, router, searchParams
-  ]);
+    },
+    enabled: offer !== null && destTxId === null && sigs.length >= destinationChain.signatureThreshold,
+  });
 
   if(!offer && !destTxId) {
     const nonce: `0x${string}` = searchParams.get("nonce")! as `0x${string}`;
