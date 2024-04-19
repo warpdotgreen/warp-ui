@@ -498,7 +498,7 @@ def get_cat_burn_inner_puzzle(
     destination: bytes, # e.g., ETH token bridge
     source_chain_token_contract_address: bytes,
     target_receiver: bytes,
-    bridge_fee: int
+    bridge_toll: int
 ) -> Program:
   return get_cat_burn_inner_puzzle_first_curry(
     destination_chain,
@@ -506,7 +506,7 @@ def get_cat_burn_inner_puzzle(
     source_chain_token_contract_address
   ).curry(
     target_receiver,
-    bridge_fee
+    bridge_toll
   )
 */
 function getCATBurnInnerPuzzle(
@@ -514,7 +514,7 @@ function getCATBurnInnerPuzzle(
   destination: string,
   source_chain_token_contract_address: string,
   target_receiver: string,
-  bridge_fee: number,
+  bridge_toll: number,
 ): GreenWeb.clvm.SExp {
   return GreenWeb.util.sexp.curry(
     getCATBurnInnerPuzzleFirstCurry(
@@ -525,7 +525,7 @@ function getCATBurnInnerPuzzle(
     [
       GreenWeb.util.sexp.bytesToAtom(target_receiver),
       GreenWeb.util.sexp.bytesToAtom(
-        GreenWeb.util.coin.amountToBytes(bridge_fee)
+        GreenWeb.util.coin.amountToBytes(bridge_toll)
       )
     ]
   );
@@ -1029,7 +1029,7 @@ export function getBurnSendAddress(
   source_chain_token_contract_address: string,
   target_receiver: string,
   prefix: string = "xch",
-  bridging_fee_mojos: number
+  bridging_toll_mojos: number
 ) {
   source_chain_token_contract_address = GreenWeb.util.unhexlify(source_chain_token_contract_address)!;
   source_chain_token_contract_address = "0".repeat(64 - source_chain_token_contract_address.length) + source_chain_token_contract_address;
@@ -1039,7 +1039,7 @@ export function getBurnSendAddress(
     destination,
     source_chain_token_contract_address,
     target_receiver,
-    bridging_fee_mojos
+    bridging_toll_mojos
   );
 
   const burnInnerPuzzleHash = GreenWeb.util.sexp.sha256tree(burnInnerPuzzle);
@@ -1056,7 +1056,7 @@ export function getBurnSendFullPuzzleHash(
   source_chain_token_contract_address: string,
   target_receiver: string,
   portal_receiver_launcher_id: string,
-  bridging_fee_mojos: number,
+  bridging_toll_mojos: number,
 ): string {
   source_chain_token_contract_address = GreenWeb.util.unhexlify(source_chain_token_contract_address)!;
   source_chain_token_contract_address = "0".repeat(64 - source_chain_token_contract_address.length) + source_chain_token_contract_address;
@@ -1066,7 +1066,7 @@ export function getBurnSendFullPuzzleHash(
     destination,
     source_chain_token_contract_address,
     target_receiver,
-    bridging_fee_mojos
+    bridging_toll_mojos
   );
 
   const wrappedTAIL = getWrappedTAIL(
@@ -1094,7 +1094,7 @@ export async function burnCATs(
   eth_target_address: string,
   bridge_contract_address: string,
   portal_receiver_launcher_id: string,
-  bridging_fee_mojos: number,
+  bridging_toll_mojos: number,
   agg_sig_additional_data: string,
 ): Promise<[any, string]> {
   token_contract_address = GreenWeb.util.unhexlify(token_contract_address)!;
@@ -1186,7 +1186,7 @@ export async function burnCATs(
   const securityCoin = new GreenWeb.Coin();
   securityCoin.parentCoinInfo = GreenWeb.util.coin.getName(xch_source_coin);
   securityCoin.puzzleHash = securityCoinPuzzleHash;
-  securityCoin.amount = bridging_fee_mojos;
+  securityCoin.amount = bridging_toll_mojos;
 
   /* spend xch source coin = offer coin */
 
@@ -1197,7 +1197,7 @@ export async function burnCATs(
       ),
       [
         GreenWeb.util.sexp.bytesToAtom(securityCoinPuzzleHash),
-        bridging_fee_mojos
+        bridging_toll_mojos
       ]
     ],
   ])
@@ -1215,7 +1215,7 @@ export async function burnCATs(
     bridge_contract_address.slice(2),
     token_contract_address,
     eth_target_address.slice(2),
-    bridging_fee_mojos
+    bridging_toll_mojos
   );
   const burnInnerPuzzleHash = GreenWeb.util.sexp.sha256tree(burnInnerPuzzle);
 
@@ -1261,7 +1261,7 @@ export async function burnCATs(
   const catBurnerCoin = new GreenWeb.Coin();
   catBurnerCoin.parentCoinInfo = GreenWeb.util.coin.getName(securityCoin);
   catBurnerCoin.puzzleHash = GreenWeb.util.sexp.sha256tree(catBurnerPuzzle);
-  catBurnerCoin.amount = bridging_fee_mojos;
+  catBurnerCoin.amount = bridging_toll_mojos;
 
   const wrappedTAIL = getWrappedTAIL(
     portal_receiver_launcher_id,
@@ -1352,7 +1352,7 @@ export async function burnCATs(
   const messageCoin = new GreenWeb.Coin();
   messageCoin.parentCoinInfo = GreenWeb.util.coin.getName(catBurnerCoin);
   messageCoin.puzzleHash = BRIDGING_PUZZLE_HASH;
-  messageCoin.amount = bridging_fee_mojos;
+  messageCoin.amount = bridging_toll_mojos;
   
   const messageCoinSolution = SExp.to([
     messageCoin.amount

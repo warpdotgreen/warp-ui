@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Network, NetworkType, Token, TOKENS } from "../config";
 import { ethers } from "ethers";
 import { useWriteContract } from "wagmi";
-import { BRIDGE_CONTRACT_ABI } from "@/app/bridge/util/abis";
+import { ERC20BridgeABI } from "@/app/bridge/util/abis";
 import * as GreenWeb from 'greenwebjs';
 import { useEffect, useState } from "react";
 import { getStepTwoURL } from "./urls";
@@ -64,18 +64,18 @@ export default function StepOne({
     if(token.symbol == "ETH") {
       writeContract({
         address: sourceChain.erc20BridgeAddress as `0x${string}`,
-        abi: BRIDGE_CONTRACT_ABI,
+        abi: ERC20BridgeABI,
         functionName: "bridgeEtherToChia",
         args: [
           ("0x" + receiver) as `0x${string}`,
         ],
-        value: ethers.parseEther(amount) + sourceChain.messageFee,
+        value: ethers.parseEther(amount) + sourceChain.messageToll,
         chainId: sourceChain.chainId
       });
     } else {
       writeContract({
         address: sourceChain.erc20BridgeAddress as `0x${string}`,
-        abi: BRIDGE_CONTRACT_ABI,
+        abi: ERC20BridgeABI,
         functionName: "bridgeToChia",
         args: [
           token.supported.find((supported) => supported.evmNetworkId === sourceChain.id)!.contractAddress,
@@ -83,7 +83,7 @@ export default function StepOne({
           amountMojo
         ],
         chainId: sourceChain.chainId,
-        value: sourceChain.messageFee
+        value: sourceChain.messageToll
       });
     }
   }
@@ -94,7 +94,7 @@ export default function StepOne({
     await initializeBLS();
 
     const tokenInfo = token.supported.find((supported) => supported.coinsetNetworkId === sourceChain.id && supported.evmNetworkId === destinationChain.id)!;
-    const offerMojoAmount = BigInt(sourceChain.messageFee) - amountMojo;
+    const offerMojoAmount = BigInt(sourceChain.messageToll) - amountMojo;
     var offer = null;
     try {
       const params = {
@@ -131,7 +131,7 @@ export default function StepOne({
       recipient,
       destinationChain.erc20BridgeAddress!,
       sourceChain.portalLauncherId!,
-      parseInt(sourceChain.messageFee.toString()),
+      parseInt(sourceChain.messageToll.toString()),
       sourceChain.aggSigData!
     );
 
@@ -167,10 +167,10 @@ export default function StepOne({
       <p className="text-zinc-500">Sending:</p>
       <p className="px-6">{amount} {token.symbol === "ETH" && sourceChain.type == NetworkType.COINSET ? "milliETH" : token.symbol} ({sourceChain.displayName})</p>
       <p className="px-6">+{' '}
-        {ethers.formatUnits(sourceChain.messageFee, sourceChain.type == NetworkType.EVM ? 18 : 12)}
+        {ethers.formatUnits(sourceChain.messageToll, sourceChain.type == NetworkType.EVM ? 18 : 12)}
         {sourceChain.type == NetworkType.EVM ? ' ETH ' : ' XCH '}
         ({sourceChain.displayName})
-        (anti-spam toll)
+        (toll - will be used as transaction fee)
       </p>
       <p className="text-zinc-500">Receiving (after 0.3% protocol tip):</p>
       { sourceChain.type == NetworkType.COINSET && token.symbol == "ETH" ? (

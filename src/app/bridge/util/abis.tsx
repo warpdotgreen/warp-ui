@@ -1,6 +1,11 @@
-export const BRIDGE_CONTRACT_ABI = [
+export const ERC20BridgeABI = [
     {
       "inputs": [
+        {
+          "internalType": "uint16",
+          "name": "_tip",
+          "type": "uint16"
+        },
         {
           "internalType": "address",
           "name": "_portal",
@@ -8,13 +13,18 @@ export const BRIDGE_CONTRACT_ABI = [
         },
         {
           "internalType": "address",
-          "name": "_feeManager",
+          "name": "_iweth",
           "type": "address"
         },
         {
-          "internalType": "address",
-          "name": "_iweth",
-          "type": "address"
+          "internalType": "uint64",
+          "name": "_wethToEthRatio",
+          "type": "uint64"
+        },
+        {
+          "internalType": "bytes3",
+          "name": "_otherChain",
+          "type": "bytes3"
         }
       ],
       "stateMutability": "nonpayable",
@@ -51,53 +61,12 @@ export const BRIDGE_CONTRACT_ABI = [
       "inputs": [
         {
           "internalType": "address",
-          "name": "owner",
-          "type": "address"
-        }
-      ],
-      "name": "OwnableInvalidOwner",
-      "type": "error"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "account",
-          "type": "address"
-        }
-      ],
-      "name": "OwnableUnauthorizedAccount",
-      "type": "error"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
           "name": "token",
           "type": "address"
         }
       ],
       "name": "SafeERC20FailedOperation",
       "type": "error"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "previousOwner",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "newOwner",
-          "type": "address"
-        }
-      ],
-      "name": "OwnershipTransferred",
-      "type": "event"
     },
     {
       "inputs": [
@@ -126,7 +95,7 @@ export const BRIDGE_CONTRACT_ABI = [
         },
         {
           "internalType": "uint256",
-          "name": "_amount",
+          "name": "_mojoAmount",
           "type": "uint256"
         }
       ],
@@ -180,7 +149,7 @@ export const BRIDGE_CONTRACT_ABI = [
     },
     {
       "inputs": [],
-      "name": "chiaSideBurnPuzzle",
+      "name": "burnPuzzleHash",
       "outputs": [
         {
           "internalType": "bytes32",
@@ -192,60 +161,15 @@ export const BRIDGE_CONTRACT_ABI = [
       "type": "function"
     },
     {
-      "inputs": [],
-      "name": "chiaSideMintPuzzle",
-      "outputs": [
-        {
-          "internalType": "bytes32",
-          "name": "",
-          "type": "bytes32"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "fee",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "name": "fees",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
       "inputs": [
         {
           "internalType": "bytes32",
-          "name": "_chiaSideBurnPuzzle",
+          "name": "_burnPuzzleHash",
           "type": "bytes32"
         },
         {
           "internalType": "bytes32",
-          "name": "_chiaSideMintPuzzle",
+          "name": "_mintPuzzleHash",
           "type": "bytes32"
         }
       ],
@@ -269,12 +193,25 @@ export const BRIDGE_CONTRACT_ABI = [
     },
     {
       "inputs": [],
-      "name": "owner",
+      "name": "mintPuzzleHash",
       "outputs": [
         {
-          "internalType": "address",
+          "internalType": "bytes32",
           "name": "",
-          "type": "address"
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "otherChain",
+      "outputs": [
+        {
+          "internalType": "bytes3",
+          "name": "",
+          "type": "bytes3"
         }
       ],
       "stateMutability": "view",
@@ -323,65 +260,28 @@ export const BRIDGE_CONTRACT_ABI = [
     },
     {
       "inputs": [],
-      "name": "renounceOwnership",
-      "outputs": [],
-      "stateMutability": "nonpayable",
+      "name": "tip",
+      "outputs": [
+        {
+          "internalType": "uint16",
+          "name": "",
+          "type": "uint16"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
       "inputs": [],
-      "name": "rescueEther",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
+      "name": "wethToEthRatio",
+      "outputs": [
         {
-          "internalType": "address",
-          "name": "newOwner",
-          "type": "address"
+          "internalType": "uint64",
+          "name": "",
+          "type": "uint64"
         }
       ],
-      "name": "transferOwnership",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "_newFee",
-          "type": "uint256"
-        }
-      ],
-      "name": "updateFee",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_assetContract",
-          "type": "address"
-        },
-        {
-          "internalType": "address[]",
-          "name": "_receivers",
-          "type": "address[]"
-        },
-        {
-          "internalType": "uint256[]",
-          "name": "_amounts",
-          "type": "uint256[]"
-        }
-      ],
-      "name": "withdrawFees",
-      "outputs": [],
-      "stateMutability": "nonpayable",
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -480,19 +380,6 @@ export const PortalABI = [
       "anonymous": false,
       "inputs": [
         {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "newFee",
-          "type": "uint256"
-        }
-      ],
-      "name": "MessageFeeUpdated",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
           "indexed": true,
           "internalType": "bytes32",
           "name": "nonce",
@@ -561,6 +448,19 @@ export const PortalABI = [
         }
       ],
       "name": "MessageSent",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "newFee",
+          "type": "uint256"
+        }
+      ],
+      "name": "MessageTollUpdated",
       "type": "event"
     },
     {
@@ -636,7 +536,7 @@ export const PortalABI = [
         },
         {
           "internalType": "uint256",
-          "name": "_messageFee",
+          "name": "_messageToll",
           "type": "uint256"
         },
         {
@@ -676,7 +576,7 @@ export const PortalABI = [
     },
     {
       "inputs": [],
-      "name": "messageFee",
+      "name": "messageToll",
       "outputs": [
         {
           "internalType": "uint256",
@@ -729,7 +629,7 @@ export const PortalABI = [
         },
         {
           "internalType": "bytes",
-          "name": "sigs",
+          "name": "_sigs",
           "type": "bytes"
         }
       ],
@@ -764,6 +664,24 @@ export const PortalABI = [
         }
       ],
       "name": "rescueAsset",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address[]",
+          "name": "_receivers",
+          "type": "address[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "_amounts",
+          "type": "uint256[]"
+        }
+      ],
+      "name": "rescueEther",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -825,7 +743,7 @@ export const PortalABI = [
           "type": "uint256"
         }
       ],
-      "name": "updateMessageFee",
+      "name": "updateMessageToll",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -857,24 +775,6 @@ export const PortalABI = [
         }
       ],
       "name": "updateSigner",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address[]",
-          "name": "_receivers",
-          "type": "address[]"
-        },
-        {
-          "internalType": "uint256[]",
-          "name": "_amounts",
-          "type": "uint256[]"
-        }
-      ],
-      "name": "withdrawEther",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

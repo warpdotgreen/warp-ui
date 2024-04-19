@@ -17,7 +17,7 @@ export type Network = {
   type: NetworkType,
   rpcUrl: string,
   explorerUrl: string,
-  messageFee: bigint,
+  messageToll: bigint,
   signatureThreshold: number,
   validatorInfos: string[], // public key or address
   confirmationMinHeight: number,
@@ -40,7 +40,7 @@ export const CHIA_NETWORK: Network = {
   type: NetworkType.COINSET,
   rpcUrl: 'http://localhost:5000/',
   explorerUrl: 'https://testnet11.spacescan.io/',
-  messageFee: BigInt(1000000000),
+  messageToll: BigInt(1000000000),
   signatureThreshold: 1,
   validatorInfos: [
     "a60bffc4d51fa503ea6f12053a956de4cbb27a343453643e07eacddde06e7262e4fcd32653d61a731407a1d7e2d6ab2c",
@@ -60,7 +60,7 @@ export const BASE_NETWORK: Network = {
   type: NetworkType.EVM,
   rpcUrl: 'https://sepolia.base.org',
   explorerUrl: 'https://sepolia.basescan.org',
-  messageFee: ethers.parseEther("0.00001"),
+  messageToll: ethers.parseEther("0.00001"),
   signatureThreshold: 1,
   validatorInfos: [
     "0x113f132a978B7679Aa72c02B0234a32569507043",
@@ -80,7 +80,7 @@ export const ETHEREUM_NETWORK: Network = {
   chainId: sepolia.id,
   rpcUrl: 'https://rpc2.sepolia.org',
   explorerUrl: 'https://sepolia.etherscan.io',
-  messageFee: ethers.parseEther("0.00001"),
+  messageToll: ethers.parseEther("0.00001"),
   signatureThreshold: 1,
   validatorInfos: [
     "0x113f132a978B7679Aa72c02B0234a32569507043",
