@@ -1,9 +1,23 @@
 /** @type {import('next').NextConfig} */
+
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+
+const CopyPlugin = require('copy-webpack-plugin');
+
 const nextConfig = {
   webpack: (config, { isServer }) => {
     if (!isServer) {
       // Replace 'fs' with an empty module on the client-side
       config.resolve.fallback = { fs: false };
+
+      config.plugins.push(
+        new CopyPlugin({
+          patterns: [
+            { from: 'public/blsjs.wasm', to: 'static/chunks' }
+          ],
+        })
+      );
     }
 
     config.externals.push('pino-pretty', 'lokijs', 'encoding')
@@ -14,11 +28,7 @@ const nextConfig = {
       {
         source: '/:path*/blsjs.wasm',
         destination: '/blsjs.wasm',
-      },
-      {
-        source: '/_next/static/chunks/blsjs.wasm',
-        destination: '/blsjs.wasm',
-      },
+      }
     ]
   },
 };
