@@ -44,13 +44,13 @@ export const CHIA_NETWORK: Network = {
   rpcUrl: 'https://testnet.fireacademy.io/',
   explorerUrl: 'https://testnet11.spacescan.io/',
   messageToll: BigInt(1000000000),
-  signatureThreshold: 2,
+  signatureThreshold: 1,
   validatorInfos: [
     "a60bffc4d51fa503ea6f12053a956de4cbb27a343453643e07eacddde06e7262e4fcd32653d61a731407a1d7e2d6ab2c",
     "b38dc1238afb47296ea89d57c9355be08fa7cf6e732d9d234f234a20473c8576c1cb851d7e756a75c2af0b7fb3110e30",
     "9796fa4b1fa20600e1ab44f5ff77aec6d48ab27e0af89009f269cb918fa2afd2b4bb00dc2560f643cd7e53d786d69c65"
   ],
-  multisigThreshold: 2,
+  multisigThreshold: 1,
   multisigInfos: [
     "b93c773fd448927ad5a77d543aa9a2043dad8ab9d8a8ac505317d6542ffdb1b6b74e9e85e734b8ca8264de49b6231a38",
     "b38dc1238afb47296ea89d57c9355be08fa7cf6e732d9d234f234a20473c8576c1cb851d7e756a75c2af0b7fb3110e30",
@@ -70,7 +70,7 @@ export const ETHEREUM_NETWORK: Network = {
   rpcUrl: 'https://rpc2.sepolia.org',
   explorerUrl: 'https://sepolia.etherscan.io',
   messageToll: ethers.parseEther("0.00001"),
-  signatureThreshold: 2,
+  signatureThreshold: 1,
   validatorInfos: [
     "0x113f132a978B7679Aa72c02B0234a32569507043",
     "0x5C6BB61AFfEF75C358d432fdE36580824E355036",
@@ -89,7 +89,7 @@ export const BASE_NETWORK: Network = {
   rpcUrl: 'https://sepolia.base.org',
   explorerUrl: 'https://sepolia.basescan.org',
   messageToll: ethers.parseEther("0.00001"),
-  signatureThreshold: 2,
+  signatureThreshold: 1,
   validatorInfos: [
     "0x113f132a978B7679Aa72c02B0234a32569507043",
     "0x5C6BB61AFfEF75C358d432fdE36580824E355036",

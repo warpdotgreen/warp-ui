@@ -178,7 +178,7 @@ function StepThreeCoinsetDestination({
     refetchInterval: 10000,
   });
   useQuery({
-    queryKey: ['StepThree_findLatestPortalState'],
+    queryKey: ['StepThree_initializeBLS'],
     queryFn: () => initializeBLS().then(() => {
       setBlsInitialized(true);
       return 1;

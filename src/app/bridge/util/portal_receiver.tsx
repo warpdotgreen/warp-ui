@@ -40,12 +40,12 @@ export async function findLatestPortalState(rpcUrl: string, portalBootstrapCoinI
       const innerSolution = GreenWeb.util.sexp.fromHex(
         GreenWeb.util.sexp.asAtomList(solution)[2]
       );
-      
-      const usedChainsAndNonces = GreenWeb.util.sexp.asAtomList(
+
+     const usedChainsAndNonces = GreenWeb.util.sexp.asAtomList(innerSolution)[1].length > 0 ? GreenWeb.util.sexp.asAtomList(
         GreenWeb.util.sexp.fromHex(
           GreenWeb.util.sexp.asAtomList(innerSolution)[1]
         )
-      );
+      ) : [];
 
       lastUsedChainAndNonces = []
       for(var i = 0; i < usedChainsAndNonces.length; i++) {
