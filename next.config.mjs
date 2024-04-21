@@ -15,6 +15,10 @@ const nextConfig = {
         source: '/:path*/blsjs.wasm',
         destination: '/blsjs.wasm',
       },
+      {
+        source: '/_next/static/chunks/blsjs.wasm',
+        destination: '/blsjs.wasm',
+      },
     ]
   },
 };
