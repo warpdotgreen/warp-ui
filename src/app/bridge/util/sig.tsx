@@ -38,8 +38,6 @@ export function decodeSignature(sig: string): [
   const coinId = parts[1].length > 0 ?  GreenWeb.util.address.addressToPuzzleHash(parts[1]) : "";
   const sigData = GreenWeb.util.address.addressToPuzzleHash(parts[2], 96 * 2)
 
-  console.log({ parts })
-
   return [originChain, destinationChain, nonce, coinId, sigData];
 }
 
@@ -88,8 +86,6 @@ export async function getSigsAndSelectors(
 
   if(coinId === null) {
     // We're getting sigs for eth; need to order by respective validator hot address
-    alert('todo')
-
     const destinationNetworkId = hexToString(destinationChainHex);
     const destinationNetwork = NETWORKS.filter((network) => network.id === destinationNetworkId)[0];
 
