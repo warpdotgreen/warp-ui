@@ -3,6 +3,7 @@ import { ClientProvider } from "./client_provider";
 import { ChiaWalletButton } from "./ChiaWalletButton";
 import { TESTNET } from "./config";
 import EthereumWalletButton from "./ethereum_wallet_button";
+import { Suspense } from "react";
 
 export default function BridgeUILayout({
   children,
@@ -23,7 +24,9 @@ export default function BridgeUILayout({
           </div>
         </div>
 
-        {children}
+        <Suspense>
+          {children}
+        </Suspense>
 
         <div className="flex justify-center pb-4 text-zinc-300">
           <Sparkles />
