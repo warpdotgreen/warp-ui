@@ -94,6 +94,8 @@ export default function StepOne({
     await initializeBLS();
 
     const tokenInfo = token.supported.find((supported) => supported.coinsetNetworkId === sourceChain.id && supported.evmNetworkId === destinationChain.id)!;
+    console.log({ reqAssetId: tokenInfo.assetId });
+    
     const offerMojoAmount = BigInt(sourceChain.messageToll) - amountMojo;
     var offer = null;
     try {

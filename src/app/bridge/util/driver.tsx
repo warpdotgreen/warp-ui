@@ -739,12 +739,15 @@ function getCATSolution(
 }
 
 export function getWrappedERC20AssetID(sourceChain: Network, erc20ContractAddress: string) {
+  erc20ContractAddress = GreenWeb.util.unhexlify(erc20ContractAddress)!;
+  erc20ContractAddress = "0".repeat(64 - erc20ContractAddress.length) + erc20ContractAddress;
+
   return GreenWeb.util.sexp.sha256tree(
     getWrappedTAIL(
       CHIA_NETWORK.portalLauncherId!,
       stringToHex(sourceChain.id),
       GreenWeb.util.unhexlify(sourceChain.erc20BridgeAddress!)!,
-      GreenWeb.util.unhexlify(erc20ContractAddress)!
+      erc20ContractAddress
     )
   );
 }
@@ -943,8 +946,6 @@ export function mintCATs(
     GreenWeb.util.unhexlify(ethAssetContract)!
   );
   const wrappedAssetTAILHash = GreenWeb.util.sexp.sha256tree(wrappedAssetTAIL);
-
-  console.log({ wrappedAssetTAILHash });
 
   const mintAndPayoutInnerPuzzle = getCATMintAndPayoutInnerPuzzle(
     xchReceiverPh

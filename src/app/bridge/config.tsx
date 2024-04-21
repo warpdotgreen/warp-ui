@@ -126,14 +126,14 @@ export const ETH_TOKEN: Token = {
   symbol: 'ETH',
   supported: [
     {
-      evmNetworkId: 'bse',
-      coinsetNetworkId: 'xch',
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
       assetId: getWrappedERC20AssetID(BASE_NETWORK, MILLIETH_ADDRESS_BASE),
       contractAddress: MILLIETH_ADDRESS_BASE
     },
     {
-      evmNetworkId: 'eth',
-      coinsetNetworkId: 'xch',
+      evmNetworkId: ETHEREUM_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
       assetId: getWrappedERC20AssetID(ETHEREUM_NETWORK, MILLIETH_ADDRESS_ETHEREUM),
       contractAddress: MILLIETH_ADDRESS_ETHEREUM
     }
