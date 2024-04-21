@@ -1,10 +1,7 @@
 import * as GreenWeb from 'greenwebjs';
 import { bech32m } from "bech32";
 import { SimplePool } from 'nostr-tools/pool'
-
-const RELAYS = [
-  "wss://relay.fireacademy.io"
-];
+import { NOSTR_CONFIG } from '../config';
 
 /*
 def decode_signature(enc_sig: str) -> Tuple[
@@ -65,7 +62,7 @@ export async function getSigs(
 
   const pool = new SimplePool();
   const events = await pool.querySync(
-    RELAYS,
+    NOSTR_CONFIG.relays,
     {
       kinds: [1],
       "#c": [coinData],
@@ -73,7 +70,7 @@ export async function getSigs(
     }
   );
 
-  pool.close(RELAYS);
+  pool.close(NOSTR_CONFIG.relays);
 
   if(events.length === 0) {
     return [];

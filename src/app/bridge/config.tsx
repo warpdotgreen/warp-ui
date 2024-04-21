@@ -38,10 +38,10 @@ export const CHIA_NETWORK: Network = {
   displayName: 'Chia',
   id: 'xch',
   type: NetworkType.COINSET,
-  rpcUrl: 'http://localhost:5000/',
+  rpcUrl: 'https://testnet.fireacademy.io/',
   explorerUrl: 'https://testnet11.spacescan.io/',
   messageToll: BigInt(1000000000),
-  signatureThreshold: 1,
+  signatureThreshold: 2,
   validatorInfos: [
     "a60bffc4d51fa503ea6f12053a956de4cbb27a343453643e07eacddde06e7262e4fcd32653d61a731407a1d7e2d6ab2c",
     "b38dc1238afb47296ea89d57c9355be08fa7cf6e732d9d234f234a20473c8576c1cb851d7e756a75c2af0b7fb3110e30",
@@ -49,28 +49,8 @@ export const CHIA_NETWORK: Network = {
   ],
   confirmationMinHeight: 3,
   prefix: "txch",
-  portalLauncherId: "2897cd458b03dcf30d42f4bd8a0f3509d2edb541efccd426cf5c831f8ce05005",
+  portalLauncherId: "9229ce0989917cacd6af54c62b26fa1e56cf7505f61801e04c5b00a7f2c5b138",
   aggSigData: "37a90eb5185a9c4439a91ddc98bbadce7b4feba060d50116a067de66bf236615",
-};
-
-export const BASE_NETWORK: Network = {
-  displayName: 'Base',
-  id: 'bse',
-  chainId: baseSepolia.id,
-  type: NetworkType.EVM,
-  rpcUrl: 'https://sepolia.base.org',
-  explorerUrl: 'https://sepolia.basescan.org',
-  messageToll: ethers.parseEther("0.00001"),
-  signatureThreshold: 1,
-  validatorInfos: [
-    "0x113f132a978B7679Aa72c02B0234a32569507043",
-    "0x5C6BB61AFfEF75C358d432fdE36580824E355036",
-    "0x974937Abe6B517968b8614D1E19e75FB106327f2"
-  ],
-  confirmationMinHeight: 10,
-  portalAddress: "0xf2bE8EB1225803E721aC20A98e97A1CAa1817e33",
-  erc20BridgeAddress: "0xBaF8071bCEfbd8e21dF9E569258abF2bAc5608F3",
-  l1BlockContractAddress: "0x4200000000000000000000000000000000000015"
 };
 
 export const ETHEREUM_NETWORK: Network = {
@@ -88,8 +68,28 @@ export const ETHEREUM_NETWORK: Network = {
     "0x974937Abe6B517968b8614D1E19e75FB106327f2"
   ],
   confirmationMinHeight: 5,
-  portalAddress: "0x5825DA09dE43BC6bAfDf6cf22e1C87302e86e665",
-  erc20BridgeAddress: "0xbaCa882c82BEb9Da181C85eA81c825dBF591AFaA",
+  portalAddress: "0x67e99b36a37d7794180180c5b31F7cb97b019798",
+  erc20BridgeAddress: "0x1bB5a805b2C9be93b71b80F50bB066A11cB2B3d6",
+};
+
+export const BASE_NETWORK: Network = {
+  displayName: 'Base',
+  id: 'bse',
+  chainId: baseSepolia.id,
+  type: NetworkType.EVM,
+  rpcUrl: 'https://sepolia.base.org',
+  explorerUrl: 'https://sepolia.basescan.org',
+  messageToll: ethers.parseEther("0.00001"),
+  signatureThreshold: 2,
+  validatorInfos: [
+    "0x113f132a978B7679Aa72c02B0234a32569507043",
+    "0x5C6BB61AFfEF75C358d432fdE36580824E355036",
+    "0x974937Abe6B517968b8614D1E19e75FB106327f2"
+  ],
+  confirmationMinHeight: 10,
+  l1BlockContractAddress: "0x4200000000000000000000000000000000000015",
+  portalAddress: "0x9eeD3bdA5Dac7Eb4E7648e823e0C182536E1f260",
+  erc20BridgeAddress: "0xDFC30105D48C403E0e69730C04a36b437972009b",
 };
 
 export const NETWORKS = [
@@ -156,4 +156,15 @@ export const wagmiConfig = defaultWagmiConfig({
     [sepolia.id]: http(ETHEREUM_NETWORK.rpcUrl),
     [baseSepolia.id]: http(BASE_NETWORK.rpcUrl),
   },
-})
+});
+
+export const NOSTR_CONFIG = {
+  relays: [
+    "wss://test-relay.fireacademy.io",
+  ],
+  valdiator_keys: [
+    "cd5fd0859c3a27c13dd9734b7cdc6f2c25646e45821dcecaa089808803d01706",
+    "cd5b89f9280909e6e85713054094ac0e82b8c13a3a190de677d17285085cb833",
+    "ed5cbb8a2aeb6050b9b942ae7a3595eadf82cfe72bb52448d47f0b25d14d995b",
+  ]
+}
