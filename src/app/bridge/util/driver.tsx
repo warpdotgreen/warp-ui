@@ -3,7 +3,8 @@ import * as GreenWeb from 'greenwebjs';
 import { SExp, Tuple, Bytes, getBLSModule } from "clvm";
 import { decodeSignature } from "./sig";
 import { ConditionOpcode } from "greenwebjs/util/sexp/condition_opcodes";
-import { CHIA_NETWORK } from "../config";
+import { CHIA_NETWORK, Network } from "../config";
+import { stringToHex } from "./sig";
 
 /*
 >>> from chia.wallet.trading.offer import OFFER_MOD
@@ -735,6 +736,17 @@ function getCATSolution(
       GreenWeb.util.coin.amountToBytes(extraDelta)
     ),
   ])
+}
+
+export function getWrappedERC20AssetID(sourceChain: Network, erc20ContractAddress: string) {
+  return GreenWeb.util.sexp.sha256tree(
+    getWrappedTAIL(
+      CHIA_NETWORK.portalLauncherId!,
+      stringToHex(sourceChain.id),
+      GreenWeb.util.unhexlify(sourceChain.erc20BridgeAddress!)!,
+      GreenWeb.util.unhexlify(erc20ContractAddress)!
+    )
+  );
 }
 
 export function mintCATs(

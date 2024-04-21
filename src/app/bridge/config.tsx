@@ -2,6 +2,7 @@ import { defaultWagmiConfig } from "@web3modal/wagmi";
 import { ethers } from "ethers";
 import { http, createConfig } from 'wagmi'
 import { sepolia, baseSepolia } from 'wagmi/chains'
+import { getWrappedERC20AssetID } from "./util/driver";
 
 export const TESTNET = true;
 
@@ -118,20 +119,23 @@ export type Token = {
   supported: TokenInfo[]
 };
 
+const MILLIETH_ADDRESS_ETHEREUM: `0x${string}` = '0x77c0B7bd331B754e3244840f5639b1B098a250Bb';
+const MILLIETH_ADDRESS_BASE: `0x${string}` = '0x399a31D74572b4393DDe3B7486571633700226B2';
+
 export const ETH_TOKEN: Token = {
   symbol: 'ETH',
   supported: [
     {
       evmNetworkId: 'bse',
       coinsetNetworkId: 'xch',
-      assetId: 'ddb39b5ba8fcbc58b4b06be6978d61536365e50a3563566c1d2c896ab1062788',
-      contractAddress: '0xa2dC46aC13A4E153e66DeF2b6C6168919d349e42'
+      assetId: getWrappedERC20AssetID(BASE_NETWORK, MILLIETH_ADDRESS_BASE),
+      contractAddress: MILLIETH_ADDRESS_BASE
     },
     {
       evmNetworkId: 'eth',
       coinsetNetworkId: 'xch',
-      assetId: '3c4bee8d6e68b05cf24a51b0705cb684603a6b71a833db21b928609c08637787',
-      contractAddress: '0xC5b751683ef236EbBC41edD337482e8E571ca549'
+      assetId: getWrappedERC20AssetID(ETHEREUM_NETWORK, MILLIETH_ADDRESS_ETHEREUM),
+      contractAddress: MILLIETH_ADDRESS_ETHEREUM
     }
   ]
 };

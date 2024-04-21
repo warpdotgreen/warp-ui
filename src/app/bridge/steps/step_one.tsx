@@ -9,7 +9,7 @@ import * as GreenWeb from 'greenwebjs';
 import { useEffect, useState } from "react";
 import { getStepTwoURL } from "./urls";
 import { initializeBLS } from "clvm";
-import { burnCATs } from "../util/driver";
+import { burnCATs, sbToJSON } from "../util/driver";
 import { stringToHex } from "@/app/bridge/util/sig";
 import { pushTx } from "../util/rpc";
 
@@ -137,6 +137,8 @@ export default function StepOne({
 
     const pushTxResp = await pushTx(sourceChain.rpcUrl, sb);
     if(!pushTxResp.success) {
+      const sbJson = sbToJSON(sb);
+      await navigator.clipboard.writeText(JSON.stringify(sbJson, null, 2));
       alert("Failed to push transaction - please check console for more details.");
       console.error(pushTxResp);
       setWaitingForTx(false);
