@@ -2,13 +2,13 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import {  Network, NetworkType } from "../config";
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import { initializeBLS } from "clvm";
 import { findLatestPortalState } from "@/app/bridge/util/portal_receiver";
 import { WindToy } from "react-svg-spinners";
-import { decodeSignature, getSigs, stringToHex } from "@/app/bridge/util/sig";
+import { decodeSignature, getSigsAndSelectors, stringToHex } from "@/app/bridge/util/sig";
 import { getCoinRecordByName, getPuzzleAndSolution, pushTx } from "@/app/bridge/util/rpc";
-import { mintCATs } from "@/app/bridge/util/driver";
+import { mintCATs, sbToJSON } from "@/app/bridge/util/driver";
 import Link from "next/link";
 import { getStepThreeURL } from "./urls";
 import { useQuery } from "@tanstack/react-query";
@@ -61,12 +61,14 @@ function StepThreeEVMDestination({
   const { data: hash, writeContract } = useWriteContract();
 
   const [sigs, setSigs] = useState<string[]>([]);
+  const [selectors, setSelectors] = useState<boolean[]>([]);
   const { data } = useQuery({
-    queryKey: ['StepThree_fetchSigs', nonce],
-    queryFn: () => getSigs(
+    queryKey: ['StepThree_fetchSigsAndSelectors', nonce],
+    queryFn: () => getSigsAndSelectors(
       stringToHex(sourceChain.id), stringToHex(destinationChain.id), nonce, null
-    ).then((sigs) => {
-      setSigs(sigs);
+    ).then((sigsAndSelectors) => {
+      setSigs(sigsAndSelectors[0]);
+      setSelectors(sigsAndSelectors[1]);
       return 1;
     }),
     enabled: hash !== undefined || sigs.length < destinationChain.signatureThreshold,
@@ -153,6 +155,7 @@ function StepThreeCoinsetDestination({
   const [blsInitialized, setBlsInitialized] = useState(false);
   const [lastPortalInfo, setLastPortalInfo] = useState<any>(null);
   const [sigs, setSigs] = useState<string[]>([]);
+  const [selectors, setSelectors] = useState<boolean[]>([]);
 
   const nonce: `0x${string}` = (searchParams.get("nonce") ?? "0x") as `0x${string}`;
   const source = searchParams.get("source") ?? "";
@@ -195,14 +198,15 @@ function StepThreeCoinsetDestination({
     enabled: offer !== null && destTxId === null && lastPortalInfo === null && blsInitialized,
   });
   useQuery({
-    queryKey: ['StepThree_getSigs'],
-    queryFn: () => getSigs(
+    queryKey: ['StepThree_getSigsAndSelectors'],
+    queryFn: () => getSigsAndSelectors(
       stringToHex(sourceChain.id),
       stringToHex(destinationChain.id),
       nonce,
       lastPortalInfo.coinId!
-    ).then((sigs) => {
-      setSigs(sigs);
+    ).then((sigsAndSelectors) => {
+      setSigs(sigsAndSelectors[0]);
+      setSelectors(sigsAndSelectors[1]);
       return 1;
     }),
     enabled: lastPortalInfo?.coinId && offer !== null && destTxId === null && sigs.length < destinationChain.signatureThreshold,
@@ -235,7 +239,7 @@ function StepThreeCoinsetDestination({
         lastUsedChainAndNonces,
         offer!,
         sigs,
-        [true, false, false], // todo
+        selectors,
         stringToHex(sourceChain.id),
         sourceChain.erc20BridgeAddress!,
         destinationChain.portalLauncherId!,
@@ -243,6 +247,8 @@ function StepThreeCoinsetDestination({
 
       const pushTxResp = await pushTx(destinationChain.rpcUrl, sb);
       if(!pushTxResp.success) {
+        const sbJson = sbToJSON(sb);
+        await navigator.clipboard.writeText(JSON.stringify(sbJson, null, 2));
         alert("Failed to push transaction - please check console for more details.");
         console.error(pushTxResp);
       } else {

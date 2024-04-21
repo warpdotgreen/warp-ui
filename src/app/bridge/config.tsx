@@ -26,6 +26,8 @@ export type Network = {
   prefix?: string,
   portalLauncherId?: string,
   aggSigData?: string,
+  multisigThreshold?: number,
+  multisigInfos?: string[],
 
   // EVM only
   chainId?: number,
@@ -47,6 +49,12 @@ export const CHIA_NETWORK: Network = {
     "b38dc1238afb47296ea89d57c9355be08fa7cf6e732d9d234f234a20473c8576c1cb851d7e756a75c2af0b7fb3110e30",
     "9796fa4b1fa20600e1ab44f5ff77aec6d48ab27e0af89009f269cb918fa2afd2b4bb00dc2560f643cd7e53d786d69c65"
   ],
+  multisigThreshold: 2,
+  multisigInfos: [
+    "b93c773fd448927ad5a77d543aa9a2043dad8ab9d8a8ac505317d6542ffdb1b6b74e9e85e734b8ca8264de49b6231a38",
+    "b38dc1238afb47296ea89d57c9355be08fa7cf6e732d9d234f234a20473c8576c1cb851d7e756a75c2af0b7fb3110e30",
+    "8a5c3c9d08d667775d0045335b8c90941763cd00a8cd6ed867c03db243da9b4c227a7012859b9355376df297bd5d8811"
+  ],
   confirmationMinHeight: 3,
   prefix: "txch",
   portalLauncherId: "9229ce0989917cacd6af54c62b26fa1e56cf7505f61801e04c5b00a7f2c5b138",
@@ -61,7 +69,7 @@ export const ETHEREUM_NETWORK: Network = {
   rpcUrl: 'https://rpc2.sepolia.org',
   explorerUrl: 'https://sepolia.etherscan.io',
   messageToll: ethers.parseEther("0.00001"),
-  signatureThreshold: 1,
+  signatureThreshold: 2,
   validatorInfos: [
     "0x113f132a978B7679Aa72c02B0234a32569507043",
     "0x5C6BB61AFfEF75C358d432fdE36580824E355036",
@@ -162,7 +170,7 @@ export const NOSTR_CONFIG = {
   relays: [
     "wss://test-relay.fireacademy.io",
   ],
-  valdiator_keys: [
+  validatorKeys: [
     "cd5fd0859c3a27c13dd9734b7cdc6f2c25646e45821dcecaa089808803d01706",
     "cd5b89f9280909e6e85713054094ac0e82b8c13a3a190de677d17285085cb833",
     "ed5cbb8a2aeb6050b9b942ae7a3595eadf82cfe72bb52448d47f0b25d14d995b",

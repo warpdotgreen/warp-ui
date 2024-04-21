@@ -1,7 +1,7 @@
 import * as GreenWeb from 'greenwebjs';
 import { bech32m } from "bech32";
 import { SimplePool } from 'nostr-tools/pool'
-import { NOSTR_CONFIG } from '../config';
+import { NETWORKS, NOSTR_CONFIG } from '../config';
 
 /*
 def decode_signature(enc_sig: str) -> Tuple[
@@ -47,12 +47,22 @@ export function stringToHex(str: string): string {
     return str.split('').map(c => c.charCodeAt(0).toString(16).padStart(2, '0')).join('');
 }
 
-export async function getSigs(
+
+export function hexToString(hex: string): string {
+    let str = '';
+    for (let i = 0; i < hex.length; i += 2) {
+        str += String.fromCharCode(parseInt(hex.substring(i, i + 2), 16));
+    }
+    return str;
+}
+
+
+export async function getSigsAndSelectors(
   sourceChainHex: string,
   destinationChainHex: string,
   nonce: string,
   coinId: string | null
-): Promise<string[]> {
+): Promise<[string[], boolean[]]> {
   const routingDataBuff = Buffer.from(sourceChainHex + destinationChainHex + nonce.replace("0x", ""), "hex");
   const routingData = bech32m.encode("r", bech32m.toWords(routingDataBuff));
   var coinData = "";
@@ -73,8 +83,44 @@ export async function getSigs(
   pool.close(NOSTR_CONFIG.relays);
 
   if(events.length === 0) {
-    return [];
+    return [[], []];
   }
 
-  return events.map((event) => routingData + "-" + coinData + "-" + event.content);
+  if(coinId === null) {
+    // We're getting sigs for eth; need to order by respective validator hot address
+    alert('todo')
+
+    const destinationNetworkId = hexToString(destinationChainHex);
+    const destinationNetwork = NETWORKS.filter((network) => network.id === destinationNetworkId)[0];
+
+    const sigStrings = events.sort((a, b) => {
+        const indexA = NOSTR_CONFIG.validatorKeys.findIndex(key => key === a.pubkey);
+        const indexB = NOSTR_CONFIG.validatorKeys.findIndex(key => key === b.pubkey);
+
+        const addressA = destinationNetwork.validatorInfos[indexA].replace('0x', '').toLowerCase();
+        const addressB = destinationNetwork.validatorInfos[indexB].replace('0x', '').toLowerCase();
+
+        const intA = BigInt('0x' + addressA);
+        const intB = BigInt('0x' + addressB);
+
+        return intA < intB ? -1 : (intA > intB ? 1 : 0);
+    }).map((event) => routingData + "-" + coinData + "-" + event.content);
+
+    return [
+      sigStrings,
+      [] // selectors
+    ]
+  }
+
+  // We're getting sigs for XCH
+  // Order doesn't matter but we need to generate the 'selectors' array
+  const sigStrings = events.map((event) => routingData + "-" + coinData + "-" + event.content);
+
+  const pubkeys = events.map((event) => event.pubkey);
+  const selectors = NOSTR_CONFIG.validatorKeys.map((validatorInfo) => pubkeys.includes(validatorInfo));
+
+  return [
+    sigStrings,
+    selectors
+  ];
 }

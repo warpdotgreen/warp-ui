@@ -170,7 +170,7 @@ export default function StepOne({
         {ethers.formatUnits(sourceChain.messageToll, sourceChain.type == NetworkType.EVM ? 18 : 12)}
         {sourceChain.type == NetworkType.EVM ? ' ETH ' : ' XCH '}
         ({sourceChain.displayName})
-        (toll - will be used as transaction fee)
+        (toll)
       </p>
       <p className="text-zinc-500">Receiving (after 0.3% protocol tip):</p>
       { sourceChain.type == NetworkType.COINSET && token.symbol == "ETH" ? (
