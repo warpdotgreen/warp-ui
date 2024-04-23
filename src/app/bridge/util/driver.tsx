@@ -1534,3 +1534,116 @@ export function getLockerPuzzle(
     ]
   );
 }
+
+/*
+def get_p2_controller_puzzle_hash_inner_solution(
+    my_id: bytes32,
+    controller_parent_info: bytes32,
+    controller_amount: int,
+    delegated_puzzle: Program,
+    delegated_solution: Program
+) -> Program:
+  return Program.to([
+    my_id,
+    controller_parent_info,
+    controller_amount,
+    delegated_puzzle,
+    delegated_solution
+  ])
+*/
+export function getP2ControllerPuzzleHashInnerSolution(
+  my_id: string,
+  controller_parent_info: string,
+  controller_amount: number,
+  delegated_puzzle: GreenWeb.clvm.SExp,
+  delegated_solution: GreenWeb.clvm.SExp
+): GreenWeb.clvm.SExp {
+  return SExp.to([
+    GreenWeb.util.sexp.bytesToAtom(my_id),
+    GreenWeb.util.sexp.bytesToAtom(controller_parent_info),
+    GreenWeb.util.sexp.bytesToAtom(
+      GreenWeb.util.coin.amountToBytes(controller_amount)
+    ),
+    delegated_puzzle,
+    delegated_solution
+  ]);
+}
+
+/*
+def get_unlocker_solution(
+    message_coin_parent_id: bytes32,
+    message_nonce_hash: bytes32,
+    receiver: bytes32,
+    asset_amount_b32: bytes32,
+    my_puzzle_hash: bytes32,
+    my_id: bytes32,
+    locked_coin_proofs: List[Tuple[bytes32, int]]
+) -> Program:
+  return Program.to([
+    message_coin_parent_id,
+    message_nonce_hash,
+    receiver,
+    asset_amount_b32,
+    my_puzzle_hash,
+    my_id,
+    Program.to(locked_coin_proofs)
+  ])
+*/
+export function getUnlockerSolution(
+  message_coin_parent_id: string,
+  message_nonce_hash: string,
+  receiver: string,
+  asset_amount_b32: string,
+  my_puzzle_hash: string,
+  my_id: string,
+  locked_coin_proofs: [string, number][]
+): GreenWeb.clvm.SExp {
+  return SExp.to([
+    GreenWeb.util.sexp.bytesToAtom(message_coin_parent_id),
+    GreenWeb.util.sexp.bytesToAtom(message_nonce_hash),
+    GreenWeb.util.sexp.bytesToAtom(receiver),
+    GreenWeb.util.sexp.bytesToAtom(asset_amount_b32),
+    GreenWeb.util.sexp.bytesToAtom(my_puzzle_hash),
+    GreenWeb.util.sexp.bytesToAtom(my_id),
+    SExp.to(
+      locked_coin_proofs.map((proof) => SExp.to([
+        GreenWeb.util.sexp.bytesToAtom(proof[0]),
+        GreenWeb.util.sexp.bytesToAtom(
+          GreenWeb.util.coin.amountToBytes(proof[1])
+        )
+      ]))
+    ),
+  ]);
+}
+
+/*
+def get_locker_solution(
+    my_amount: int,
+    my_id: bytes32,
+    asset_amount: int,
+    receiver: bytes
+) -> Program:
+  return Program.to([
+    my_amount,
+    my_id,
+    asset_amount,
+    receiver
+  ])
+*/
+export function getLockerSolution(
+  my_amount: number,
+  my_id: string,
+  asset_amount: number,
+  receiver: string
+): GreenWeb.clvm.SExp {
+  return SExp.to([
+    GreenWeb.util.sexp.bytesToAtom(
+      GreenWeb.util.coin.amountToBytes(my_amount)
+    ),
+    GreenWeb.util.sexp.bytesToAtom(my_id),
+    GreenWeb.util.sexp.bytesToAtom(
+      GreenWeb.util.coin.amountToBytes(asset_amount)
+    ),
+    GreenWeb.util.sexp.bytesToAtom(receiver)
+  ]);
+}
