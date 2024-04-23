@@ -42,6 +42,13 @@ export default function BridgeUILayout({
               >
                 FAQ
               </Link> | 
+               <Link
+                href="/bridge/assets"
+                target="_blank"
+                className="px-2 underline hover:text-zinc-100"
+              >
+                Supported Assets
+              </Link> | 
               <Link
                 href="https://docs.warp.green/developers/introduction"
                 target="_blank"
