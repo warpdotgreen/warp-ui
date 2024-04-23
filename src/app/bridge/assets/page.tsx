@@ -5,9 +5,9 @@ import { NETWORKS, TOKENS } from "../config";
 export default function AssetList() {
   return (
     <div className="text-zinc-300 max-w-3xl w-full mx-auto">
-      <h1 className="text-2xl pb-2">Supported Assets</h1>
-      <p className="pb-4">The following ERC-20 assets are currently available via this bridging interface: </p>
-      <table className="w-full text-center">
+      <h1 className="text-2xl pb-6">Supported Assets</h1>
+      <p className="pb-2">The following ERC-20 assets are currently available via this bridging interface: </p>
+      <table className="mx-6 w-full text-center">
         <thead>
           <tr>
             <th>Source Chain</th>

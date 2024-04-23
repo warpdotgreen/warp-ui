@@ -137,11 +137,25 @@ export const ETH_TOKEN: Token = {
       assetId: getWrappedERC20AssetID(ETHEREUM_NETWORK, MILLIETH_ADDRESS_ETHEREUM),
       contractAddress: MILLIETH_ADDRESS_ETHEREUM
     }
+  ],
+};
+
+const USDT_ADDRESS_ETHEREUM: `0x${string}` = '0xaa8e23fb1079ea71e0a56f48a2aa51851d8433d0';
+const USDT_TOKEN: Token = {
+  symbol: 'USDT',
+  supported: [
+    {
+      evmNetworkId: ETHEREUM_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: getWrappedERC20AssetID(ETHEREUM_NETWORK, USDT_ADDRESS_ETHEREUM),
+      contractAddress: USDT_ADDRESS_ETHEREUM
+    },
   ]
 };
 
 export const TOKENS = [
-  ETH_TOKEN
+  ETH_TOKEN,
+  USDT_TOKEN
 ]
 
 declare module 'wagmi' { 
