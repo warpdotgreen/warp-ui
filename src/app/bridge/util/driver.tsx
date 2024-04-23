@@ -528,6 +528,9 @@ def get_wrapped_tail(
     source: bytes,
     source_chain_token_contract_address: bytes,
 ) -> Program:
+  if len(source_chain_token_contract_address) < 32:
+    source_chain_token_contract_address = b'\x00' * (32 - len(source_chain_token_contract_address)) + source_chain_token_contract_address
+    
   return WRAPPED_TAIL_MOD.curry(
     get_cat_minter_puzzle(
       portal_receiver_launcher_id, source_chain, source
@@ -543,6 +546,10 @@ function getWrappedTAIL(
   source: string,
   source_chain_token_contract_address: string,
 ): GreenWeb.clvm.SExp {
+  if(source_chain_token_contract_address.length < 64) {
+    source_chain_token_contract_address = "0".repeat(64 - source_chain_token_contract_address.length) + source_chain_token_contract_address;
+  }
+  
   return GreenWeb.util.sexp.curry(
     GreenWeb.util.sexp.fromHex(WRAPPED_TAIL_MOD),
     [
