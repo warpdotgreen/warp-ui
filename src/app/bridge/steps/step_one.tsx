@@ -9,7 +9,7 @@ import * as GreenWeb from 'greenwebjs';
 import { useEffect, useState } from "react";
 import { getStepTwoURL } from "./urls";
 import { initializeBLS } from "clvm";
-import { burnCATs, sbToJSON } from "../util/driver";
+import { burnCATs, lockCATs, sbToJSON } from "../util/driver";
 import { stringToHex } from "@/app/bridge/util/sig";
 import { pushTx } from "../util/rpc";
 
@@ -314,15 +314,24 @@ function ChiaButton({
       return;
     }
     
-    const [sb, nonce] = await burnCATs(
-      offer,
-      stringToHex(destinationChain.id),
-      tokenInfo.contractAddress,
-      recipient,
-      destinationChain.erc20BridgeAddress!,
-      sourceChain.portalLauncherId!,
-      parseInt(sourceChain.messageToll.toString()),
-      sourceChain.aggSigData!
+    const [sb, nonce] = await (token.sourceNetworkType == NetworkType.EVM ? burnCATs(
+        offer,
+        stringToHex(destinationChain.id),
+        tokenInfo.contractAddress,
+        recipient,
+        destinationChain.erc20BridgeAddress!,
+        sourceChain.portalLauncherId!,
+        parseInt(sourceChain.messageToll.toString()),
+        sourceChain.aggSigData!
+      ) : lockCATs(
+        offer,
+        stringToHex(destinationChain.id),
+        tokenInfo.contractAddress,
+        recipient,
+        sourceChain.portalLauncherId!,
+        parseInt(sourceChain.messageToll.toString()),
+        sourceChain.aggSigData!
+      )
     );
 
     const pushTxResp = await pushTx(sourceChain.rpcUrl, sb);
