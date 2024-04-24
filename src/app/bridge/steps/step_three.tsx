@@ -56,19 +56,17 @@ function StepThreeEVMDestination({
   const nonce = searchParams.get("nonce")!;
   const source = searchParams.get("source")!;
   const destination = searchParams.get("destination")! as `0x${string}`;
-  const contents = JSON.parse(searchParams.get("contents")!);
+  const contents = JSON.parse(searchParams.get("contents")!).map((c: string) => `0x${c}`) as `0x${string}`[];
   const [waitingForTx, setWaitingForTx] = useState(false);
   const { data: hash, writeContract } = useWriteContract();
 
   const [sigs, setSigs] = useState<string[]>([]);
-  const [selectors, setSelectors] = useState<boolean[]>([]);
-  const { data } = useQuery({
+  useQuery({
     queryKey: ['StepThree_fetchSigsAndSelectors', nonce],
     queryFn: () => getSigsAndSelectors(
       stringToHex(sourceChain.id), stringToHex(destinationChain.id), nonce, null
     ).then((sigsAndSelectors) => {
       setSigs(sigsAndSelectors[0]);
-      setSelectors(sigsAndSelectors[1]);
       return 1;
     }),
     enabled: hash !== undefined || sigs.length < destinationChain.signatureThreshold,
@@ -95,6 +93,15 @@ function StepThreeEVMDestination({
 
   const generateTxPls = async () => {
     setWaitingForTx(true);
+
+    console.log({
+      nonce: ("0x" + nonce),
+      src_chain: ("0x" + stringToHex(sourceChain.id)),
+      source: ("0x" + source),
+      destination,
+      contents,
+      sisig: getSigStringFromSigs(sigs)
+    })
     writeContract({
       address: destinationChain.portalAddress! as `0x${string}`,
       abi: PortalABI,

@@ -84,7 +84,7 @@ async function fetchXCHMessageDetailsAndNavigate(
           sourceNetworkId: sourceChain.id,
           destinationNetworkId: hexToString(destination_chain_id),
           nonce,
-          source: messageCoinRecord.coin.puzzle_hash.slice(2),
+          source: messageCoinParentSpend.coin.puzzle_hash.slice(2),
           destination: ethers.getAddress("0x" + destination),
           contents
         }));

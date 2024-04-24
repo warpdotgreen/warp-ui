@@ -157,7 +157,7 @@ const USDT_TOKEN: Token = {
 };
 
 const XCH_ASSET_ID = "00".repeat(32);
-const WXCH_ADDRESS_ETHERUM : `0x${string}` = '0x8E77e74e83EE7d58349f188BFeabFcaDD9e26B18';
+const WXCH_ADDRESS_ETHERUM : `0x${string}` = '0xFD45fef1C1829FEd9256f765A030Ef50a41d4204';
 const XCH_TOKEN: Token = {
   symbol: 'XCH',
   sourceNetworkType: NetworkType.COINSET,
