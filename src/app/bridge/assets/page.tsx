@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { NETWORKS, TOKENS } from "../config";
+import { NETWORKS, NetworkType, TOKENS } from "../config";
 
 export default function AssetList() {
   return (
@@ -18,7 +18,9 @@ export default function AssetList() {
           </tr>
         </thead>
         <tbody>
-          {TOKENS.map(token => 
+          {TOKENS.filter(
+            (token) => token.sourceNetworkType === NetworkType.EVM
+          ).map(token => 
             token.supported.map(tokenInfo => {
               const originNetwork = NETWORKS.find(network => network.id === tokenInfo.evmNetworkId)?.displayName;
               const destinationNetwork = NETWORKS.find(network => network.id === tokenInfo.coinsetNetworkId)?.displayName;
@@ -30,6 +32,39 @@ export default function AssetList() {
                   <td><CopyableLongHexString hexString={tokenInfo.contractAddress} /></td>
                   <td>{destinationNetwork}</td>
                   <td><CopyableLongHexString hexString={tokenInfo.assetId} /></td>
+                </tr>
+              );
+            })
+          )}
+        </tbody>
+      </table>
+
+      <p className="pb-2 pt-8">The following CAT assets are currently available via this bridging interface: </p>
+      <table className="mx-6 w-full text-center">
+        <thead>
+          <tr>
+            <th>Source Chain</th>
+            <th>Token Symbol</th>
+            <th>Source Asset Id</th>
+            <th>Destination Chain</th>
+            <th>Destination Address</th>
+          </tr>
+        </thead>
+        <tbody>
+          {TOKENS.filter(
+            (token) => token.sourceNetworkType === NetworkType.COINSET
+          ).map(token => 
+            token.supported.map(tokenInfo => {
+              const originNetwork = NETWORKS.find(network => network.id === tokenInfo.coinsetNetworkId)?.displayName;
+              const destinationNetwork = NETWORKS.find(network => network.id === tokenInfo.evmNetworkId)?.displayName;
+
+              return (
+                <tr key={`${token.symbol}-${tokenInfo.assetId}`}>
+                  <td>{originNetwork}</td>
+                  <td>{token.symbol}</td>
+                  <td><CopyableLongHexString hexString={tokenInfo.assetId} /></td>
+                  <td>{destinationNetwork}</td>
+                  <td><CopyableLongHexString hexString={tokenInfo.contractAddress} /></td>
                 </tr>
               );
             })

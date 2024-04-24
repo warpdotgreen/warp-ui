@@ -26,18 +26,21 @@ export default function StepOne({
   const recipient = searchParams.get('recipient')!;
   const amount = searchParams.get('amount') ?? "";
 
-  const token = TOKENS.find((token) => token.symbol === searchParams.get("token"))!;
+  const token: Token = TOKENS.find((token) => token.symbol === searchParams.get("token"))!;
   
   var decimals = 3;
   if(token.symbol === "ETH" && sourceChain.type == NetworkType.EVM) {
     decimals = 6;
+  }
+  if(token.symbol === "XCH" && sourceChain.type == NetworkType.COINSET) {
+    decimals = 12;
   }
 
   var amountMojo: bigint;
   try {
     amountMojo = ethers.parseUnits(amount, decimals);
   } catch(_) {
-    alert("Invalid amount - 3 decimal places allowed for any token, except for ETH, which allows 6 decimal places.");
+    alert("Invalid amount - 3 decimal places allowed for any token, except for ETH (6 decimal places) and XCH (12 decimal places)");
     router.back();
     return <></>;
   }
@@ -67,7 +70,11 @@ export default function StepOne({
       { sourceChain.type == NetworkType.COINSET && token.symbol == "ETH" ? (
         <p className="px-6">{ethers.formatUnits(amountMojoAfterFee, 6)} ETH ({destinationChain.displayName})</p>
       ) : (
-        <p className="px-6">{ethers.formatUnits(amountMojoAfterFee, 3)} {token.symbol === "ETH" ? "milliETH" : token.symbol} ({destinationChain.displayName})</p>
+        sourceChain.type == NetworkType.COINSET && token.symbol == "XCH" ? (
+          <p className="px-6">{ethers.formatUnits(amountMojoAfterFee, 12)} XCH ({destinationChain.displayName})</p>
+        ): (
+          <p className="px-6">{ethers.formatUnits(amountMojoAfterFee, 3)} {token.symbol === "ETH" ? "milliETH" : token.symbol} ({destinationChain.displayName})</p>
+        )
       )
       }
       <p className="text-zinc-500">Recipient address:</p>
@@ -263,20 +270,34 @@ function ChiaButton({
     const tokenInfo = token.supported.find((supported) => supported.coinsetNetworkId === sourceChain.id && supported.evmNetworkId === destinationChain.id)!;
     console.log({ reqAssetId: tokenInfo.assetId });
     
-    const offerMojoAmount = BigInt(sourceChain.messageToll) - amountMojo;
+    var offerMojoAmount = BigInt(sourceChain.messageToll)
+    if(token.sourceNetworkType == NetworkType.EVM) {
+      // We'll melt CAT mojos and use them as a fee as well
+      offerMojoAmount -= amountMojo;
+    }
     var offer = null;
+
+    // either requesting XCH (toll) + asset or just XCH (toll + asset)
+    var xchAmount = parseInt(offerMojoAmount.toString());
+    var offerAssets = [];
+    if(tokenInfo.assetId === "00".repeat(32)) {
+      console.log({ xchAmount })
+      xchAmount += parseInt(amountMojo.toString());
+      console.log({ xchAmount })
+    } else {
+      offerAssets.push({
+        assetId: tokenInfo.assetId,
+        amount: parseInt(amountMojo.toString())
+      })
+    }
+    offerAssets.push({
+      assetId: "",
+      amount: xchAmount
+    });
+
     try {
       const params = {
-        offerAssets: [
-          {
-            assetId: "",
-            amount: parseInt(offerMojoAmount.toString())
-          },
-          {
-            assetId: tokenInfo.assetId,
-            amount: parseInt(amountMojo.toString())
-          }
-        ],
+        offerAssets: offerAssets,
         requestAssets: []
       }
       const response = await (window as any).chia.request({ method: 'createOffer', params })

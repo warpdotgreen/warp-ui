@@ -44,7 +44,6 @@ export default function BridgeUILayout({
               </Link> | 
                <Link
                 href="/bridge/assets"
-                target="_blank"
                 className="px-2 underline hover:text-zinc-100"
               >
                 Supported Assets

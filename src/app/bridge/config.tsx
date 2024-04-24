@@ -116,6 +116,7 @@ export type TokenInfo = {
 
 export type Token = {
   symbol: string,
+  sourceNetworkType: NetworkType,
   supported: TokenInfo[]
 };
 
@@ -124,6 +125,7 @@ const MILLIETH_ADDRESS_BASE: `0x${string}` = '0x399a31D74572b4393DDe3B7486571633
 
 export const ETH_TOKEN: Token = {
   symbol: 'ETH',
+  sourceNetworkType: NetworkType.EVM,
   supported: [
     {
       evmNetworkId: BASE_NETWORK.id,
@@ -143,6 +145,7 @@ export const ETH_TOKEN: Token = {
 const USDT_ADDRESS_ETHEREUM: `0x${string}` = '0xaa8e23fb1079ea71e0a56f48a2aa51851d8433d0';
 const USDT_TOKEN: Token = {
   symbol: 'USDT',
+  sourceNetworkType: NetworkType.EVM,
   supported: [
     {
       evmNetworkId: ETHEREUM_NETWORK.id,
@@ -153,9 +156,26 @@ const USDT_TOKEN: Token = {
   ]
 };
 
+const XCH_ASSET_ID = "00".repeat(32);
+const WXCH_ADDRESS_ETHERUM : `0x${string}` = '0x8E77e74e83EE7d58349f188BFeabFcaDD9e26B18';
+const XCH_TOKEN: Token = {
+  symbol: 'XCH',
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: ETHEREUM_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: XCH_ASSET_ID,
+      contractAddress: WXCH_ADDRESS_ETHERUM
+    },
+  ]
+};
+
+
 export const TOKENS = [
   ETH_TOKEN,
-  USDT_TOKEN
+  USDT_TOKEN,
+  XCH_TOKEN
 ]
 
 declare module 'wagmi' { 
