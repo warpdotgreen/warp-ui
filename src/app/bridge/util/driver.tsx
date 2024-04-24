@@ -1858,7 +1858,7 @@ export async function lockCATs(
       GreenWeb.util.coin.getName(cat_source_coin),
       cat_source_coin,
       cat_source_coin_proof,
-      cat_source_coin.amount,
+      BigInt(cat_source_coin.amount.toString()),
       0
     );
 

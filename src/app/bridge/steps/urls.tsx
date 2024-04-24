@@ -28,17 +28,10 @@ export function getStepTwoURL({
   sourceNetworkId,
   destinationNetworkId,
   txHash,
-  token,
-  recipient,
-  amount,
 }: {
   sourceNetworkId: string,
   destinationNetworkId: string,
   txHash: string,
-  // used only for XCH -> EVM
-  token?: string,
-  recipient?: string
-  amount?: string
 }): string {
   let params: any = {
     step: "2",
@@ -46,15 +39,6 @@ export function getStepTwoURL({
     to: destinationNetworkId,
     tx: txHash
   };
-
-  if(token) {
-    params = {
-      ...params,
-      token,
-      recipient,
-      amount
-    };
-  }
 
   const queryString = new URLSearchParams(params).toString();
   return `/bridge?${queryString}`;

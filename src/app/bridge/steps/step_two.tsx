@@ -1,19 +1,18 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { MultiStepForm } from "./../MultiStepForm";
 import { Network, NetworkType, TOKENS } from "../config";
 import { useBlockNumber, useReadContract, useWaitForTransactionReceipt } from "wagmi";
 import { WindToy } from "react-svg-spinners";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { L1BlockABI } from "@/app/bridge/util/abis";
 import { getStepThreeURL, getStepTwoURL } from "./urls";
 import { useQuery } from "@tanstack/react-query";
-import { getBlockchainState, getCoinRecordByName } from "../util/rpc";
-import { getCATBurnerPuzzle } from "../util/driver";
-import { stringToHex } from "../util/sig";
+import { getBlockchainState, getCoinRecordByName, getPuzzleAndSolution } from "../util/rpc";
+import { hexToString } from "../util/sig";
 import * as GreenWeb from 'greenwebjs';
+import { ConditionOpcode } from "greenwebjs/util/sexp/condition_opcodes";
 
 export default function StepTwo({
   sourceChain,
@@ -39,7 +38,6 @@ export default function StepTwo({
           <XCHValidationElement
             txHash={txHash as `0x${string}`}
             sourceChain={sourceChain}
-            destinationChain={destinationChain}
           />
         )}
       </div>
@@ -47,17 +45,62 @@ export default function StepTwo({
   );
 }
 
+async function fetchXCHMessageDetailsAndNavigate(
+  router: any,
+  sourceChain: Network,
+  nonce: string,
+) {
+  const messageCoinRecord = await getCoinRecordByName(sourceChain.rpcUrl, nonce);
+  const messageCoinParentSpend = await getPuzzleAndSolution(
+    sourceChain.rpcUrl,
+    messageCoinRecord.coin.parent_coin_info,
+    messageCoinRecord.confirmed_block_index
+  );
+
+  const [_, conditionsDict, __] = GreenWeb.util.sexp.conditionsDictForSolution(
+    GreenWeb.util.sexp.fromHex(messageCoinParentSpend.puzzle_reveal.slice(2)),
+    GreenWeb.util.sexp.fromHex(messageCoinParentSpend.solution.slice(2)),
+    GreenWeb.util.sexp.MAX_BLOCK_COST_CLVM
+  )
+  var createCoinConds = conditionsDict?.get("33" as ConditionOpcode) ?? [];
+
+  createCoinConds.forEach((cond) => {
+    if(cond.vars[0] === messageCoinRecord.coin.puzzle_hash.slice(2) &&
+       cond.vars[1] === GreenWeb.util.coin.amountToBytes(messageCoinRecord.coin.amount)) {
+        const memos = GreenWeb.util.sexp.fromHex(cond.vars[2]);
+        
+        const destination_chain_id = GreenWeb.util.sexp.toHex(memos.first()).slice(2);
+        const destination = GreenWeb.util.sexp.toHex(memos.rest().first()).slice(2);
+        
+        const contents = GreenWeb.util.sexp.asAtomList(memos.rest().rest()).map((val) => {
+          if(val.length === 64) {
+            return val;
+          }
+
+          return "0".repeat(64 - val.length) + val;
+        });
+
+        router.push(getStepThreeURL({
+          sourceNetworkId: sourceChain.id,
+          destinationNetworkId: hexToString(destination_chain_id),
+          nonce,
+          source: messageCoinRecord.coin.puzzle_hash.slice(2),
+          destination: ethers.getAddress("0x" + destination),
+          contents
+        }));
+      }
+  })
+}
+
+
 function XCHValidationElement({
   txHash,
   sourceChain,
-  destinationChain,
 } : {
   txHash: string,
   sourceChain: Network,
-  destinationChain: Network,
 }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [includedBlockNumber, setIncludedBlockNumber] = useState(0);
 
   return includedBlockNumber === 0 ? (
@@ -69,37 +112,12 @@ function XCHValidationElement({
   ) : (
     <XCHBlockConfirmer
       sourceChainRpcUrl={sourceChain.rpcUrl}
-      coinId={txHash}
       txInclusionBlock={includedBlockNumber}
       confirmationMinHeight={sourceChain.confirmationMinHeight}
-      onConfirmation={() => {
+      onConfirmation={async () => {
         const nonce = txHash;
-        const sourcePuzzle = getCATBurnerPuzzle(
-          stringToHex(destinationChain.id),
-          destinationChain.erc20BridgeAddress!.slice(2) // remove 0x
-        );
-        const sourcePuzzleHash = GreenWeb.util.sexp.sha256tree(sourcePuzzle);
         
-        const token = TOKENS.find((token) => token.symbol === searchParams.get("token")!)!;
-        const tokenInfo = token.supported.find((info) => info.evmNetworkId === destinationChain.id && info.coinsetNetworkId == sourceChain.id)!;
-        
-        let assetContract = tokenInfo.contractAddress.slice(2);
-        assetContract = "0x" + assetContract.padStart(64, "0");
-        let receiver = searchParams.get("recipient")!.slice(2);
-        receiver = "0x" + receiver.padStart(64, "0");
-
-        router.push(getStepThreeURL({
-          sourceNetworkId: sourceChain.id,
-          destinationNetworkId: destinationChain.id,
-          nonce,
-          source: sourcePuzzleHash,
-          destination: destinationChain.erc20BridgeAddress!,
-          contents: [
-            assetContract,
-            receiver,
-            ethers.toBeHex(Math.ceil(parseFloat(searchParams.get("amount")!) * 1000), 32)
-          ]
-        }));
+        await fetchXCHMessageDetailsAndNavigate(router, sourceChain, nonce);
       }}
     />
   );
@@ -134,13 +152,11 @@ function XCHMempoolFollower({
 
 function XCHBlockConfirmer({
   sourceChainRpcUrl,
-  coinId,
   txInclusionBlock,
   confirmationMinHeight,
   onConfirmation,
 } : {
   sourceChainRpcUrl: string,
-  coinId: string,
   txInclusionBlock: number,
   confirmationMinHeight: number,
   onConfirmation: () => void,

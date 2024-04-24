@@ -347,9 +347,6 @@ function ChiaButton({
         sourceNetworkId: sourceChain.id,
         destinationNetworkId: destinationChain.id,
         txHash: nonce,
-        token: token.symbol,
-        recipient,
-        amount,
       }));
     }
   };
