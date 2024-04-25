@@ -35,6 +35,7 @@ export default function StepOne({
   if(token.symbol === "XCH" && sourceChain.type == NetworkType.COINSET) {
     decimals = 12;
   }
+  if
 
   var amountMojo: bigint;
   try {
