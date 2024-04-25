@@ -140,7 +140,9 @@ function EthereumButton({
       account.address!, sourceChain.erc20BridgeAddress!
     ],
   });
-  const approvedEnough = allowance && tokenDecimalsFromContract && allowance >= ethers.parseUnits(amount, tokenDecimalsFromContract);
+  const approvedEnough = token.symbol === 'ETH' || (
+    allowance && tokenDecimalsFromContract && allowance >= ethers.parseUnits(amount, tokenDecimalsFromContract)
+  );
 
   const { data: approvalTxHash, writeContract: writeContractForApproval } = useWriteContract();
 
