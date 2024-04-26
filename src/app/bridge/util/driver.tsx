@@ -2174,7 +2174,6 @@ export function unlockCATs(
   console.log({leadVaultDelegatedPuzzle: GreenWeb.util.sexp.toHex(leadVaultDelegatedPuzzle)})
 
   const innerSolutions = locked_coins.map((lockedCoin, index) => {
-    console.log({ lockedCoin, lcokedCoinName: GreenWeb.util.coin.getName(lockedCoin) })
     return getP2ControllerPuzzleHashInnerSolution(
       GreenWeb.util.coin.getName(lockedCoin),
       unlockerCoin.parentCoinInfo,
@@ -2194,8 +2193,6 @@ export function unlockCATs(
       coin_spends.push(cs);
     });
   } else {
-    const sc = [];
-
     var amount_so_far = BigInt(0);
     locked_coins.forEach((lockedCoin, index) => {
       const innerSolution = innerSolutions[index];
@@ -2209,10 +2206,10 @@ export function unlockCATs(
       const solution = getCATSolution(
         innerSolution,
         GreenWeb.util.coin.toProgram(locked_coin_proofs[index]),
-        GreenWeb.util.coin.getName(locked_coins[(index - 1) % locked_coins.length]),
+        GreenWeb.util.coin.getName(locked_coins[(locked_coins.length + index - 1) % locked_coins.length]),
         lockedCoin,
         nextCoinProof,
-        index === 0 ? totalVaultValue : amount_so_far,
+        index === 0 ? 0 : amount_so_far,
         0
       );
       amount_so_far += BigInt(lockedCoin.amount.toString());
@@ -2222,7 +2219,7 @@ export function unlockCATs(
       cs.puzzleReveal = p2ControllerPuzzleHashPuzzle;
       cs.solution = solution;
 
-      sc.push(cs);
+      coin_spends.push(cs);
     });
   }
 

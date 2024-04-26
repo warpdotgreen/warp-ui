@@ -171,11 +171,27 @@ export const XCH_TOKEN: Token = {
   ]
 };
 
+const DBX_ASSET_ID = "d82dd03f8a9ad2f84353cd953c4de6b21dbaaf7de3ba3f4ddd9abe31ecba80ad";
+const WDBX_ADDRESS_ETHERUM : `0x${string}` = '0x44a63DED7582De03C44c1b8AC8492373C8b3E974';
+export const DBX_TOKEN: Token = {
+  symbol: 'DBX',
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: ETHEREUM_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: DBX_ASSET_ID,
+      contractAddress: WDBX_ADDRESS_ETHERUM
+    },
+  ]
+};
+
 
 export const TOKENS = [
   ETH_TOKEN,
   USDT_TOKEN,
-  XCH_TOKEN
+  XCH_TOKEN,
+  DBX_TOKEN
 ]
 
 declare module 'wagmi' { 

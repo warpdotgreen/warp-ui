@@ -258,7 +258,9 @@ function StepThreeCoinsetDestination({
             const parentSpend = await getPuzzleAndSolution(destinationChain.rpcUrl, coinRecord.coin.parent_coin_info, coinRecord.confirmed_block_index);
 
             const uncurryRes = GreenWeb.util.sexp.uncurry(
-              parentSpend.puzzle_reveal
+              GreenWeb.util.sexp.fromHex(
+                GreenWeb.util.unhexlify(parentSpend.puzzle_reveal)!
+              )
             );
             if(uncurryRes === null) {
               alert('error in getting lineage proof :|');
@@ -281,7 +283,7 @@ function StepThreeCoinsetDestination({
       return 1;
     },
     enabled: offer !== null && destTxId === null && sigs.length >= destinationChain.signatureThreshold && isNativeCAT && lockedCoinsAndProofs[0].length === 0,
-    refetchInterval: 5000,
+    refetchInterval: 10000,
   });
   useQuery({
     queryKey: ['StepThree_buildAndSubmitTx'],
