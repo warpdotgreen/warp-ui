@@ -1,14 +1,14 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import {  Network, NetworkType } from "../config";
+import {  Network, NetworkType, TOKENS } from "../config";
 import {  useState } from "react";
 import { initializeBLS } from "clvm";
 import { findLatestPortalState } from "@/app/bridge/util/portal_receiver";
 import { WindToy } from "react-svg-spinners";
 import { decodeSignature, getSigsAndSelectors, stringToHex } from "@/app/bridge/util/sig";
 import { getCoinRecordByName, getPuzzleAndSolution, pushTx } from "@/app/bridge/util/rpc";
-import { mintCATs, sbToJSON } from "@/app/bridge/util/driver";
+import { mintCATs, sbToJSON, unlockCATs } from "@/app/bridge/util/driver";
 import Link from "next/link";
 import { getStepThreeURL } from "./urls";
 import { useQuery } from "@tanstack/react-query";
@@ -169,9 +169,11 @@ function StepThreeCoinsetDestination({
   const destination = searchParams.get("destination") ?? "";
   const contents = JSON.parse(searchParams.get("contents") ?? "[]");
 
-  const erc20ContractAddress = contents.length > 0 ? contents[0] : "";
-  const receiverPhOnChia = contents.length > 0 ? contents[1] : "";
-  const amount = parseInt(contents.length > 0 ? contents[2] : "0", 16);
+  // const isCAT = contents.length == 2;
+
+  // const erc20ContractAddress = contents.length > 0 ? contents[0] : "";
+  // const receiverPhOnChia = contents.length > 0 ? contents[1] : "";
+  // const amount = parseInt(contents.length > 0 ? contents[2] : "0", 16);
 
   const destTxId = searchParams.get("tx");
 
@@ -238,19 +240,51 @@ function StepThreeCoinsetDestination({
         destination,
         contents
       }
-      const { sb, txId} = mintCATs(
-        messageData,
-        portalCoinRecord,
-        portalParentSpend,
-        nonces,
-        lastUsedChainAndNonces,
-        offer!,
-        sigs,
-        selectors,
-        stringToHex(sourceChain.id),
-        sourceChain.erc20BridgeAddress!,
-        destinationChain.portalLauncherId!,
-      );
+
+      var sb, txId;
+      if(contents.length === 3) { // wrapped ERC20s
+        ({ sb, txId } = mintCATs(
+          messageData,
+          portalCoinRecord,
+          portalParentSpend,
+          nonces,
+          lastUsedChainAndNonces,
+          offer!,
+          sigs,
+          selectors,
+          stringToHex(sourceChain.id),
+          sourceChain.erc20BridgeAddress!,
+          destinationChain.portalLauncherId!,
+        ));
+      } else { // native CATs being unwrapped
+        // find asset id via bruteforce
+        var assetId = "00".repeat(32);
+        TOKENS.forEach((token) => {
+          token.supported.forEach((tokenInfo) => {
+            if(tokenInfo.contractAddress === source) {
+              assetId = tokenInfo.assetId;
+            }
+          });
+        });
+
+        ({ sb, txId} = unlockCATs(
+          messageData,
+          portalCoinRecord,
+          portalParentSpend,
+          nonces,
+          lastUsedChainAndNonces,
+          offer!,
+          sigs,
+          selectors,
+          stringToHex(sourceChain.id),
+          source,
+          destinationChain.portalLauncherId!,
+          lockedCoinsAndProofs[0],
+          lockedCoinAndProofs[1],
+          destinationChain.aggSigData!,
+          assetId === "32".repeat(32) ? null : assetId
+        ));
+      }
 
       const pushTxResp = await pushTx(destinationChain.rpcUrl, sb);
       if(!pushTxResp.success) {

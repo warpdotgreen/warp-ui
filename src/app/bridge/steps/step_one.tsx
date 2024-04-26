@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Network, NetworkType, Token, TOKENS } from "../config";
 import { ethers } from "ethers";
 import { useAccount, usePrepareTransactionRequest, useReadContract, useTransactionConfirmations, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
-import { erc20ABI, ERC20BridgeABI } from "@/app/bridge/util/abis";
+import { erc20ABI, ERC20BridgeABI, WrappedCATABI } from "@/app/bridge/util/abis";
 import * as GreenWeb from 'greenwebjs';
 import { useEffect, useState } from "react";
 import { getStepTwoURL } from "./urls";
@@ -32,10 +32,9 @@ export default function StepOne({
   if(token.symbol === "ETH" && sourceChain.type == NetworkType.EVM) {
     decimals = 6;
   }
-  if(token.symbol === "XCH" && sourceChain.type == NetworkType.COINSET) {
+  if(token.symbol === "XCH") {
     decimals = 12;
   }
-  if
 
   var amountMojo: bigint;
   try {
@@ -71,7 +70,7 @@ export default function StepOne({
       { sourceChain.type == NetworkType.COINSET && token.symbol == "ETH" ? (
         <p className="px-6">{ethers.formatUnits(amountMojoAfterFee, 6)} ETH ({destinationChain.displayName})</p>
       ) : (
-        sourceChain.type == NetworkType.COINSET && token.symbol == "XCH" ? (
+        token.symbol == "XCH" ? (
           <p className="px-6">{ethers.formatUnits(amountMojoAfterFee, 12)} XCH ({destinationChain.displayName})</p>
         ): (
           <p className="px-6">{ethers.formatUnits(amountMojoAfterFee, 3)} {token.symbol === "ETH" ? "milliETH" : token.symbol} ({destinationChain.displayName})</p>
@@ -141,7 +140,7 @@ function EthereumButton({
       account.address!, sourceChain.erc20BridgeAddress!
     ],
   });
-  const approvedEnough = token.symbol === 'ETH' || (
+  const approvedEnough = token.symbol === 'ETH' || token.sourceNetworkType == NetworkType.COINSET || (
     allowance && tokenDecimalsFromContract && allowance >= ethers.parseUnits(amount, tokenDecimalsFromContract)
   );
 
@@ -196,13 +195,27 @@ function EthereumButton({
         value: ethers.parseEther(amount) + sourceChain.messageToll,
         chainId: sourceChain.chainId
       });
-    } else {
+    } else if(token.sourceNetworkType == NetworkType.EVM) {
       writeContract({
         address: sourceChain.erc20BridgeAddress as `0x${string}`,
         abi: ERC20BridgeABI,
         functionName: "bridgeToChia",
         args: [
           token.supported.find((supported) => supported.evmNetworkId === sourceChain.id)!.contractAddress,
+          ("0x" + receiver) as `0x${string}`,
+          amountMojo
+        ],
+        chainId: sourceChain.chainId,
+        value: sourceChain.messageToll
+      });
+    } else {
+      // token.sourceNetworkType == NetworkType.COINSET
+      console.log("coinset!");
+      writeContract({
+        address: tokenInfo.contractAddress,
+        abi: WrappedCATABI,
+        functionName: "bridgeBack",
+        args: [
           ("0x" + receiver) as `0x${string}`,
           amountMojo
         ],
