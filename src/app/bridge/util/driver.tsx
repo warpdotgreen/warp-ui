@@ -708,7 +708,7 @@ function getCATBurnerPuzzleSolution(
   ]);
 }
 
-function getCATPuzzle(
+export function getCATPuzzle(
   TAILProgramHash: string,
   innerPuzzle: SExp
 ): SExp {
@@ -1145,7 +1145,7 @@ export async function burnCATs(
         } else { // check if CAT source parent
             const uncurryRes = GreenWeb.util.sexp.uncurry(
               coinSpend.puzzleReveal
-            )
+            );
             if(uncurryRes === null) { continue; }
             
             const [uncurried_mod, args] = uncurryRes;
@@ -1592,7 +1592,7 @@ def get_unlocker_solution(
 */
 export function getUnlockerSolution(
   message_coin_parent_id: string,
-  message_nonce_hash: string,
+  message_nonce: string,
   receiver: string,
   asset_amount_b32: string,
   my_puzzle_hash: string,
@@ -1601,19 +1601,19 @@ export function getUnlockerSolution(
 ): GreenWeb.clvm.SExp {
   return SExp.to([
     GreenWeb.util.sexp.bytesToAtom(message_coin_parent_id),
-    GreenWeb.util.sexp.bytesToAtom(message_nonce_hash),
+    GreenWeb.util.sexp.bytesToAtom(
+      GreenWeb.util.stdHash("01" + GreenWeb.util.unhexlify(message_nonce)!) // sha256 1 nonce
+    ),
     GreenWeb.util.sexp.bytesToAtom(receiver),
     GreenWeb.util.sexp.bytesToAtom(asset_amount_b32),
     GreenWeb.util.sexp.bytesToAtom(my_puzzle_hash),
     GreenWeb.util.sexp.bytesToAtom(my_id),
-    SExp.to(
-      locked_coin_proofs.map((proof) => SExp.to([
-        GreenWeb.util.sexp.bytesToAtom(proof[0]),
-        GreenWeb.util.sexp.bytesToAtom(
-          GreenWeb.util.coin.amountToBytes(proof[1])
-        )
-      ]))
-    ),
+    SExp.to(locked_coin_proofs.map((proof) => new Tuple<SExp, SExp>(
+          GreenWeb.util.sexp.bytesToAtom(proof[0]),
+          GreenWeb.util.sexp.bytesToAtom(
+            GreenWeb.util.coin.amountToBytes(proof[1])
+          ),
+    ))),
   ]);
 }
 
@@ -1957,8 +1957,8 @@ export function unlockCATs(
   source_chain: string,
   source_contract: string,
   portal_receiver_launcher_id: string,
-  locked_coins: GreenWeb.Coin[],
-  locked_coin_proofs: GreenWeb.Coin[],
+  locked_coins: any[],
+  locked_coin_proofs: any[],
   agg_sig_additional_data: string,
   assetId: string | null,
 ) {
@@ -1970,6 +1970,17 @@ export function unlockCATs(
   const [xchReceiverPh, tokenAmount] = contents;
   const tokenAmountInt = parseInt(tokenAmount, 16);
   const offer_sb = offerToSpendBundle(offer);
+
+  locked_coins = locked_coins.map((coin: any) => GreenWeb.util.goby.parseGobyCoin({
+    parent_coin_info: GreenWeb.util.unhexlify(coin.parent_coin_info),
+    puzzle_hash: GreenWeb.util.unhexlify(coin.puzzle_hash),
+    amount: coin.amount
+  })!);
+  locked_coin_proofs = locked_coin_proofs.map((coin: any) => GreenWeb.util.goby.parseGobyCoin({
+    parent_coin_info: GreenWeb.util.unhexlify(coin.parent_coin_info),
+    puzzle_hash: GreenWeb.util.unhexlify(coin.puzzle_hash),
+    amount: coin.amount
+  })!);
 
   /* find source coin = coin with OFFER_MOD that will create security coin */
   var source_coin = new GreenWeb.Coin();
@@ -1991,7 +2002,7 @@ export function unlockCATs(
       if(cond.vars[0] === OFFER_MOD_HASH) {
         source_coin.parentCoinInfo = GreenWeb.util.coin.getName(coinSpend.coin);
         source_coin.puzzleHash = OFFER_MOD_HASH;
-        source_coin.amount = tokenAmountInt;
+        source_coin.amount = 1;
         source_coin_parent_puzzle_hash = coinSpend.coin.puzzleHash;
         break;
       }
@@ -2080,6 +2091,23 @@ export function unlockCATs(
   securityCoin.puzzleHash = securityCoinPuzzleHash;
   securityCoin.amount = source_coin.amount;
 
+  const sourceCoinSolution = SExp.to([
+    [
+      GreenWeb.util.sexp.bytesToAtom(GreenWeb.util.coin.getName(securityCoin)),
+      [
+        GreenWeb.util.sexp.bytesToAtom(securityCoin.puzzleHash),
+        securityCoin.amount
+      ]
+    ],
+  ]);
+
+  const sourceCoinSpend = new GreenWeb.util.serializer.types.CoinSpend();
+  sourceCoinSpend.coin = source_coin;
+  sourceCoinSpend.puzzleReveal = GreenWeb.util.sexp.fromHex(OFFER_MOD);
+  sourceCoinSpend.solution = sourceCoinSolution;
+
+  coin_spends.push(sourceCoinSpend);
+
   /* spend unlocker coin */
   const unlockerPuzzle = getUnlockerPuzzle(
     source_chain,
@@ -2103,13 +2131,16 @@ export function unlockCATs(
     tokenAmount,
     unlockerPuzzleHash,
     unlockerCoinName,
-    locked_coins.map((coin) => [coin.parentCoinInfo, BigInt(coin.amount.toString())])
+    locked_coins.map((coin) => 
+      [coin.parentCoinInfo, BigInt(coin.amount.toString())])
   );
 
   const unlockerCoinSpend = new GreenWeb.util.serializer.types.CoinSpend();
   unlockerCoinSpend.coin = unlockerCoin;
   unlockerCoinSpend.puzzleReveal = unlockerPuzzle;
   unlockerCoinSpend.solution = unlockerCoinSolution;
+
+  coin_spends.push(unlockerCoinSpend);
 
   /* spend locked coins */
   const p2ControllerPuzzleHashInnerPuzzle = getP2ControllerPuzzleHashInnerPuzzle(unlockerPuzzleHash);
@@ -2140,7 +2171,10 @@ export function unlockCATs(
   }
   const leadVaultDelegatedPuzzle = SExp.to(leadVaultConditions);
 
+  console.log({leadVaultDelegatedPuzzle: GreenWeb.util.sexp.toHex(leadVaultDelegatedPuzzle)})
+
   const innerSolutions = locked_coins.map((lockedCoin, index) => {
+    console.log({ lockedCoin, lcokedCoinName: GreenWeb.util.coin.getName(lockedCoin) })
     return getP2ControllerPuzzleHashInnerSolution(
       GreenWeb.util.coin.getName(lockedCoin),
       unlockerCoin.parentCoinInfo,
@@ -2154,7 +2188,7 @@ export function unlockCATs(
     innerSolutions.forEach((innerSolution, index) => {
       const cs = new GreenWeb.util.serializer.types.CoinSpend();
       cs.coin = locked_coins[index];
-      cs.puzzleReveal = GreenWeb.util.sexp.fromHex(OFFER_MOD);
+      cs.puzzleReveal = p2ControllerPuzzleHashPuzzle;
       cs.solution = innerSolution;
 
       coin_spends.push(cs);

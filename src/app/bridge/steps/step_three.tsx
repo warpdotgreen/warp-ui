@@ -1,19 +1,21 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import {  Network, NetworkType, TOKENS } from "../config";
+import {  Network, NetworkType, TOKENS, XCH_TOKEN } from "../config";
 import {  useState } from "react";
 import { initializeBLS } from "clvm";
 import { findLatestPortalState } from "@/app/bridge/util/portal_receiver";
 import { WindToy } from "react-svg-spinners";
 import { decodeSignature, getSigsAndSelectors, stringToHex } from "@/app/bridge/util/sig";
-import { getCoinRecordByName, getPuzzleAndSolution, pushTx } from "@/app/bridge/util/rpc";
-import { mintCATs, sbToJSON, unlockCATs } from "@/app/bridge/util/driver";
+import { getCoinRecordByName, getCoinRecordsByPuzzleHash, getPuzzleAndSolution, pushTx } from "@/app/bridge/util/rpc";
+import { getCATPuzzle, getP2ControllerPuzzleHashInnerPuzzle, mintCATs, sbToJSON, unlockCATs } from "@/app/bridge/util/driver";
 import Link from "next/link";
 import { getStepThreeURL } from "./urls";
 import { useQuery } from "@tanstack/react-query";
 import { useWriteContract } from "wagmi";
 import { PortalABI } from "../util/abis";
+import * as GreenWeb from 'greenwebjs';
+
 
 export default function StepThree({
   sourceChain,
@@ -163,17 +165,18 @@ function StepThreeCoinsetDestination({
   const [lastPortalInfo, setLastPortalInfo] = useState<any>(null);
   const [sigs, setSigs] = useState<string[]>([]);
   const [selectors, setSelectors] = useState<boolean[]>([]);
+  const [lockedCoinsAndProofs, setLockedCoinsAndProofs] = useState<[any[], any[]]>([[], []]);
 
   const nonce: `0x${string}` = (searchParams.get("nonce") ?? "0x") as `0x${string}`;
   const source = searchParams.get("source") ?? "";
   const destination = searchParams.get("destination") ?? "";
   const contents = JSON.parse(searchParams.get("contents") ?? "[]");
 
-  // const isCAT = contents.length == 2;
+  const isNativeCAT = contents.length == 2;
 
   // const erc20ContractAddress = contents.length > 0 ? contents[0] : "";
   // const receiverPhOnChia = contents.length > 0 ? contents[1] : "";
-  // const amount = parseInt(contents.length > 0 ? contents[2] : "0", 16);
+  const amount = parseInt(contents.length > 0 ? (isNativeCAT ? contents[1] : contents[2]) : "0", 16);
 
   const destTxId = searchParams.get("tx");
 
@@ -222,6 +225,65 @@ function StepThreeCoinsetDestination({
     refetchInterval: 5000,
   });
   useQuery({
+    queryKey: ['StepThree_fetchLockedCoinsAndProofs'],
+    queryFn: async () => {
+      const unlockerPuzzleHash = destination;
+      const lockerInnerPuzzle = getP2ControllerPuzzleHashInnerPuzzle(unlockerPuzzleHash);
+      var lockerPuzzle = lockerInnerPuzzle;
+      
+      const assetId = TOKENS
+        .filter((token) => token.sourceNetworkType == NetworkType.COINSET)
+        .filter((token) => token.supported.some((tokenInfo) => tokenInfo.contractAddress === source))
+        .map((token) => token.supported[0].assetId)[0];
+
+      if(assetId !== "00".repeat(32)) {
+        lockerPuzzle = getCATPuzzle(
+          assetId,
+          lockerInnerPuzzle
+        );
+      }
+
+      const vaultPuzzleHash = GreenWeb.util.sexp.sha256tree(lockerPuzzle);
+
+      const coinRecords = await getCoinRecordsByPuzzleHash(destinationChain.rpcUrl, vaultPuzzleHash);
+      const totalAmount = coinRecords.reduce((acc: bigint, coinRec: any) => acc + BigInt(coinRec.coin.amount.toString()), BigInt(0));
+
+      if(totalAmount >= amount) {
+        const coins = coinRecords.map((coinRec: any) => coinRec.coin);
+        const proofs: any[] = [];
+
+        console.log({ assetId })
+        if(assetId !== "00".repeat(32)) {
+          await coinRecords.forEach(async (coinRecord: any) => {
+            const parentSpend = await getPuzzleAndSolution(destinationChain.rpcUrl, coinRecord.coin.parent_coin_info, coinRecord.confirmed_block_index);
+
+            const uncurryRes = GreenWeb.util.sexp.uncurry(
+              parentSpend.puzzle_reveal
+            );
+            if(uncurryRes === null) {
+              alert('error in getting lineage proof :|');
+              return;
+            }
+            const [_, args] = uncurryRes;
+
+            proofs.push({
+              parent_coin_info: parentSpend.coin.parent_coin_info,
+              puzzle_hash: GreenWeb.util.sexp.sha256tree(args[2]), // inner puzzle hash
+              amount: parentSpend.coin.amount,
+            })
+          });
+        }
+
+        setLockedCoinsAndProofs([coins, proofs]);
+        console.log({ coins })
+      }
+
+      return 1;
+    },
+    enabled: offer !== null && destTxId === null && sigs.length >= destinationChain.signatureThreshold && isNativeCAT && lockedCoinsAndProofs[0].length === 0,
+    refetchInterval: 5000,
+  });
+  useQuery({
     queryKey: ['StepThree_buildAndSubmitTx'],
     queryFn: async () => {
       const { coinId, nonces, lastUsedChainAndNonces } = lastPortalInfo;
@@ -242,7 +304,7 @@ function StepThreeCoinsetDestination({
       }
 
       var sb, txId;
-      if(contents.length === 3) { // wrapped ERC20s
+      if(!isNativeCAT) { // wrapped ERC20s
         ({ sb, txId } = mintCATs(
           messageData,
           portalCoinRecord,
@@ -266,6 +328,7 @@ function StepThreeCoinsetDestination({
             }
           });
         });
+        console.log({ assetIdForUnlock: assetId });
 
         ({ sb, txId} = unlockCATs(
           messageData,
@@ -280,9 +343,9 @@ function StepThreeCoinsetDestination({
           source,
           destinationChain.portalLauncherId!,
           lockedCoinsAndProofs[0],
-          lockedCoinAndProofs[1],
+          lockedCoinsAndProofs[1],
           destinationChain.aggSigData!,
-          assetId === "32".repeat(32) ? null : assetId
+          assetId === "00".repeat(32) ? null : assetId
         ));
       }
 
@@ -302,7 +365,7 @@ function StepThreeCoinsetDestination({
 
       return 1;
     },
-    enabled: offer !== null && destTxId === null && sigs.length >= destinationChain.signatureThreshold,
+    enabled: offer !== null && destTxId === null && sigs.length >= destinationChain.signatureThreshold && (!isNativeCAT || lockedCoinsAndProofs[0].length > 0),
   });
 
   if(!offer && !destTxId) {
@@ -315,7 +378,7 @@ function StepThreeCoinsetDestination({
     return (
       <GenerateOfferPrompt
         destinationChain={destinationChain}
-        amount={amount}
+        amount={isNativeCAT ? 1 : amount}
         onOfferGenerated={(offer) => {
           router.push(getStepThreeURL({
             sourceNetworkId: sourceChain.id,
@@ -340,7 +403,7 @@ function StepThreeCoinsetDestination({
             blsInitialized ? (
               lastPortalInfo !== null ? (
                 sigs.length >= destinationChain.signatureThreshold ? (
-                  "Building transaction..."
+                  isNativeCAT && lockedCoinsAndProofs[0].length == 0 ? "Finding locked coins..." : "Building transaction..."
                 ) : (
                   `Collecting signatures (${sigs.length}/${destinationChain.signatureThreshold})`
                 )
