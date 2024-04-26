@@ -2,7 +2,7 @@
 
 import { useAccount, useAccountEffect } from "wagmi";
 import { Network, NETWORKS, NetworkType, TOKENS } from "./../config";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChiaWalletContext } from "./../chia_wallet_context";
 import { useRouter } from "next/navigation";
 import { Token } from "../config";
@@ -13,12 +13,22 @@ export default function StepZero() {
   const [
     tokenSymbol, setTokenSymbol
   ] = useState(TOKENS[0].symbol);
+
+  const token = TOKENS.find((t: Token) => t.symbol === tokenSymbol)!;
+  const networks: Network[] = Array.from(new Set(
+    token.supported.flatMap(info => [info.evmNetworkId, info.coinsetNetworkId])
+  )).map((id: string) => NETWORKS.find((n: Network) => n.id === id)!);
+
   const [
     sourceNetworkId, setSourceNetworkId
-  ] = useState(TOKENS[0].supported[0].evmNetworkId);
+  ] = useState(
+    token.sourceNetworkType !== NetworkType.EVM ? token.supported[0].coinsetNetworkId : token.supported[0].evmNetworkId
+  );
   const [
     destinationNetworkId, setDestinationNetworkId
-  ] = useState(TOKENS[0].supported[0].coinsetNetworkId);
+  ] = useState(
+    token.sourceNetworkType === NetworkType.EVM ? token.supported[0].coinsetNetworkId : token.supported[0].evmNetworkId
+  );
   const [
     amount, setAmount
   ] = useState("");
@@ -79,7 +89,19 @@ export default function StepZero() {
                     <select
                       className="px-2 py-2 border border-zinc-700 rounded bg-zinc-800 text-zinc-100 outline-none"
                       value={tokenSymbol}
-                      onChange={(e) => setTokenSymbol(e.target.value)}
+                      onChange={(e) => {
+                          setTokenSymbol(e.target.value);
+
+                          const newToken = TOKENS.find((t: Token) => t.symbol === e.target.value)!;
+                          setSourceNetworkId(
+                            newToken.sourceNetworkType !== NetworkType.EVM ?
+                              newToken.supported[0].coinsetNetworkId : newToken.supported[0].evmNetworkId
+                          );
+                          setDestinationNetworkId(
+                            newToken.sourceNetworkType === NetworkType.EVM ?
+                              newToken.supported[0].coinsetNetworkId : newToken.supported[0].evmNetworkId
+                          );
+                      }}
                     >
                       {TOKENS.map((t: Token) => (
                         <option key={t.symbol} value={t.symbol}>{t.symbol}</option>
@@ -89,7 +111,7 @@ export default function StepZero() {
                   <div className="flex items-center justify-between">
                     <BlockchainDropdown
                       label="From"
-                      options={NETWORKS}
+                      options={networks}
                       selectedValue={sourceNetworkId}
                       updateSelectedValue={setSourceNetworkId}
                     />
@@ -102,7 +124,7 @@ export default function StepZero() {
                     </button>
                     <BlockchainDropdown
                       label="To"
-                      options={NETWORKS}
+                      options={networks}
                       selectedValue={destinationNetworkId}
                       updateSelectedValue={setDestinationNetworkId}
                     />
