@@ -5,8 +5,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Bridging Interface",
-  description: "Interface for an EVM-Chia bridge powered by the warp.green cross-chain messaging protocol. Currently supported networks include Chia, Ethereum, and Base.",
+  title: "warp.green",
+  description: "warp.green is a cross-chain messaging protocol that currently supports sending messages between Chia, Ethereum, and Base.",
 };
 
 export default function UILayout({
