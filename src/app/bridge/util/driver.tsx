@@ -1756,7 +1756,7 @@ export async function lockCATs(
   securityCoin.puzzleHash = securityCoinPuzzleHash;
   securityCoin.amount = bridging_toll_mojos;
 
-    /* spend locker coin */
+  /* spend locker coin */
   const lockerPuzzle = getLockerPuzzle(
     destination_chain,
     wrapped_cat_address,

@@ -2,7 +2,7 @@
 
 import { useAccount, useAccountEffect } from "wagmi";
 import { Network, NETWORKS, NetworkType, TOKENS } from "./../config";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ChiaWalletContext } from "./../chia_wallet_context";
 import { useRouter } from "next/navigation";
 import { Token } from "../config";
@@ -62,20 +62,25 @@ export default function StepZero() {
             setDestinationAddress(chiaWalletContext.address);
           }
 
-        const swapNetworks = () => {
-          const temp = sourceNetworkId;
-          setSourceNetworkId(destinationNetworkId);
-          setDestinationNetworkId(temp);
-          
-          if(account?.address !== undefined && NETWORKS.find((n: Network) => n.id === temp)?.type === NetworkType.EVM) {
+
+        const updateDestinationAddress = (destNetworkId: string) => {
+          if(account?.address !== undefined && NETWORKS.find((n: Network) => n.id === destNetworkId)?.type === NetworkType.EVM) {
             setDestinationAddress(account!.address);
           } else {
-            if(chiaWalletContext.connected && NETWORKS.find((n: Network) => n.id === temp)?.type === NetworkType.COINSET) {
+            if(chiaWalletContext.connected && NETWORKS.find((n: Network) => n.id === destNetworkId)?.type === NetworkType.COINSET) {
               setDestinationAddress(chiaWalletContext.address);
             } else {
               setDestinationAddress("");
             }
           }
+        };
+
+        const swapNetworks = () => {
+          const temp = sourceNetworkId;
+          setSourceNetworkId(destinationNetworkId);
+          setDestinationNetworkId(temp);
+          
+          updateDestinationAddress(temp);
         };
 
         return (
@@ -97,10 +102,11 @@ export default function StepZero() {
                             newToken.sourceNetworkType !== NetworkType.EVM ?
                               newToken.supported[0].coinsetNetworkId : newToken.supported[0].evmNetworkId
                           );
-                          setDestinationNetworkId(
-                            newToken.sourceNetworkType === NetworkType.EVM ?
-                              newToken.supported[0].coinsetNetworkId : newToken.supported[0].evmNetworkId
-                          );
+
+                          const destNetworkId = newToken.sourceNetworkType === NetworkType.EVM ?
+                              newToken.supported[0].coinsetNetworkId : newToken.supported[0].evmNetworkId;
+                          setDestinationNetworkId(destNetworkId);
+                          updateDestinationAddress(destNetworkId);
                       }}
                     >
                       {TOKENS.map((t: Token) => (
