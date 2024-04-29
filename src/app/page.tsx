@@ -32,11 +32,34 @@ export default function LandingPage() {
           <div>
             <>
               <h1 className="text-7xl">At a glance</h1>
-              <h3 className="text-2xl text-zinc-300 pt-8">Key protocol statistics</h3>
+              <h3 className="text-xl text-zinc-300 pt-6">A few points about warp.green</h3>
             </>
-            <div className="border-zinc-700 rounded-lg border p-6 bg-zinc-900 mt-8">
-              <p>Supported Networks</p>
-            </div>
+            <div className="border-zinc-700 rounded-lg border p-4 bg-zinc-900 mt-8">
+              <p className="text-center text-xl">Supported Networks</p>
+              <div className="flex justify-between items-center mt-6 mx-8">
+                  <div className="relative">
+                      <div className="w-24 h-24 p-3 rounded-full border-2 border-zinc-700 bg-zinc-900 flex items-center justify-center">
+                          <img src="https://raw.githubusercontent.com/base-org/brand-kit/main/logo/symbol/Base_Symbol_Blue.svg" alt="Network" className="w-full h-full rounded-full object-cover" />
+                      </div>
+                      <p className="text-center text-zinc-300 pt-2">Base</p>
+                  </div>
+                  <div className="w-full h-[2px] bg-zinc-700 flex-grow relative mb-8"></div>
+                  <div className="relative">
+                      <div className="w-24 h-24 p-2 rounded-full border-2 border-zinc-700 bg-zinc-900 flex items-center justify-center">
+                          <img src="https://www.chia.net/wp-content/uploads/2023/06/chia_icon_green-hex5ECE71.svg?w=64" alt="Network" className="w-full h-full rounded-full object-cover" />
+                      </div>
+                      <p className="text-center text-zinc-300 pt-2">Chia</p>
+                  </div>
+                  <div className="w-full h-[2px] bg-zinc-700 flex-grow relative mb-8"></div>
+                  <div className="relative">
+                      <div className="w-24 h-24 p-2 rounded-full border-2 border-zinc-700 bg-zinc-900 flex items-center justify-center">
+                          <img src="https://raw.githubusercontent.com/ethereum/ethereum-org-website/dev/public/assets/eth-diamond-black-gray.png" alt="Network" className="w-full h-full rounded-full object-cover" />
+                      </div>
+                      <p className="text-center text-zinc-300 pt-2">Ethereum</p>
+                  </div>
+              </div>
+          </div>
+
           </div>
           <div>Column 2</div>
           <div>Column 3</div>
