@@ -73,30 +73,25 @@ function StatsCard() {
   const sentMessages = isStatsDataLoading ? '...' : statsData?.messages_to_chia.toString();
   const receivedMessages = isStatsDataLoading ? '...' : statsData?.messages_from_chia.toString();
 
-  console.log({statsData})
-
   return (
     <div className="border-zinc-700 rounded-lg border p-4 bg-zinc-900 mt-8">
       <p className="text-center text-xl">Stats</p>
-      <div className="flex justify-between items-center mt-6 mx-4">
-        <div className="flex w-full">
-          {/* Left Half */}
-          <div className="flex-1 flex flex-col justify-center items-center border-zinc-700 border-r-2">
-            <div className="text-4xl">{totalMessages}</div>
-            <div className="text-lg">delivered messages</div>
+      <div className="flex flex-col mt-6 mx-4 pb-2">
+        <div className="flex flex-col justify-center items-center mb-4">
+          <div className="text-8xl">{totalMessages}</div>
+          <div className="text-lg text-zinc-500">delivered messages</div>
+        </div>
+
+        <div className="flex w-full border-t-2 border-zinc-700">
+          <div className="flex-1 flex flex-col justify-left py-4 items-center border-r-2 border-zinc-700">
+            <div className="text-2xl">{sentMessages}</div>
+            <div className="text-lg text-zinc-500">to Chia</div>
           </div>
 
-          {/* Right Half */}
-          <div className="flex-1 flex flex-col">
-            {/* Top */}
-            <div className="flex-1 flex justify-left pl-4 items-center border-b-2 border-zinc-700">
-              <div className="text-lg">{sentMessages} to Chia</div>
-            </div>
-
-            {/* Bottom */}
-            <div className="flex-1 flex justify-left pl-4 items-center">
-              <div className="text-lg">{receivedMessages} from Chia</div>
-            </div>
+          {/* Right Half: From */}
+          <div className="flex-1 flex flex-col justify-left py-4 items-center">
+            <div className="text-2xl">{receivedMessages}</div>
+            <div className="text-lg text-zinc-500">from Chia</div>
           </div>
         </div>
       </div>
