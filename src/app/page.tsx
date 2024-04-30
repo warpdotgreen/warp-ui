@@ -1,78 +1,104 @@
-import { useQuery } from "@tanstack/react-query";
+"use client";
+import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 
 const WATCHER_API_ROOT = 'https://test-watcher.fireacademy.io/';
 
+const queryClient = new QueryClient()
+
 export default function LandingPage() {
-  const { data: statsData, isLoading: isStatsDataLoading } = useQuery({
-    queryKey: ['stats'],
-    queryFn: () => fetch(`${WATCHER_API_ROOT}stats`).then(res => res.json())
-  });
-  const { data: messages, isLoading: areMessagesLoading } = useQuery({
-    queryKey: ['stats'],
-    queryFn: () => fetch(`${WATCHER_API_ROOT}messages`).then(res => res.json())
-  });
+  // const { data: statsData, isLoading: isStatsDataLoading } = useQuery({
+  //   queryKey: ['landingPage_stats'],
+  //   queryFn: () => fetch(`${WATCHER_API_ROOT}stats`).then(res => res.json())
+  // });
+  // const { data: messages, isLoading: areMessagesLoading } = useQuery({
+  //   queryKey: ['landingPage_messages'],
+  //   queryFn: () => fetch(`${WATCHER_API_ROOT}messages`).then(res => res.json())
+  // });
 
   return (
-    <div className="bg-zinc-950 h-screen text-zinc-100 flex flex-col justify-between snap-y snap-mandatory overflow-y-scroll no-scrollbar break-all">
-      <div className="flex w-full justify-end py-4 px-8 fixed top-0 right-0 left-0 z-10">
-        <Link
-          href="/bridge"
-          className="text-green-500 hover:bg-zinc-800 border-2 border-green-500 rounded-full font-medium px-4 py-2"
-        >Bridging Interface</Link>
-      </div>
-      <div className="min-h-screen h-screen flex flex-col snap-center">
-        <div className="flex-grow flex items-center">
-            <div className="text-9xl pl-8 mt-24">
-                <h1>A Cross-Chain</h1>
-                <h1><span className="text-green-500">Messaging Protocol</span>.</h1>
-            </div>
+    <QueryClientProvider client={queryClient}>
+      <div className="bg-zinc-950 h-screen text-zinc-100 flex flex-col justify-between snap-y snap-mandatory overflow-y-scroll no-scrollbar break-all">
+        <div className="flex w-full justify-end py-4 px-8 fixed top-0 right-0 left-0 z-10">
+          <Link
+            href="/bridge"
+            className="text-green-500 hover:bg-zinc-800 border-2 border-green-500 rounded-full font-medium px-4 py-2"
+          >Bridging Interface</Link>
         </div>
-        <div className="items-center justify-center pb-32 mb-8">
-            <div className="text-center text-4xl">
-                warp.green allows your app to communicate across blockchains
-            </div>
-        </div>
-        <div className="mx-auto pt-16 pb-4 flex items-center justify-center text-zinc-300">
-            <CevronDoubleDownIcon /> 
-            <p className="px-4">scroll down for more</p>
-            <CevronDoubleDownIcon />
-        </div>
-      </div>
-      <div className="min-h-screen h-screen snap-center">
-        <div className="mx-4 mb-4 mt-16 pt-4 grid grid-cols-3 gap-16">
-          <div>
-            <>
-              <h1 className="text-7xl">At a glance</h1>
-              <h3 className="text-xl text-zinc-300 pt-6">A few points about warp.green</h3>
-            </>
-            <SupportedNetworksCard />
-            <StatsCard
-              isLoading={isStatsDataLoading}
-              statsData={statsData}
-            />
+        <div className="min-h-screen h-screen flex flex-col snap-center">
+          <div className="flex-grow flex items-center">
+              <div className="text-9xl pl-8 mt-24">
+                  <h1>A Cross-Chain</h1>
+                  <h1><span className="text-green-500">Messaging Protocol</span>.</h1>
+              </div>
           </div>
-          <div>Column 2</div>
-          <div>Column 3</div>
-          {/*  */}
+          <div className="items-center justify-center pb-32 mb-8">
+              <div className="text-center text-4xl">
+                  warp.green allows your app to communicate across blockchains
+              </div>
+          </div>
+          <div className="mx-auto pt-16 pb-4 flex items-center justify-center text-zinc-300">
+              <CevronDoubleDownIcon /> 
+              <p className="px-4">scroll down for more</p>
+              <CevronDoubleDownIcon />
+          </div>
+        </div>
+        <div className="min-h-screen h-screen snap-center">
+          <div className="mx-4 mb-4 mt-16 pt-4 grid grid-cols-3 gap-16">
+            <div>
+              <>
+                <h1 className="text-7xl">At a glance</h1>
+                <h3 className="text-xl text-zinc-300 pt-6">A few points about warp.green</h3>
+              </>
+              <StatsCard />
+              <SupportedNetworksCard />
+            </div>
+            <div>Column 2</div>
+            <div>Column 3</div>
+            {/*  */}
+          </div>
         </div>
       </div>
-    </div>
+    </QueryClientProvider>
   );
 }
 
-function StatsCard({
-  isLoading,
-  statsData
-} : {
-  isLoading: boolean,
-  statsData: any
-}) {
+function StatsCard() {
+  const { data: statsData, isLoading: isStatsDataLoading } = useQuery({
+    queryKey: ['landingPage_stats'],
+    queryFn: () => fetch(`${WATCHER_API_ROOT}stats`).then(res => res.json())
+  });
+
+  const totalMessages = isStatsDataLoading ? '...' : statsData?.total_messages.toString();
+  const sentMessages = isStatsDataLoading ? '...' : statsData?.messages_to_chia.toString();
+  const receivedMessages = isStatsDataLoading ? '...' : statsData?.messages_from_chia.toString();
+
+  console.log({statsData})
+
   return (
     <div className="border-zinc-700 rounded-lg border p-4 bg-zinc-900 mt-8">
       <p className="text-center text-xl">Stats</p>
-      <div className="flex justify-between items-center mt-6 mx-8">
-          TODO hehe
+      <div className="flex justify-between items-center mt-6 mx-4">
+        <div className="flex w-full">
+          {/* Left Half */}
+          <div className="flex-1 flex flex-col justify-center items-center border-zinc-700 border-r-2">
+            <div className="text-4xl">{totalMessages}</div>
+            <div className="text-lg">delivered messages</div>
+          </div>
+
+          {/* Right Half */}
+          <div className="flex-1 flex flex-col">
+            {/* Top */}
+            <div className="flex-1 flex justify-left pl-4 items-center border-b-2 border-zinc-700">
+              <div className="text-lg">{sentMessages} to Chia</div>
+            </div>
+
+            {/* Bottom */}
+            <div className="flex-1 flex justify-left pl-4 items-center">
+              <div className="text-lg">{receivedMessages} from Chia</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
