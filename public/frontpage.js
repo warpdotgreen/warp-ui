@@ -185,9 +185,7 @@ function loop(time){
     }
     // if mouse down then go to hyper speed
     if(window.slide === 3){
-        if(hyperSpeed < 1.1){
-            hyperSpeed += 0.002;
-        } else if(hyperSpeed < 1.4) {
+        if(hyperSpeed < 1.4) {
           hyperSpeed += 0.005;
         } else if(hyperSpeed < 1.75){
             hyperSpeed += 0.01;

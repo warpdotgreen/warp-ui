@@ -161,7 +161,7 @@ function MessageBoard({
       ]);
 
       return (
-        <div key={nonce} className="border-zinc-700 rounded-lg border p-4 bg-zinc-900 mt-4">
+        <div key={nonce} className="border-zinc-700 bg-opacity-50 hover:bg-opacity-90 rounded-lg border p-4 bg-zinc-900 mt-4">
           <div className="flex justify-between">
             <p>
               Message <button onClick={() => {
@@ -217,7 +217,7 @@ function BridgeStatsCard({
   ][]
 }) {
   return (
-    <div className="border-zinc-700 rounded-lg border p-4 bg-zinc-900 mt-4">
+    <div className="border-zinc-700 hover:bg-opacity-90 bg-opacity-50 rounded-lg border p-4 bg-zinc-900 mt-4">
       <p className="text-center text-xl">{cardName}</p>
       <div className="flex flex-col mt-6 mx-4 pb-2">
         {tokenInfos.map(([tokenSymbol, amountLocked, totalVolume, digits], index) => {
@@ -252,7 +252,7 @@ function MainStatsCard({
   const receivedMessages = isStatsDataLoading ? '...' : statsData?.messages_from_chia.toString();
 
   return (
-    <div className="border-zinc-700 rounded-lg border p-4 bg-zinc-900 mt-8">
+    <div className="border-zinc-700 rounded-lg border p-4 bg-zinc-900 mt-8 bg-opacity-50 hover:bg-opacity-90">
       <p className="text-center text-xl">Stats</p>
       <div className="flex flex-col mt-6 mx-4 pb-2">
         <div className="flex flex-col justify-center items-center mb-4">
@@ -278,7 +278,7 @@ function MainStatsCard({
 
 function SupportedNetworksCard() {
   return (
-    <div className="border-zinc-700 rounded-lg border p-4 bg-zinc-900 mt-4">
+    <div className="border-zinc-700 rounded-lg border p-4 bg-zinc-900 mt-4 bg-opacity-50 hover:bg-opacity-90">
       <p className="text-center text-xl">Supported Networks</p>
       <div className="flex justify-between items-center mt-4 mx-8 pt-12 pb-16 mb-1">
           <div className="relative">
