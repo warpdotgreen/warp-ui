@@ -75,6 +75,25 @@ function SecondPageSection() {
         <>
           <h1 className="text-7xl">Live apps</h1>
           <h3 className="text-xl text-zinc-300 pt-6">Apps that use warp.green as an oracle</h3>
+          <BridgeStatsCard
+            cardName="ERC-20 Bridge"
+            isDataLoading={isStatsDataLoading}
+            tokenInfos={[
+              ['ETH', statsData?.milliETH_locked ?? 0, statsData?.milliETH_total_volume ?? 0, 6],
+              ['USDC', statsData?.USDC_locked ?? 0, statsData?.USDC_total_volume ?? 0, 3],
+              ['USDT', statsData?.USDT_locked ?? 0, statsData?.USDT_total_volume ?? 0, 3],
+            ]}
+          />
+          <BridgeStatsCard
+            cardName="CAT Bridge"
+            isDataLoading={isStatsDataLoading}
+            tokenInfos={[
+              // XCH has 12 decimals, but we don't want to show that many
+              ['XCH', Math.floor((statsData?.XCH_locked ?? 0) / 1000000), Math.floor((statsData?.XCH_total_volume ?? 0) / 1000000), 6],
+              ['SBX', statsData?.SBX_locked ?? 0, statsData?.SBX_total_volume ?? 0, 3],
+              ['DBX', statsData?.DBX_locked ?? 0, statsData?.DBX_total_volume ?? 0, 3],
+            ]}
+          />
         </>
       </div>
       <div>
@@ -90,9 +109,11 @@ function SecondPageSection() {
 
 function BridgeStatsCard({
   cardName,
+  isDataLoading,
   tokenInfos
 } : {
   cardName: string,
+  isDataLoading: boolean,
   tokenInfos: [
     string, // token symbol
     number, // amount locked
@@ -106,14 +127,14 @@ function BridgeStatsCard({
       <div className="flex flex-col mt-6 mx-4 pb-2">
         {tokenInfos.map(([tokenSymbol, amountLocked, totalVolume, digits], index) => {
           return (
-            <div key={tokenSymbol} className={"flex w-full" + (index === tokenInfos.length - 1 ? "" : "border-t-2 border-zinc-700")}>
-              <div className="flex-1 flex flex-col justify-left py-4 items-center border-r-2 border-zinc-700">
-                <div className="text-2xl">{ethers.formatUnits(amountLocked, digits)} {tokenSymbol}</div>
+            <div key={tokenSymbol} className={"flex w-full " + (index === tokenInfos.length - 1 ? "" : "border-b-2 border-zinc-700")}>
+              <div className="flex-1 flex flex-col justify-left py-2 items-center border-r-2 border-zinc-700">
+                <div className="text-2xl">{isDataLoading ? '...' : ethers.formatUnits(amountLocked, digits)} {tokenSymbol}</div>
                 <div className="text-lg text-zinc-500">Locked</div>
               </div>
 
-              <div className="flex-1 flex flex-col justify-left py-4 items-center">
-                <div className="text-2xl">{ethers.formatUnits(amountLocked, digits)} {tokenSymbol}</div>
+              <div className="flex-1 flex flex-col justify-left py-2 items-center">
+                <div className="text-2xl">{isDataLoading ? '...' : ethers.formatUnits(totalVolume, digits)} {tokenSymbol}</div>
                 <div className="text-lg text-zinc-500">Total Volume</div>
               </div>
             </div>
