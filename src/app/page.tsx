@@ -1,6 +1,7 @@
 "use client";
 import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { ethers } from "ethers";
+import TimeAgo from 'react-timeago';
 import Link from "next/link";
 
 const WATCHER_API_ROOT = 'https://test-watcher.fireacademy.io/';
@@ -8,15 +9,6 @@ const WATCHER_API_ROOT = 'https://test-watcher.fireacademy.io/';
 const queryClient = new QueryClient()
 
 export default function LandingPage() {
-  // const { data: statsData, isLoading: isStatsDataLoading } = useQuery({
-  //   queryKey: ['landingPage_stats'],
-  //   queryFn: () => fetch(`${WATCHER_API_ROOT}stats`).then(res => res.json())
-  // });
-  // const { data: messages, isLoading: areMessagesLoading } = useQuery({
-  //   queryKey: ['landingPage_messages'],
-  //   queryFn: () => fetch(`${WATCHER_API_ROOT}messages`).then(res => res.json())
-  // });
-
   return (
     <QueryClientProvider client={queryClient}>
       <div className="bg-zinc-950 h-screen text-zinc-100 flex flex-col justify-between snap-y snap-mandatory overflow-y-scroll no-scrollbar break-all">
@@ -56,6 +48,11 @@ function SecondPageSection() {
   const { data: statsData, isLoading: isStatsDataLoading } = useQuery({
     queryKey: ['landingPage_stats'],
     queryFn: () => fetch(`${WATCHER_API_ROOT}stats`).then(res => res.json())
+  });
+  const { data: messages, isLoading: areMessagesLoading } = useQuery({
+    queryKey: ['landingPage_latest-messages'],
+    queryFn: () => fetch(`${WATCHER_API_ROOT}latest-messages?limit=7`).then(res => res.json()),
+    refetchInterval: 10000
   });
 
   return (
@@ -99,13 +96,65 @@ function SecondPageSection() {
       <div>
         <>
           <h1 className="text-7xl">Messages</h1>
-          <h3 className="text-xl text-zinc-300 pt-6">Latest messages that have been sent</h3>
+          <h3 className="text-xl text-zinc-300 pt-6">Latest messages processed by warp.green</h3>
+          <MessageBoard
+            isLoading={areMessagesLoading}
+            messages={messages}
+          />
         </>
       </div>
-      {/*  */}
     </div>
   );
 }
+
+function MessageBoard({
+  isLoading,
+  messages
+} : {
+  isLoading: boolean,
+  messages: any
+}) {
+  if(isLoading) {
+    return <></>;
+  }
+  return <div className="overflow-auto">
+    {messages.map(({
+      nonce, source_chain, destination_chain, source_timestamp, destination_timestamp, parsed
+    }: {
+      nonce: string,
+      source_chain: string,
+      destination_chain: string,
+      source_timestamp: number,
+      destination_timestamp?: number,
+      parsed?: any
+    }) => {
+      const displayNonce = "0x" + nonce.slice(0, 4) + "..." + nonce.slice(-4);
+      const timestamp = destination_timestamp ?? source_timestamp;
+      
+      return (
+        <div key={nonce} className="border-zinc-700 rounded-lg border p-4 bg-zinc-900 mt-8">
+          <div className="flex justify-between">
+            <p>
+              Message <button onClick={() => {
+                navigator.clipboard.writeText(nonce);
+                alert('Message nonce copied to clipboard! :)');
+              }} className="underline hover:text-zinc-300">{displayNonce}</button> was{' '}
+              <span className={destination_timestamp === null ? 'text-yellow-300' : 'text-green-300'}>
+                {destination_timestamp === null ? 'sent' : 'received'}
+              </span>.
+            </p>
+            <p className="text-zinc-500">
+              <TimeAgo
+                date={timestamp * 1000}
+              />
+            </p>
+          </div>
+        </div>
+      );
+    })}
+  </div>;
+}
+
 
 function BridgeStatsCard({
   cardName,
