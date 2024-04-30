@@ -1,6 +1,18 @@
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 
+const WATCHER_API_ROOT = 'https://test-watcher.fireacademy.io/';
+
 export default function LandingPage() {
+  const { data: statsData, isLoading: isStatsDataLoading } = useQuery({
+    queryKey: ['stats'],
+    queryFn: () => fetch(`${WATCHER_API_ROOT}stats`).then(res => res.json())
+  });
+  const { data: messages, isLoading: areMessagesLoading } = useQuery({
+    queryKey: ['stats'],
+    queryFn: () => fetch(`${WATCHER_API_ROOT}messages`).then(res => res.json())
+  });
+
   return (
     <div className="bg-zinc-950 h-screen text-zinc-100 flex flex-col justify-between snap-y snap-mandatory overflow-y-scroll no-scrollbar break-all">
       <div className="flex w-full justify-end py-4 px-8 fixed top-0 right-0 left-0 z-10">
@@ -34,37 +46,74 @@ export default function LandingPage() {
               <h1 className="text-7xl">At a glance</h1>
               <h3 className="text-xl text-zinc-300 pt-6">A few points about warp.green</h3>
             </>
-            <div className="border-zinc-700 rounded-lg border p-4 bg-zinc-900 mt-8">
-              <p className="text-center text-xl">Supported Networks</p>
-              <div className="flex justify-between items-center mt-6 mx-8">
-                  <div className="relative">
-                      <div className="w-24 h-24 p-3 rounded-full border-2 border-zinc-700 bg-zinc-900 flex items-center justify-center">
-                          <img src="https://raw.githubusercontent.com/base-org/brand-kit/main/logo/symbol/Base_Symbol_Blue.svg" alt="Network" className="w-full h-full rounded-full object-cover" />
-                      </div>
-                      <p className="text-center text-zinc-300 pt-2">Base</p>
-                  </div>
-                  <div className="w-full h-[2px] bg-zinc-700 flex-grow relative mb-8"></div>
-                  <div className="relative">
-                      <div className="w-24 h-24 p-2 rounded-full border-2 border-zinc-700 bg-zinc-900 flex items-center justify-center">
-                          <img src="https://www.chia.net/wp-content/uploads/2023/06/chia_icon_green-hex5ECE71.svg?w=64" alt="Network" className="w-full h-full rounded-full object-cover" />
-                      </div>
-                      <p className="text-center text-zinc-300 pt-2">Chia</p>
-                  </div>
-                  <div className="w-full h-[2px] bg-zinc-700 flex-grow relative mb-8"></div>
-                  <div className="relative">
-                      <div className="w-24 h-24 p-2 rounded-full border-2 border-zinc-700 bg-zinc-900 flex items-center justify-center">
-                          <img src="https://raw.githubusercontent.com/ethereum/ethereum-org-website/dev/public/assets/eth-diamond-black-gray.png" alt="Network" className="w-full h-full rounded-full object-cover" />
-                      </div>
-                      <p className="text-center text-zinc-300 pt-2">Ethereum</p>
-                  </div>
-              </div>
-          </div>
-
+            <SupportedNetworksCard />
+            <StatsCard
+              isLoading={isStatsDataLoading}
+              statsData={statsData}
+            />
           </div>
           <div>Column 2</div>
           <div>Column 3</div>
           {/*  */}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function StatsCard({
+  isLoading,
+  statsData
+} : {
+  isLoading: boolean,
+  statsData: any
+}) {
+  return (
+    <div className="border-zinc-700 rounded-lg border p-4 bg-zinc-900 mt-8">
+      <p className="text-center text-xl">Stats</p>
+      <div className="flex justify-between items-center mt-6 mx-8">
+          TODO hehe
+      </div>
+    </div>
+  );
+}
+
+function SupportedNetworksCard() {
+  return (
+    <div className="border-zinc-700 rounded-lg border p-4 bg-zinc-900 mt-8">
+      <p className="text-center text-xl">Supported Networks</p>
+      <div className="flex justify-between items-center mt-6 mx-8">
+          <div className="relative">
+              <div className="w-24 h-24 p-3 rounded-full border-2 border-zinc-700 bg-zinc-900 flex items-center justify-center">
+                  <img src="https://raw.githubusercontent.com/base-org/brand-kit/main/logo/symbol/Base_Symbol_Blue.svg" alt="Network" className="w-full h-full rounded-full object-cover" />
+              </div>
+              <p className="text-center text-zinc-300 pt-2">Base</p>
+          </div>
+          <div className="w-full h-[2px] bg-zinc-700 flex-grow relative mb-8"></div>
+          <div className="relative">
+              <div className="w-24 h-24 p-2 rounded-full border-2 border-zinc-700 bg-zinc-900 flex items-center justify-center">
+                  <img src="https://www.chia.net/wp-content/uploads/2023/06/chia_icon_green-hex5ECE71.svg?w=64" alt="Network" className="w-full h-full rounded-full object-cover" />
+              </div>
+              <p className="text-center text-zinc-300 pt-2">Chia</p>
+          </div>
+          <div className="w-full h-[2px] bg-zinc-700 flex-grow relative mb-8"></div>
+          <div className="relative">
+              <div className="w-24 h-24 p-3 rounded-full border-2 border-zinc-700 bg-zinc-900 flex items-center justify-center">
+                  {/* <img src="https://raw.githubusercontent.com/ethereum/ethereum-org-website/dev/public/assets/eth-diamond-black-gray.png" alt="Network" className="w-full h-full rounded-full object-cover" /> */}
+                  {/* <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Ethereum_logo_2014.svg" alt="Network" className="w-full h-full rounded-full object-cover" /> */}
+                  <svg className="w-full h-full rounded-full object-cover" width="256px" height="417px" viewBox="0 0 256 417" version="1.1" preserveAspectRatio="xMidYMid">
+                    <g>
+                      <polygon fill="#343434" points="127.9611 0 125.1661 9.5 125.1661 285.168 127.9611 287.958 255.9231 212.32"/>
+                      <polygon fill="#8C8C8C" points="127.962 0 0 212.32 127.962 287.959 127.962 154.158"/>
+                      <polygon fill="#3C3C3B" points="127.9611 312.1866 126.3861 314.1066 126.3861 412.3056 127.9611 416.9066 255.9991 236.5866"/>
+                      <polygon fill="#8C8C8C" points="127.962 416.9052 127.962 312.1852 0 236.5852"/>
+                      <polygon fill="#141414" points="127.9611 287.9577 255.9211 212.3207 127.9611 154.1587"/>
+                      <polygon fill="#393939" points="0.0009 212.3208 127.9609 287.9578 127.9609 154.1588"/>
+                    </g>
+                  </svg>
+              </div>
+              <p className="text-center text-zinc-300 pt-2">Ethereum</p>
+          </div>
       </div>
     </div>
   );
