@@ -1,7 +1,7 @@
 "use client";
 import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { ethers } from "ethers";
-import TimeAgo from 'react-timeago';
+import { formatDistanceToNow } from 'date-fns';
 import Link from "next/link";
 
 const WATCHER_API_ROOT = 'https://test-watcher.fireacademy.io/';
@@ -51,16 +51,16 @@ function SecondPageSection() {
   });
   const { data: messages, isLoading: areMessagesLoading } = useQuery({
     queryKey: ['landingPage_latest-messages'],
-    queryFn: () => fetch(`${WATCHER_API_ROOT}latest-messages?limit=4`).then(res => res.json()),
+    queryFn: () => fetch(`${WATCHER_API_ROOT}latest-messages?limit=5`).then(res => res.json()),
     refetchInterval: 10000
   });
 
   return (
-    <div className="mx-4 mb-4 mt-16 pt-4 grid grid-cols-3 gap-16">
+    <div className="mx-16 mb-4 mt-16 pt-4 grid grid-cols-3 gap-8">
       <div>
         <>
-          <h1 className="text-7xl">At a glance</h1>
-          <h3 className="text-xl text-zinc-300 pt-6">A few points about warp.green</h3>
+          <h1 className="text-7xl text-center">At a glance</h1>
+          <h3 className="text-xl text-zinc-300 pt-6 text-center">A few points about warp.green</h3>
         </>
         <MainStatsCard
           statsData={statsData}
@@ -70,8 +70,8 @@ function SecondPageSection() {
       </div>
       <div>
         <>
-          <h1 className="text-7xl">Live apps</h1>
-          <h3 className="text-xl text-zinc-300 pt-6">Apps that use warp.green as an oracle</h3>
+          <h1 className="text-7xl text-center">Live apps</h1>
+          <h3 className="text-xl text-zinc-300 pt-6 mb-8 text-center">Apps that use warp.green as an oracle</h3>
           <BridgeStatsCard
             cardName="ERC-20 Bridge"
             isDataLoading={isStatsDataLoading}
@@ -95,8 +95,8 @@ function SecondPageSection() {
       </div>
       <div>
         <>
-          <h1 className="text-7xl">Messages</h1>
-          <h3 className="text-xl text-zinc-300 pt-6">Latest messages processed by warp.green</h3>
+          <h1 className="text-7xl text-center">Messages</h1>
+          <h3 className="text-xl text-zinc-300 pt-6 mb-4 text-center">Latest messages processed by warp.green</h3>
           <MessageBoard
             isLoading={areMessagesLoading}
             messages={messages}
@@ -139,9 +139,8 @@ function MessageBoard({
         ["xch", "Chia"]
       ]);
 
-
       return (
-        <div key={nonce} className="border-zinc-700 rounded-lg border p-4 bg-zinc-900 mt-8">
+        <div key={nonce} className="border-zinc-700 rounded-lg border p-4 bg-zinc-900 mt-4">
           <div className="flex justify-between">
             <p>
               Message <button onClick={() => {
@@ -153,20 +152,18 @@ function MessageBoard({
               <span className={destination_timestamp === null ? 'text-yellow-300' : 'text-green-300'}>
                   {destination_timestamp === null ? 'sent' : 'received'}
               </span>{' '}
-              <TimeAgo
-                date={timestamp * 1000}
-              />
+              {formatDistanceToNow(timestamp * 1000, { addSuffix: true }).replace('about ', '')}
             </p>
           </div>
-          <div className="flex w-full pt-6">
+          <div className="flex w-full mt-3 pt-0.5">
             <div className="flex-1 flex flex-col justify-left items-center border-r border-zinc-700">
               <div className="text-md">{chainToDisplayName.get(source_chain)}</div>
-              <div className="text-sm text-zinc-500">Source Chain</div>
+              <div className="text-sm text-zinc-500 pt-1">Source Chain</div>
             </div>
 
             <div className="flex-1 flex flex-col justify-left items-center border-r border-zinc-700">
               <div className="text-md">{chainToDisplayName.get(destination_chain)}</div>
-              <div className="text-sm text-zinc-500">Destination Chain</div>
+              <div className="text-sm text-zinc-500 pt-1">Destination Chain</div>
             </div>
 
             <div className="flex-1 flex flex-col justify-left items-center">
@@ -174,7 +171,7 @@ function MessageBoard({
               type === 'erc20_bridge' ? 'ERC-20 Bridge' : (
                 type === 'cat_bridge' ? 'CAT Bridge' : 'Unknown'
               )}</div>
-              <div className="text-sm text-zinc-500">App</div>
+              <div className="text-sm text-zinc-500 pt-1">App</div>
             </div>
           </div>
         </div>
@@ -199,7 +196,7 @@ function BridgeStatsCard({
   ][]
 }) {
   return (
-    <div className="border-zinc-700 rounded-lg border p-4 bg-zinc-900 mt-8">
+    <div className="border-zinc-700 rounded-lg border p-4 bg-zinc-900 mt-4">
       <p className="text-center text-xl">{cardName}</p>
       <div className="flex flex-col mt-6 mx-4 pb-2">
         {tokenInfos.map(([tokenSymbol, amountLocked, totalVolume, digits], index) => {
@@ -260,23 +257,23 @@ function MainStatsCard({
 
 function SupportedNetworksCard() {
   return (
-    <div className="border-zinc-700 rounded-lg border p-4 bg-zinc-900 mt-8">
+    <div className="border-zinc-700 rounded-lg border p-4 bg-zinc-900 mt-4">
       <p className="text-center text-xl">Supported Networks</p>
-      <div className="flex justify-between items-center mt-6 mx-8">
+      <div className="flex justify-between items-center mt-4 mx-8 pt-12 pb-16 mb-1">
           <div className="relative">
               <div className="w-24 h-24 p-3 rounded-full border border-zinc-700 bg-zinc-900 flex items-center justify-center">
                   <img src="https://raw.githubusercontent.com/base-org/brand-kit/main/logo/symbol/Base_Symbol_Blue.svg" alt="Network" className="w-full h-full rounded-full object-cover" />
               </div>
               <p className="text-center text-zinc-300 pt-2">Base</p>
           </div>
-          <div className="w-full h-[2px] bg-zinc-700 flex-grow relative mb-8"></div>
+          <div className="w-full h-px bg-zinc-700 flex-grow relative mb-8"></div>
           <div className="relative">
               <div className="w-24 h-24 p-2 rounded-full border border-zinc-700 bg-zinc-900 flex items-center justify-center">
                   <img src="https://www.chia.net/wp-content/uploads/2023/06/chia_icon_green-hex5ECE71.svg?w=64" alt="Network" className="w-full h-full rounded-full object-cover" />
               </div>
               <p className="text-center text-zinc-300 pt-2">Chia</p>
           </div>
-          <div className="w-full h-[2px] bg-zinc-700 flex-grow relative mb-8"></div>
+          <div className="w-full h-px bg-zinc-700 flex-grow relative mb-8"></div>
           <div className="relative">
               <div className="w-24 h-24 p-3 rounded-full border border-zinc-700 bg-zinc-900 flex items-center justify-center">
                   {/* <img src="https://raw.githubusercontent.com/ethereum/ethereum-org-website/dev/public/assets/eth-diamond-black-gray.png" alt="Network" className="w-full h-full rounded-full object-cover" /> */}
