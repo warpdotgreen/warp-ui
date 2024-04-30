@@ -248,7 +248,7 @@ function loop(time){
         })
     }
     // as speed increases make lines thicker
-    ctx.lineWidth = 2 + hs*2;
+    ctx.lineWidth = 3 + hs*2;
     ctx.lineCap = "round";
     points.update();  // update points
     points.draw();     // draw points
