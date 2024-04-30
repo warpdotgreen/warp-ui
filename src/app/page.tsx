@@ -1,5 +1,6 @@
 "use client";
 import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
+import { ethers } from "ethers";
 import Link from "next/link";
 
 const WATCHER_API_ROOT = 'https://test-watcher.fireacademy.io/';
@@ -44,31 +45,92 @@ export default function LandingPage() {
           </div>
         </div>
         <div className="min-h-screen h-screen snap-center">
-          <div className="mx-4 mb-4 mt-16 pt-4 grid grid-cols-3 gap-16">
-            <div>
-              <>
-                <h1 className="text-7xl">At a glance</h1>
-                <h3 className="text-xl text-zinc-300 pt-6">A few points about warp.green</h3>
-              </>
-              <StatsCard />
-              <SupportedNetworksCard />
-            </div>
-            <div>Column 2</div>
-            <div>Column 3</div>
-            {/*  */}
-          </div>
+          <SecondPageSection />          
         </div>
       </div>
     </QueryClientProvider>
   );
 }
 
-function StatsCard() {
+function SecondPageSection() {
   const { data: statsData, isLoading: isStatsDataLoading } = useQuery({
     queryKey: ['landingPage_stats'],
     queryFn: () => fetch(`${WATCHER_API_ROOT}stats`).then(res => res.json())
   });
 
+  return (
+    <div className="mx-4 mb-4 mt-16 pt-4 grid grid-cols-3 gap-16">
+      <div>
+        <>
+          <h1 className="text-7xl">At a glance</h1>
+          <h3 className="text-xl text-zinc-300 pt-6">A few points about warp.green</h3>
+        </>
+        <MainStatsCard
+          statsData={statsData}
+          isStatsDataLoading={isStatsDataLoading}
+        />
+        <SupportedNetworksCard />
+      </div>
+      <div>
+        <>
+          <h1 className="text-7xl">Live apps</h1>
+          <h3 className="text-xl text-zinc-300 pt-6">Apps that use warp.green as an oracle</h3>
+        </>
+      </div>
+      <div>
+        <>
+          <h1 className="text-7xl">Messages</h1>
+          <h3 className="text-xl text-zinc-300 pt-6">Latest messages that have been sent</h3>
+        </>
+      </div>
+      {/*  */}
+    </div>
+  );
+}
+
+function BridgeStatsCard({
+  cardName,
+  tokenInfos
+} : {
+  cardName: string,
+  tokenInfos: [
+    string, // token symbol
+    number, // amount locked
+    number, // total volume
+    number, // digits
+  ][]
+}) {
+  return (
+    <div className="border-zinc-700 rounded-lg border p-4 bg-zinc-900 mt-8">
+      <p className="text-center text-xl">{cardName}</p>
+      <div className="flex flex-col mt-6 mx-4 pb-2">
+        {tokenInfos.map(([tokenSymbol, amountLocked, totalVolume, digits], index) => {
+          return (
+            <div key={tokenSymbol} className={"flex w-full" + (index === tokenInfos.length - 1 ? "" : "border-t-2 border-zinc-700")}>
+              <div className="flex-1 flex flex-col justify-left py-4 items-center border-r-2 border-zinc-700">
+                <div className="text-2xl">{ethers.formatUnits(amountLocked, digits)} {tokenSymbol}</div>
+                <div className="text-lg text-zinc-500">Locked</div>
+              </div>
+
+              <div className="flex-1 flex flex-col justify-left py-4 items-center">
+                <div className="text-2xl">{ethers.formatUnits(amountLocked, digits)} {tokenSymbol}</div>
+                <div className="text-lg text-zinc-500">Total Volume</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function MainStatsCard({
+  statsData,
+  isStatsDataLoading,
+} : {
+  statsData: any,
+  isStatsDataLoading: boolean,
+}) {
   const totalMessages = isStatsDataLoading ? '...' : statsData?.total_messages.toString();
   const sentMessages = isStatsDataLoading ? '...' : statsData?.messages_to_chia.toString();
   const receivedMessages = isStatsDataLoading ? '...' : statsData?.messages_from_chia.toString();
@@ -88,7 +150,6 @@ function StatsCard() {
             <div className="text-lg text-zinc-500">to Chia</div>
           </div>
 
-          {/* Right Half: From */}
           <div className="flex-1 flex flex-col justify-left py-4 items-center">
             <div className="text-2xl">{receivedMessages}</div>
             <div className="text-lg text-zinc-500">from Chia</div>
