@@ -147,12 +147,12 @@ function MessageBoard({
               Message <button onClick={() => {
                 navigator.clipboard.writeText(nonce);
                 alert('Message nonce copied to clipboard! :)');
-              }} className="underline hover:text-zinc-300">{displayNonce}</button> was{' '}
-              <span className={destination_timestamp === null ? 'text-yellow-300' : 'text-green-300'}>
-                {destination_timestamp === null ? 'sent' : 'received'}
-              </span>.
+              }} className="underline hover:text-zinc-300">{displayNonce}</button>
             </p>
             <p className="text-zinc-500">
+              <span className={destination_timestamp === null ? 'text-yellow-300' : 'text-green-300'}>
+                  {destination_timestamp === null ? 'sent' : 'received'}
+              </span>{' '}
               <TimeAgo
                 date={timestamp * 1000}
               />
@@ -204,8 +204,8 @@ function BridgeStatsCard({
       <div className="flex flex-col mt-6 mx-4 pb-2">
         {tokenInfos.map(([tokenSymbol, amountLocked, totalVolume, digits], index) => {
           return (
-            <div key={tokenSymbol} className={"flex w-full " + (index === tokenInfos.length - 1 ? "" : "border-b-2 border-zinc-700")}>
-              <div className="flex-1 flex flex-col justify-left py-2 items-center border-r-2 border-zinc-700">
+            <div key={tokenSymbol} className={"flex w-full " + (index === tokenInfos.length - 1 ? "" : "border-b border-zinc-700")}>
+              <div className="flex-1 flex flex-col justify-left py-2 items-center border-r border-zinc-700">
                 <div className="text-2xl">{isDataLoading ? '...' : ethers.formatUnits(amountLocked, digits)} {tokenSymbol}</div>
                 <div className="text-lg text-zinc-500">Locked</div>
               </div>
@@ -242,8 +242,8 @@ function MainStatsCard({
           <div className="text-lg text-zinc-500">delivered messages</div>
         </div>
 
-        <div className="flex w-full border-t-2 border-zinc-700">
-          <div className="flex-1 flex flex-col justify-left py-4 items-center border-r-2 border-zinc-700">
+        <div className="flex w-full border-t border-zinc-700">
+          <div className="flex-1 flex flex-col justify-left py-4 items-center border-r border-zinc-700">
             <div className="text-2xl">{sentMessages}</div>
             <div className="text-lg text-zinc-500">to Chia</div>
           </div>
@@ -264,21 +264,21 @@ function SupportedNetworksCard() {
       <p className="text-center text-xl">Supported Networks</p>
       <div className="flex justify-between items-center mt-6 mx-8">
           <div className="relative">
-              <div className="w-24 h-24 p-3 rounded-full border-2 border-zinc-700 bg-zinc-900 flex items-center justify-center">
+              <div className="w-24 h-24 p-3 rounded-full border border-zinc-700 bg-zinc-900 flex items-center justify-center">
                   <img src="https://raw.githubusercontent.com/base-org/brand-kit/main/logo/symbol/Base_Symbol_Blue.svg" alt="Network" className="w-full h-full rounded-full object-cover" />
               </div>
               <p className="text-center text-zinc-300 pt-2">Base</p>
           </div>
           <div className="w-full h-[2px] bg-zinc-700 flex-grow relative mb-8"></div>
           <div className="relative">
-              <div className="w-24 h-24 p-2 rounded-full border-2 border-zinc-700 bg-zinc-900 flex items-center justify-center">
+              <div className="w-24 h-24 p-2 rounded-full border border-zinc-700 bg-zinc-900 flex items-center justify-center">
                   <img src="https://www.chia.net/wp-content/uploads/2023/06/chia_icon_green-hex5ECE71.svg?w=64" alt="Network" className="w-full h-full rounded-full object-cover" />
               </div>
               <p className="text-center text-zinc-300 pt-2">Chia</p>
           </div>
           <div className="w-full h-[2px] bg-zinc-700 flex-grow relative mb-8"></div>
           <div className="relative">
-              <div className="w-24 h-24 p-3 rounded-full border-2 border-zinc-700 bg-zinc-900 flex items-center justify-center">
+              <div className="w-24 h-24 p-3 rounded-full border border-zinc-700 bg-zinc-900 flex items-center justify-center">
                   {/* <img src="https://raw.githubusercontent.com/ethereum/ethereum-org-website/dev/public/assets/eth-diamond-black-gray.png" alt="Network" className="w-full h-full rounded-full object-cover" /> */}
                   {/* <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Ethereum_logo_2014.svg" alt="Network" className="w-full h-full rounded-full object-cover" /> */}
                   <svg className="w-full h-full rounded-full object-cover" width="256px" height="417px" viewBox="0 0 256 417" version="1.1" preserveAspectRatio="xMidYMid">
