@@ -3,6 +3,8 @@ import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-quer
 import { ethers } from "ethers";
 import { formatDistanceToNow } from 'date-fns';
 import Link from "next/link";
+import { useEffect, useLayoutEffect, useRef } from "react";
+import Script from "next/script";
 
 const WATCHER_API_ROOT = 'https://test-watcher.fireacademy.io/';
 
@@ -11,7 +13,8 @@ const queryClient = new QueryClient()
 export default function LandingPage() {
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="bg-zinc-950 h-screen text-zinc-100 flex flex-col justify-between snap-y snap-mandatory overflow-y-scroll no-scrollbar break-all">
+      <canvas id="canvas" className="absolute top-0 left-0 z-[-10] w-full h-full bg-zinc-950"></canvas>
+      <div id="scrollContainer" className="bg-transparent h-screen text-zinc-100 flex flex-col justify-between snap-y snap-mandatory overflow-y-scroll no-scrollbar break-all">
         <div className="flex w-full justify-end py-4 px-8 fixed top-0 right-0 left-0 z-10">
           <Link
             href="/bridge"
@@ -37,8 +40,10 @@ export default function LandingPage() {
           </div>
         </div>
         <div className="min-h-screen h-screen snap-center">
-          <SecondPageSection />
-          <div className="mx-auto pb-3 pt-2 flex items-center justify-center text-zinc-300">
+          <div className="flex-grow">
+            <SecondPageSection />
+          </div>
+          <div className="mx-auto pb-2 mt-4 flex items-center justify-center text-zinc-300">
               <CevronDoubleDownIcon /> 
               <p className="px-4">scroll down</p>
               <CevronDoubleDownIcon />
@@ -51,6 +56,11 @@ export default function LandingPage() {
           >developer docs</Link>.</p>
         </div>
       </div>
+      <Script
+        src="/frontpage.js"
+        strategy="afterInteractive"
+        onLoad={() => console.log('frontpage.js script loaded successfully')}  
+      />
     </QueryClientProvider>
   );
 }
