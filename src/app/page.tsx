@@ -282,21 +282,21 @@ function SupportedNetworksCard() {
       <p className="text-center text-xl">Supported Networks</p>
       <div className="flex justify-between items-center mt-4 mx-8 pt-12 pb-16 mb-1">
           <div className="relative">
-              <div className="w-24 h-24 p-3 rounded-full border border-zinc-700 bg-zinc-900 flex items-center justify-center">
+              <div className="w-24 h-24 p-3 rounded-full border border-zinc-700 bg-zinc-900 bg-opacity-50 hover:bg-opacity-90 flex items-center justify-center">
                   <img src="https://raw.githubusercontent.com/base-org/brand-kit/main/logo/symbol/Base_Symbol_Blue.svg" alt="Network" className="w-full h-full rounded-full object-cover" />
               </div>
               <p className="text-center text-zinc-300 pt-2">Base</p>
           </div>
           <div className="w-full h-px bg-zinc-700 flex-grow relative mb-8"></div>
           <div className="relative">
-              <div className="w-24 h-24 p-2 rounded-full border border-zinc-700 bg-zinc-900 flex items-center justify-center">
+              <div className="w-24 h-24 p-2 rounded-full border border-zinc-700 bg-zinc-900 bg-opacity-50 hover:bg-opacity-90 flex items-center justify-center">
                   <img src="https://www.chia.net/wp-content/uploads/2023/06/chia_icon_green-hex5ECE71.svg?w=64" alt="Network" className="w-full h-full rounded-full object-cover" />
               </div>
               <p className="text-center text-zinc-300 pt-2">Chia</p>
           </div>
           <div className="w-full h-px bg-zinc-700 flex-grow relative mb-8"></div>
           <div className="relative">
-              <div className="w-24 h-24 p-3 rounded-full border border-zinc-700 bg-zinc-900 flex items-center justify-center">
+              <div className="w-24 h-24 p-3 rounded-full border border-zinc-700 bg-zinc-900 bg-opacity-50 hover:bg-opacity-90 flex items-center justify-center">
                   {/* <img src="https://raw.githubusercontent.com/ethereum/ethereum-org-website/dev/public/assets/eth-diamond-black-gray.png" alt="Network" className="w-full h-full rounded-full object-cover" /> */}
                   {/* <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Ethereum_logo_2014.svg" alt="Network" className="w-full h-full rounded-full object-cover" /> */}
                   <svg className="w-full h-full rounded-full object-cover" width="256px" height="417px" viewBox="0 0 256 417" version="1.1" preserveAspectRatio="xMidYMid">
