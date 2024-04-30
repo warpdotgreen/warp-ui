@@ -51,7 +51,7 @@ function SecondPageSection() {
   });
   const { data: messages, isLoading: areMessagesLoading } = useQuery({
     queryKey: ['landingPage_latest-messages'],
-    queryFn: () => fetch(`${WATCHER_API_ROOT}latest-messages?limit=7`).then(res => res.json()),
+    queryFn: () => fetch(`${WATCHER_API_ROOT}latest-messages?limit=4`).then(res => res.json()),
     refetchInterval: 10000
   });
 
@@ -130,7 +130,16 @@ function MessageBoard({
     }) => {
       const displayNonce = "0x" + nonce.slice(0, 4) + "..." + nonce.slice(-4);
       const timestamp = destination_timestamp ?? source_timestamp;
-      
+
+      const type = parsed?.type;
+
+      const chainToDisplayName = new Map([
+        ["eth", "Ethereum"],
+        ["bse", "Base"],
+        ["xch", "Chia"]
+      ]);
+
+
       return (
         <div key={nonce} className="border-zinc-700 rounded-lg border p-4 bg-zinc-900 mt-8">
           <div className="flex justify-between">
@@ -148,6 +157,25 @@ function MessageBoard({
                 date={timestamp * 1000}
               />
             </p>
+          </div>
+          <div className="flex w-full pt-6">
+            <div className="flex-1 flex flex-col justify-left items-center border-r border-zinc-700">
+              <div className="text-md">{chainToDisplayName.get(source_chain)}</div>
+              <div className="text-sm text-zinc-500">Source Chain</div>
+            </div>
+
+            <div className="flex-1 flex flex-col justify-left items-center border-r border-zinc-700">
+              <div className="text-md">{chainToDisplayName.get(destination_chain)}</div>
+              <div className="text-sm text-zinc-500">Destination Chain</div>
+            </div>
+
+            <div className="flex-1 flex flex-col justify-left items-center">
+              <div className="text-md">{
+              type === 'erc20_bridge' ? 'ERC-20 Bridge' : (
+                type === 'cat_bridge' ? 'CAT Bridge' : 'Unknown'
+              )}</div>
+              <div className="text-sm text-zinc-500">App</div>
+            </div>
           </div>
         </div>
       );
