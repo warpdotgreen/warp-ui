@@ -32,12 +32,23 @@ export default function LandingPage() {
           </div>
           <div className="mx-auto pt-16 pb-4 flex items-center justify-center text-zinc-300">
               <CevronDoubleDownIcon /> 
-              <p className="px-4">scroll down for more</p>
+              <p className="px-4">scroll down</p>
               <CevronDoubleDownIcon />
           </div>
         </div>
         <div className="min-h-screen h-screen snap-center">
-          <SecondPageSection />          
+          <SecondPageSection />
+          <div className="mx-auto pb-3 pt-2 flex items-center justify-center text-zinc-300">
+              <CevronDoubleDownIcon /> 
+              <p className="px-4">scroll down</p>
+              <CevronDoubleDownIcon />
+          </div> 
+        </div>
+        <div className="min-h-screen flex flex-col justify-center align-center text-center h-screen snap-center">
+          <p className="text-5xl">Ready to <span className="text-green-500">warp</span>? Check out our <Link
+            href="https://docs.warp.green/developers"
+            className="underline hover:text-zinc-300"
+          >developer docs</Link>.</p>
         </div>
       </div>
     </QueryClientProvider>
