@@ -1,6 +1,12 @@
 import * as GreenWeb from 'greenwebjs';
-import { getSingletonStruct } from './singleton';
-import { SExp, Tuple } from "clvm";
+import { getSingletonStruct, SINGLETON_LAUNCHER_HASH } from './singleton';
+import { SExp, Tuple, Bytes } from "clvm";
+import { Network } from '../config';
+import { ConditionOpcode } from "greenwebjs/util/sexp/condition_opcodes";
+import { getCoinRecordByName, getPuzzleAndSolution } from '../util/rpc';
+import { bech32m } from "bech32";
+import { SimplePool } from 'nostr-tools/pool'
+import { NETWORKS, NOSTR_CONFIG } from '../config';
 
 export const MESSAGE_COIN_PUZZLE_MOD = "ff02ffff01ff02ff16ffff04ff02ffff04ff05ffff04ff82017fffff04ff8202ffffff04ffff0bffff02ffff03ffff09ffff0dff82013f80ffff012080ffff0182013fffff01ff088080ff0180ffff02ffff03ffff09ffff0dff2f80ffff012080ffff012fffff01ff088080ff0180ff8201bf80ff80808080808080ffff04ffff01ffffff3d46ff473cffff02ffffa04bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459aa09dcf97a184f32623d11a73124ceb99a5709b083721e878a16d78f596718ba7b2ffa102a12871fee210fb8619291eaea194581cbd2531e4b23759d225f6806923f63222a102a8d5dd63fba471ebcb1f3e8f7c1e1879b7152a6e7298a91ce119a63400ade7c5ffff04ffff04ff18ffff04ff17ff808080ffff04ffff04ff14ffff04ffff0bff13ffff0bff5affff0bff12ffff0bff12ff6aff0980ffff0bff12ffff0bff7affff0bff12ffff0bff12ff6affff02ff1effff04ff02ffff04ff05ff8080808080ffff0bff12ffff0bff7affff0bff12ffff0bff12ff6aff1b80ffff0bff12ff6aff4a808080ff4a808080ff4a808080ffff010180ff808080ffff04ffff04ff1cffff04ff2fff808080ffff04ffff04ff10ffff04ffff0bff2fff1780ff808080ff8080808080ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff1effff04ff02ffff04ff09ff80808080ffff02ff1effff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080"
 
@@ -253,4 +259,350 @@ export function hexToString(hex: string): string {
         str += String.fromCharCode(parseInt(hex.substring(i, i + 2), 16));
     }
     return str;
+}
+
+/*
+def decode_signature(enc_sig: str) -> Tuple[
+    bytes,  # origin_chain
+    bytes,  # destination_chain
+    bytes,  # nonce
+    bytes | None,  # coin_id
+    bytes  # sig
+]:
+    parts = enc_sig.split("-")
+    route_data = convertbits(bech32_decode(parts[0])[1], 5, 8, False)
+    origin_chain = route_data[:3]
+    destination_chain = route_data[3:6]
+    nonce = route_data[6:]
+
+    coin_id = convertbits(bech32_decode(parts[1])[1], 5, 8, False)
+    sig = convertbits(bech32_decode(parts[-1])[1], 5, 8, False)
+
+    return origin_chain, destination_chain, nonce, coin_id, sig
+*/
+export function decodeSignature(sig: string): [
+  string, // origin_chain
+  string, // destination_chain
+  string, // nonce
+  string, // coin_id
+  string // sig
+] {
+  const parts = sig.split("-");
+  const routeData = GreenWeb.util.address.addressToPuzzleHash(parts[0], 64 + 12)
+  const originChain = routeData.slice(0, 6);
+  const destinationChain = routeData.slice(6, 12);
+  const nonce = routeData.slice(12);
+
+  const coinId = parts[1].length > 0 ?  GreenWeb.util.address.addressToPuzzleHash(parts[1]) : "";
+  const sigData = GreenWeb.util.address.addressToPuzzleHash(parts[2], 96 * 2)
+
+  return [originChain, destinationChain, nonce, coinId, sigData];
+}
+
+export async function getSigsAndSelectors(
+  sourceChainHex: string,
+  destinationChainHex: string,
+  nonce: string,
+  coinId: string | null
+): Promise<[string[], boolean[]]> {
+  const routingDataBuff = Buffer.from(sourceChainHex + destinationChainHex + nonce.replace("0x", ""), "hex");
+  const routingData = bech32m.encode("r", bech32m.toWords(routingDataBuff));
+  var coinData = "";
+  if(coinId !== null) {
+    coinData = GreenWeb.util.address.puzzleHashToAddress(coinId, "c");
+  }
+
+  const pool = new SimplePool();
+  const events = await pool.querySync(
+    NOSTR_CONFIG.relays,
+    {
+      kinds: [1],
+      "#c": [coinData],
+      "#r": [routingData]
+    }
+  );
+
+  pool.close(NOSTR_CONFIG.relays);
+
+  if(events.length === 0) {
+    return [[], []];
+  }
+
+  if(coinId === null) {
+    // We're getting sigs for eth; need to order by respective validator hot address
+    const destinationNetworkId = hexToString(destinationChainHex);
+    const destinationNetwork = NETWORKS.filter((network) => network.id === destinationNetworkId)[0];
+
+    const sigStrings = events.sort((a, b) => {
+        const indexA = NOSTR_CONFIG.validatorKeys.findIndex(key => key === a.pubkey);
+        const indexB = NOSTR_CONFIG.validatorKeys.findIndex(key => key === b.pubkey);
+
+        const addressA = destinationNetwork.validatorInfos[indexA].replace('0x', '').toLowerCase();
+        const addressB = destinationNetwork.validatorInfos[indexB].replace('0x', '').toLowerCase();
+
+        const intA = BigInt('0x' + addressA);
+        const intB = BigInt('0x' + addressB);
+
+        return intA < intB ? -1 : (intA > intB ? 1 : 0);
+    }).map((event) => routingData + "-" + coinData + "-" + event.content);
+
+    return [
+      sigStrings,
+      [] // selectors
+    ]
+  }
+
+  // We're getting sigs for XCH
+  // Order doesn't matter but we need to generate the 'selectors' array
+  const sigStrings = events.map((event) => routingData + "-" + coinData + "-" + event.content);
+
+  const pubkeys = events.map((event) => event.pubkey);
+  const selectors = NOSTR_CONFIG.validatorKeys.map((validatorInfo) => pubkeys.includes(validatorInfo));
+
+  return [
+    sigStrings,
+    selectors
+  ];
+}
+
+const LATEST_PORTAL_STATE_KEY = "latest-portal-data";
+
+export async function findLatestPortalState(rpcUrl: string, portalBootstrapCoinId: string) {
+  let {coinId, nonces, lastUsedChainAndNonces} = JSON.parse(window.localStorage.getItem(LATEST_PORTAL_STATE_KEY) ?? "{}")
+  nonces = nonces ?? {};
+  coinId = coinId ?? portalBootstrapCoinId;
+  lastUsedChainAndNonces = lastUsedChainAndNonces ?? []
+  
+  var coinRecord = await getCoinRecordByName(rpcUrl, coinId);
+
+  while(coinRecord.spent) {
+    const puzzleAndSolution = await getPuzzleAndSolution(rpcUrl, coinId, coinRecord.spent_block_index);
+    const puzzleReveal = GreenWeb.util.sexp.fromHex(puzzleAndSolution.puzzle_reveal.slice(2)); // slice 0x
+    const solution = GreenWeb.util.sexp.fromHex(puzzleAndSolution.solution.slice(2)); // slice 0x
+
+    // get CREATE_COIN condition that creates next singleton; calculate coin id
+    const [_, conditionDict, __] = GreenWeb.util.sexp.conditionsDictForSolution(
+      puzzleReveal, solution, GreenWeb.util.sexp.MAX_BLOCK_COST_CLVM
+    );
+
+    var newPh: string | null = null;
+    const createCoinConds = conditionDict?.get("33" as ConditionOpcode);
+
+    for(var i = 0; i < createCoinConds!.length; i++) {
+      if(createCoinConds![i].vars[1] === "01") {
+        newPh = createCoinConds![i].vars[0];
+        break;
+      }
+    }
+
+    const uncurried = GreenWeb.util.sexp.uncurry(puzzleReveal);
+    if(uncurried !== null && coinRecord.coin.puzzle_hash.slice(2) !== GreenWeb.util.sexp.SINGLETON_LAUNCHER_PROGRAM_HASH) {
+      const innerSolution = GreenWeb.util.sexp.fromHex(
+        GreenWeb.util.sexp.asAtomList(solution)[2]
+      );
+
+     const usedChainsAndNonces = GreenWeb.util.sexp.asAtomList(innerSolution)[1].length > 0 ? GreenWeb.util.sexp.asAtomList(
+        GreenWeb.util.sexp.fromHex(
+          GreenWeb.util.sexp.asAtomList(innerSolution)[1]
+        )
+      ) : [];
+
+      lastUsedChainAndNonces = []
+      for(var i = 0; i < usedChainsAndNonces.length; i++) {
+        const chainAndNonce = GreenWeb.util.sexp.fromHex(
+          usedChainsAndNonces[i]
+        );
+        const chain = (chainAndNonce.first().as_javascript() as Bytes).hex();
+        const nonce = (chainAndNonce.rest().as_javascript() as Bytes).hex();
+
+        lastUsedChainAndNonces.push([chain, nonce]);
+        
+        if(nonces[chain] === undefined) {
+          nonces[chain] = {};
+        }
+        nonces[chain][nonce] = coinId;
+      }
+    }
+
+    const newCoin = new GreenWeb.Coin()
+    newCoin.parentCoinInfo = coinId;
+    newCoin.puzzleHash = newPh!;
+    newCoin.amount = 1;
+
+    coinId = GreenWeb.util.coin.getName(newCoin);
+    coinRecord = await getCoinRecordByName(rpcUrl, coinId);
+  }
+
+  window.localStorage.setItem(LATEST_PORTAL_STATE_KEY, JSON.stringify({coinId, nonces, lastUsedChainAndNonces}))
+
+  return {
+    coinId,
+    nonces,
+    lastUsedChainAndNonces
+  };
+}
+
+
+export function messageContentsAsSexp(messageContents: any): GreenWeb.clvm.SExp {
+  return SExp.to(messageContents.map((content: string) => GreenWeb.util.sexp.bytesToAtom(
+    GreenWeb.util.unhexlify(content)!
+  )));
+}
+
+
+export type RawMessage = {
+  nonce: string;
+  destination: string;
+  destinationChainHex: string;
+  source: string;
+  sourceChainHex: string;
+  contents: string[]
+}
+
+
+export async function receiveMessageAndSpendMessageCoin(
+  network: Network,
+  message: RawMessage,
+  messageReceiverCoin: InstanceType<typeof GreenWeb.Coin>,
+  updateStatus: (status: string) => void
+): Promise<[
+  InstanceType<typeof GreenWeb.CoinSpend>[], // coin spends
+  string[], // sigs
+  InstanceType<typeof GreenWeb.Coin> // message coin
+]> {
+  const coinSpends = [];
+
+  updateStatus("Syncing portal...");
+  const portalBootstrapId = network.portalLauncherId!;
+  const {
+    coinId: portalCoinId,
+    nonces,
+    lastUsedChainAndNonces
+  } = await findLatestPortalState(network.rpcUrl, portalBootstrapId);
+  
+  const portalCoinRecord = await getCoinRecordByName(network.rpcUrl, portalCoinId);
+  const portalCoin = GreenWeb.util.goby.parseGobyCoin({
+    amount: 1,
+    parent_coin_info: GreenWeb.util.unhexlify(portalCoinRecord.coin.parent_coin_info),
+    puzzle_hash: GreenWeb.util.unhexlify(portalCoinRecord.coin.puzzle_hash)
+  })!;
+
+  const portalParentSpend = await getPuzzleAndSolution(
+    network.rpcUrl, portalCoin.parentCoinInfo, portalCoinRecord.confirmed_block_index
+  );
+  
+  let sigStrings: string[] = [];
+  let sigSwitches: boolean[] = [];
+
+  updateStatus(`Collecting signatures (0/${network.signatureThreshold})`);
+  [sigStrings, sigSwitches] = await getSigsAndSelectors(
+    message.sourceChainHex,
+    message.destination,
+    message.nonce,
+    portalCoinId
+  );
+
+  while(sigStrings.length < network.signatureThreshold) {
+    await new Promise(r => setTimeout(r, 10000));
+    [sigStrings, sigSwitches] = await getSigsAndSelectors(
+      message.sourceChainHex,
+      message.destination,
+      message.nonce,
+      portalCoinId
+    );
+    updateStatus(`Collecting signatures (${sigStrings.length}/${network.signatureThreshold})`);
+  }
+
+  const sigs = sigStrings.map((sigString) => sigString.split("-")[2]);
+  
+  updateStatus("Building portal spend...");
+
+  const updatePuzzle = getMOfNDelegateDirectPuzzle(
+    network.multisigThreshold!,
+    network.multisigInfos!,
+  );
+
+  const portalLauncherId = network.portalLauncherId!;
+  const portalInnerPuzzle = getPortalReceiverInnerPuzzle(
+    portalLauncherId,
+    network.signatureThreshold!,
+    network.validatorInfos!,
+    GreenWeb.util.sexp.sha256tree(updatePuzzle),
+    lastUsedChainAndNonces
+  );
+  const portalPuzzle = GreenWeb.util.sexp.singletonPuzzle(portalLauncherId, portalInnerPuzzle);
+
+  var portalParentInnerPuzHash = null;
+  const parentPuzzle = GreenWeb.util.sexp.fromHex(
+    GreenWeb.util.unhexlify(portalParentSpend.puzzle_reveal)!
+  );
+  if(GreenWeb.util.sexp.sha256tree(parentPuzzle ) !== SINGLETON_LAUNCHER_HASH) {
+    const [_, args] = GreenWeb.util.sexp.uncurry(parentPuzzle)!;
+    const innerPuzzle = args[1];
+    portalParentInnerPuzHash = GreenWeb.util.sexp.sha256tree(innerPuzzle);
+  }
+  const portalLineageProof = portalParentInnerPuzHash !== null ? SExp.to([
+    Bytes.from(portalParentSpend.coin.parent_coin_info, "hex"),
+    Bytes.from(portalParentInnerPuzHash, "hex"),
+    Bytes.from("01", "hex"),
+  ]) : SExp.to([
+    Bytes.from(portalParentSpend.coin.parent_coin_info, "hex"),
+    Bytes.from("01", "hex"),
+  ]);
+
+  const portalInnerSolution = getPortalReceiverInnerSolution(
+    sigSwitches,
+    message.nonce,
+    message.sourceChainHex,
+    message.source,
+    message.destination,
+    message.contents
+  );
+  const portalSolution = GreenWeb.util.sexp.singletonSolution(
+    portalLineageProof,
+    1,
+    portalInnerSolution
+  );
+
+  const portalCoinSpend = new GreenWeb.util.serializer.types.CoinSpend();
+  portalCoinSpend.coin = portalCoin;
+  portalCoinSpend.puzzleReveal = portalPuzzle;
+  portalCoinSpend.solution = portalSolution;
+  coinSpends.push(portalCoinSpend);
+
+  /* spend message coin */
+  const messageCoinPuzzle = getMessageCoinPuzzle(
+    portalLauncherId,
+    message.sourceChainHex,
+    GreenWeb.util.unhexlify(message.source)!,
+    message.nonce,
+    message.destination,
+    GreenWeb.util.sexp.sha256tree(
+      messageContentsAsSexp(message.contents)
+    )
+  );
+
+  const messageCoin = new GreenWeb.Coin();
+  messageCoin.parentCoinInfo = GreenWeb.util.coin.getName(portalCoinSpend.coin);
+  messageCoin.puzzleHash = GreenWeb.util.sexp.sha256tree(messageCoinPuzzle);
+  messageCoin.amount = 0;
+
+  const messageCoinSolution = getMessageCoinSolution(
+    messageReceiverCoin,
+    portalCoin.parentCoinInfo,
+    GreenWeb.util.sexp.sha256tree(portalInnerPuzzle),
+    GreenWeb.util.coin.getName(messageCoin)
+  );
+
+  const messageCoinSpend = new GreenWeb.util.serializer.types.CoinSpend();
+  messageCoinSpend.coin = messageCoin;
+  messageCoinSpend.puzzleReveal = messageCoinPuzzle;
+  messageCoinSpend.solution = messageCoinSolution;
+  coinSpends.push(messageCoinSpend);
+
+  return [
+    coinSpends,
+    sigs,
+    messageCoin
+  ]
 }

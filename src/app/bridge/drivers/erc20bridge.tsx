@@ -1,8 +1,10 @@
 import * as GreenWeb from 'greenwebjs';
 import { SExp, Tuple, Bytes, getBLSModule } from "clvm";
 import { CAT_MOD_HASH } from './cat';
-import { BRIDGING_PUZZLE_HASH, getMessageCoinPuzzle1stCurry, stringToHex } from './portal';
+import { BRIDGING_PUZZLE_HASH, getMessageCoinPuzzle1stCurry, messageContentsAsSexp, stringToHex } from './portal';
 import { CHIA_NETWORK, Network } from '../config';
+import { parseXCHOffer } from './offer';
+import { initializeBLS } from "clvm";
 
 /*
 >>> from drivers.wrapped_assets import CAT_BURNER_MOD
@@ -305,12 +307,6 @@ function getCATMintAndPayoutInnerPuzzleSolution(
   ]);
 }
 
-function messageContentsAsSexp(messageContents: any): GreenWeb.clvm.SExp {
-  return SExp.to(messageContents.map((content: string) => GreenWeb.util.sexp.bytesToAtom(
-    GreenWeb.util.unhexlify(content)!
-  )));
-}
-
 /*
 def get_cat_minter_puzzle_solution(
     nonce: int,
@@ -404,5 +400,191 @@ export function getWrappedERC20AssetID(sourceChain: Network, erc20ContractAddres
       GreenWeb.util.unhexlify(sourceChain.erc20BridgeAddress!)!,
       erc20ContractAddress
     )
+  );
+}
+
+export async function getCATMintSpendBundle(
+  offer: string,
+  message: any,
+  evmNetwork: Network,
+  coinsetNetwork: Network,
+  updateStatus: (status: string) => void,
+) {
+  const {
+    nonce,
+    destination,
+    contents
+  } = message;
+  const [ethAssetContract, xchReceiverPh, tokenAmount] = contents;
+  const tokenAmountInt: number = parseInt(tokenAmount, 16);
+
+  updateStatus("Initializing BLS...");
+  initializeBLS();
+  
+  updateStatus("Parsing offer...");
+  const [
+    coinRecords,
+    offerAggSig,
+    xchSecurityCoin,
+    xchSecurityCoinSk
+  ] = parseXCHOffer(offer);
+
+  /* spend source coin to create minter */
+  const minterPuzzle = getCATMinterPuzzle(
+    coinsetNetwork.portalLauncherId!,
+    stringToHex(evmNetwork.id),
+    GreenWeb.util.unhexlify(source_contract)!
+  );
+  const minterPuzzleHash = GreenWeb.util.sexp.sha256tree(minterPuzzle);
+  const sourceCoinSolution = SExp.to([
+    [
+      GreenWeb.util.sexp.bytesToAtom(
+        GreenWeb.util.unhexlify(nonce)!
+      ),
+      [
+        GreenWeb.util.sexp.bytesToAtom(minterPuzzleHash),
+        tokenAmountInt
+      ]
+    ],
+  ]);
+
+  const sourceCoinSpend = new GreenWeb.util.serializer.types.CoinSpend();
+  sourceCoinSpend.coin = source_coin;
+  sourceCoinSpend.puzzleReveal = GreenWeb.util.sexp.fromHex(OFFER_MOD);
+  sourceCoinSpend.solution = sourceCoinSolution;
+  coin_spends.push(sourceCoinSpend);
+
+  /* spend minter coin */
+  const minterCoin = new GreenWeb.Coin();
+  minterCoin.parentCoinInfo = GreenWeb.util.coin.getName(source_coin);
+  minterCoin.puzzleHash = minterPuzzleHash;
+  minterCoin.amount = tokenAmountInt;
+
+  const minterSolution = getCATMinterPuzzleSolution(
+    GreenWeb.util.unhexlify(nonce)!,
+    contents,
+    minterCoin.puzzleHash,
+    GreenWeb.util.coin.getName(minterCoin),
+    GreenWeb.util.coin.getName(portalCoinSpend.coin)
+  );
+
+  const minterCoinSpend = new GreenWeb.util.serializer.types.CoinSpend();
+  minterCoinSpend.coin = minterCoin;
+  minterCoinSpend.puzzleReveal = minterPuzzle;
+  minterCoinSpend.solution = minterSolution;
+  coin_spends.push(minterCoinSpend);
+
+  /* spend eve CAT coin */
+  const wrappedAssetTAIL = getWrappedTAIL(
+    portal_receiver_launcher_id,
+    source_chain,
+    GreenWeb.util.unhexlify(source_contract)!,
+    GreenWeb.util.unhexlify(ethAssetContract)!
+  );
+  const wrappedAssetTAILHash = GreenWeb.util.sexp.sha256tree(wrappedAssetTAIL);
+
+  const mintAndPayoutInnerPuzzle = getCATMintAndPayoutInnerPuzzle(
+    xchReceiverPh
+  );
+
+  const eveCATPuzzle = getCATPuzzle(
+    wrappedAssetTAILHash,
+    mintAndPayoutInnerPuzzle
+  )
+  const eveCATPuzzleHash = GreenWeb.util.sexp.sha256tree(eveCATPuzzle);
+
+  const eveCAT = new GreenWeb.Coin();
+  eveCAT.parentCoinInfo = GreenWeb.util.coin.getName(minterCoin);
+  console.log({ minterCoin })
+  eveCAT.puzzleHash = eveCATPuzzleHash;
+  eveCAT.amount = tokenAmountInt;
+
+  const eveCATInnerSolution = getCATMintAndPayoutInnerPuzzleSolution(
+    wrappedAssetTAIL,
+    tokenAmountInt,
+    minterCoin.parentCoinInfo
+  );
+  const eveCATProof = {
+    parentCoinInfo: eveCAT.parentCoinInfo,
+    puzzleHash: GreenWeb.util.sexp.sha256tree(mintAndPayoutInnerPuzzle), // inner puzzle hash since this is a CAT proof
+    amount: eveCAT.amount
+  }
+  const eveCATSolution = getCATSolution(
+    eveCATInnerSolution,
+    null,
+    GreenWeb.util.coin.getName(eveCAT),
+    eveCAT,
+    eveCATProof,
+    0,
+    0
+  );
+
+  const eveCATSpend = new GreenWeb.util.serializer.types.CoinSpend();
+  eveCATSpend.coin = eveCAT;
+  eveCATSpend.puzzleReveal = eveCATPuzzle;
+  eveCATSpend.solution = eveCATSolution;
+  coin_spends.push(eveCATSpend);
+
+  /* lastly, aggregate sigs  and build spend bundle */
+
+  sig_strings.map((sig_string) => {
+    var [
+      origin_chain,
+      destination_chain,
+      nonce,
+      coin_id,
+      sig
+    ] = decodeSignature(sig_string);
+    console.log({origin_chain,
+      nonce,
+      coin_id,
+      sig
+    });
+    sigs.push(sig);
+  });
+
+  const { AugSchemeMPL, G2Element } = getBLSModule();
+
+  console.log({ sigs })
+
+  const sb = new GreenWeb.util.serializer.types.SpendBundle();
+  sb.coinSpends = coin_spends;
+  sb.aggregatedSignature = Buffer.from(
+    AugSchemeMPL.aggregate(
+      sigs.map((sig) => G2Element.from_bytes(Buffer.from(sig, "hex")))
+    ).serialize()
+  ).toString("hex");
+  // console.log( sbToString(sb) );
+
+  return {
+    sb,
+    txId: GreenWeb.util.coin.getName(messageCoin)
+  };
+}
+
+export function getBurnSendAddress(
+  destination_chain: string,
+  destination: string,
+  source_chain_token_contract_address: string,
+  target_receiver: string,
+  prefix: string = "xch",
+  bridging_toll_mojos: number
+) {
+  source_chain_token_contract_address = GreenWeb.util.unhexlify(source_chain_token_contract_address)!;
+  source_chain_token_contract_address = "0".repeat(64 - source_chain_token_contract_address.length) + source_chain_token_contract_address;
+
+  const burnInnerPuzzle = getCATBurnInnerPuzzle(
+    destination_chain,
+    destination,
+    source_chain_token_contract_address,
+    target_receiver,
+    bridging_toll_mojos
+  );
+
+  const burnInnerPuzzleHash = GreenWeb.util.sexp.sha256tree(burnInnerPuzzle);
+
+  return GreenWeb.util.address.puzzleHashToAddress(
+    burnInnerPuzzleHash,
+    prefix
   );
 }

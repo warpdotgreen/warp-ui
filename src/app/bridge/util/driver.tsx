@@ -7,27 +7,6 @@ import { CHIA_NETWORK, Network } from "../config";
 import { stringToHex } from "./sig";
 import { BigNumberish } from "ethers";
 
-export function sbToJSON(sb: any): any {
-  return {
-    coin_spends: sb.coinSpends.map((coinSpend: any) => ({
-      coin: {
-        parent_coin_info: "0x" + coinSpend.coin.parentCoinInfo.replace("0x", ""),
-        puzzle_hash: "0x" + coinSpend.coin.puzzleHash.replace("0x", ""),
-        amount: parseInt(coinSpend.coin.amount.toString())
-      },
-      puzzle_reveal: GreenWeb.util.sexp.toHex(coinSpend.puzzleReveal),
-      solution: GreenWeb.util.sexp.toHex(coinSpend.solution)
-    })),
-    aggregated_signature: sb.aggregatedSignature
-  };
-}
-
-// allows debugging via mixch.dev
-export function sbToString(sb: any): any {
-  return JSON.stringify(sbToJSON(sb));
-
-}
-
 export function getBurnSendFullPuzzleHash(
   destination_chain: string,
   destination: string,
