@@ -513,7 +513,7 @@ export async function receiveMessageAndSpendMessageCoin(
     updateStatus(`Collecting signatures (${sigStrings.length}/${network.signatureThreshold})`);
   }
 
-  const sigs = sigStrings.map((sigString) => sigString.split("-")[2]);
+  const sigs = sigStrings.map((sigString) => decodeSignature(sigString)[4]);
   
   updateStatus("Building portal spend...");
 
@@ -630,4 +630,25 @@ export function getSecurityCoinSig(
   ).toString("hex");
 
   return securityCoinSig;
+}
+
+export function spendOutgoingMessageCoin(
+  coinsetNetwork: Network,
+  parentCoinInfo: string,
+): InstanceType<typeof GreenWeb.CoinSpend> {
+  const messageCoin = new GreenWeb.Coin();
+  messageCoin.parentCoinInfo = parentCoinInfo;
+  messageCoin.puzzleHash = BRIDGING_PUZZLE_HASH;
+  messageCoin.amount = coinsetNetwork.messageToll!;
+  
+  const messageCoinSolution = SExp.to([
+    messageCoin.amount
+  ]);
+
+  const messageCoinSpend = new GreenWeb.util.serializer.types.CoinSpend();
+  messageCoinSpend.coin = messageCoin;
+  messageCoinSpend.puzzleReveal = GreenWeb.util.sexp.fromHex(BRIDGING_PUZZLE);
+  messageCoinSpend.solution = messageCoinSolution;
+
+  return messageCoinSpend;
 }

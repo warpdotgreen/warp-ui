@@ -1,9 +1,9 @@
 import * as GreenWeb from 'greenwebjs';
 import { SExp, getBLSModule } from "clvm";
 import { CAT_MOD_HASH, getCATPuzzle, getCATSolution } from './cat';
-import { BRIDGING_PUZZLE_HASH, getMessageCoinPuzzle1stCurry, getSecurityCoinSig, messageContentsAsSexp, RawMessage, receiveMessageAndSpendMessageCoin, stringToHex } from './portal';
+import { BRIDGING_PUZZLE_HASH, getMessageCoinPuzzle1stCurry, getSecurityCoinSig, messageContentsAsSexp, RawMessage, receiveMessageAndSpendMessageCoin, spendOutgoingMessageCoin, stringToHex } from './portal';
 import { CHIA_NETWORK, Network } from '../config';
-import { parseXCHOffer } from './offer';
+import { OFFER_MOD_HASH, parseXCHAndCATOffer, parseXCHOffer } from './offer';
 import { initializeBLS } from "clvm";
 
 /*
@@ -192,7 +192,7 @@ export function getCATBurnInnerPuzzle(
   destination: string,
   sourceChainTokenContractAddress: string,
   targetReceiver: string,
-  bridgeToll: number,
+  bridgeToll: GreenWeb.BigNumber,
 ): GreenWeb.clvm.SExp {
   return GreenWeb.util.sexp.curry(
     getCATBurnInnerPuzzleFirstCurry(
@@ -418,7 +418,7 @@ export async function getCATMintSpendBundle(
   const sigs: string[] = []
 
   updateStatus("Initializing BLS...");
-  initializeBLS();
+  await initializeBLS();
   
   updateStatus("Parsing offer...");
   const [
@@ -568,4 +568,213 @@ export async function getCATMintSpendBundle(
     sb,
     GreenWeb.util.coin.getName(messageCoin)
   ];
+}
+
+
+export async function burnCATs(
+  offer: string,
+  coinsetNetwork: Network, // source chain
+  evmNetwork: Network, // destination chain
+  tokenContractAddress: string,
+  ethTokenReceiverAddress: string,
+  updateStatus: (status: string) => void,
+): Promise<[
+  InstanceType<typeof GreenWeb.util.serializer.types.SpendBundle>, // sb
+  string // txId
+]> {
+  tokenContractAddress = GreenWeb.util.unhexlify(tokenContractAddress)!;
+  tokenContractAddress = "0".repeat(64 - tokenContractAddress.length) + tokenContractAddress;
+
+  updateStatus("Initializing BLS...");
+  await initializeBLS();
+
+  const coinSpends: InstanceType<typeof GreenWeb.CoinSpend>[] = [];
+  const sigs: string[] = [];
+
+  updateStatus("Parsing offer...");
+  const [
+    offerCoinSpends,
+    offerAggSig,
+    securityCoin,
+    securityCoinPuzzle,
+    securityCoinSk,
+    tailHash,
+    catSourceCoin,
+    catSourceCoinLineageProof
+  ] = parseXCHAndCATOffer(offer);
+
+  coinSpends.push(...offerCoinSpends);
+  sigs.push(offerAggSig);
+
+  updateStatus("Building spend bundle...");
+
+  /* spend CAT source coin */
+  const catSourceCoinPuzzle = getCATPuzzle(
+    tailHash,
+    GreenWeb.util.sexp.fromHex(OFFER_MOD_HASH)
+  );
+
+  const burnInnerPuzzle = getCATBurnInnerPuzzle(
+    stringToHex(evmNetwork.id),
+    evmNetwork.erc20BridgeAddress!.slice(2),
+    tokenContractAddress,
+    ethTokenReceiverAddress.slice(2),
+    GreenWeb.BigNumber.from(coinsetNetwork.messageToll!)
+  );
+  const burnInnerPuzzleHash = GreenWeb.util.sexp.sha256tree(burnInnerPuzzle);
+
+  const catSourceCoinInnerSolution = SExp.to([
+    [
+      GreenWeb.util.sexp.bytesToAtom(
+        GreenWeb.util.coin.getName(catSourceCoin)
+      ),
+      [
+        GreenWeb.util.sexp.bytesToAtom(burnInnerPuzzleHash),
+        catSourceCoin.amount
+      ]
+    ],
+  ]);
+
+  const catSourceCoinProof = new GreenWeb.Coin();
+  catSourceCoinProof.parentCoinInfo = catSourceCoin.parentCoinInfo;
+  catSourceCoinProof.puzzleHash = OFFER_MOD_HASH; // inner puzzle hash
+  catSourceCoinProof.amount = catSourceCoin.amount;
+
+  const catSourceCoinSolution = getCATSolution(
+    catSourceCoinInnerSolution,
+    GreenWeb.util.coin.toProgram(catSourceCoinLineageProof),
+    GreenWeb.util.coin.getName(catSourceCoin),
+    catSourceCoin,
+    catSourceCoinProof,
+    GreenWeb.BigNumber.from(catSourceCoin.amount),
+    GreenWeb.BigNumber.from(0)
+  );
+
+  const catSourceCoinSpend = new GreenWeb.util.serializer.types.CoinSpend();
+  catSourceCoinSpend.coin = catSourceCoin;
+  catSourceCoinSpend.puzzleReveal = catSourceCoinPuzzle as GreenWeb.clvm.SExp;
+  catSourceCoinSpend.solution = catSourceCoinSolution;
+
+  coinSpends.push(catSourceCoinSpend);
+
+  /* spend CAT burner */
+  const catBurnerPuzzle = getCATBurnerPuzzle(
+    stringToHex(evmNetwork.id),
+    evmNetwork.erc20BridgeAddress!.slice(2)
+  );
+  const catBurnerCoin = new GreenWeb.Coin();
+  catBurnerCoin.parentCoinInfo = GreenWeb.util.coin.getName(securityCoin);
+  catBurnerCoin.puzzleHash = GreenWeb.util.sexp.sha256tree(catBurnerPuzzle);
+  catBurnerCoin.amount = coinsetNetwork.messageToll!;
+
+  const wrappedTAIL = getWrappedTAIL(
+    coinsetNetwork.portalLauncherId!,
+    stringToHex(evmNetwork.id),
+    evmNetwork.erc20BridgeAddress!.slice(2),
+    tokenContractAddress
+  );
+  const wrappedTAILHash = GreenWeb.util.sexp.sha256tree(wrappedTAIL);
+
+  const burnCoinFullPuzzle = getCATPuzzle(
+    wrappedTAILHash,
+    burnInnerPuzzle
+  );
+
+  const userCatCoin = new GreenWeb.Coin();
+  userCatCoin.parentCoinInfo = GreenWeb.util.coin.getName(catSourceCoin);
+  userCatCoin.puzzleHash = GreenWeb.util.sexp.sha256tree(burnCoinFullPuzzle);
+  userCatCoin.amount = catSourceCoin.amount;
+
+  const catBurnerSolution = getCATBurnerPuzzleSolution(
+    userCatCoin.parentCoinInfo,
+    wrappedTAILHash,
+    GreenWeb.BigNumber.from(userCatCoin.amount),
+    tokenContractAddress,
+    ethTokenReceiverAddress.slice(2),
+    catBurnerCoin
+  );
+
+  const catBurnerSpend = new GreenWeb.util.serializer.types.CoinSpend();
+  catBurnerSpend.coin = catBurnerCoin;
+  catBurnerSpend.puzzleReveal = catBurnerPuzzle;
+  catBurnerSpend.solution = catBurnerSolution;
+
+  coinSpends.push(catBurnerSpend);
+  
+  /* spend security coin */
+  const securityCoinOutputConds = [
+    GreenWeb.spend.createCoinCondition(catBurnerCoin.puzzleHash, catBurnerCoin.amount),
+    SExp.to([
+        GreenWeb.util.sexp.bytesToAtom("40"), // ASSERT_CONCURRENT_SPEND
+        GreenWeb.util.sexp.bytesToAtom(
+          GreenWeb.util.coin.getName(catBurnerCoin)
+        ),
+    ])
+  ];
+  const securityCoinSolution = GreenWeb.util.sexp.standardCoinSolution(
+    securityCoinOutputConds
+  );
+
+  const securityCoinSpend = new GreenWeb.util.serializer.types.CoinSpend();
+  securityCoinSpend.coin = securityCoin;
+  securityCoinSpend.puzzleReveal = securityCoinPuzzle;
+  securityCoinSpend.solution = GreenWeb.util.sexp.standardCoinSolution(
+    securityCoinOutputConds
+  );
+
+  coinSpends.push(securityCoinSpend);
+  sigs.push(getSecurityCoinSig(
+    securityCoin,
+    securityCoinOutputConds,
+    securityCoinSk,
+    coinsetNetwork.aggSigData!
+  ));
+
+  /* spend CAT coin */
+  const burnInnerSolution = getBurnInnerPuzzleSolution(
+    catBurnerCoin.parentCoinInfo,
+    GreenWeb.util.coin.getName(userCatCoin),
+    wrappedTAIL
+  );
+
+  const burnCoinSolution = getCATSolution(
+    burnInnerSolution,
+    GreenWeb.util.coin.toProgram(catSourceCoinProof),
+    GreenWeb.util.coin.getName(userCatCoin),
+    userCatCoin,
+    {
+      parentCoinInfo: userCatCoin.parentCoinInfo,
+      puzzleHash: GreenWeb.util.sexp.sha256tree(burnInnerPuzzle),
+      amount: userCatCoin.amount
+    }, // next coin proof
+    GreenWeb.BigNumber.from(0),
+    GreenWeb.BigNumber.from(-catSourceCoin.amount)
+  )
+
+  const burnCoinSpend = new GreenWeb.util.serializer.types.CoinSpend();
+  burnCoinSpend.coin = userCatCoin;
+  burnCoinSpend.puzzleReveal = burnCoinFullPuzzle;
+  burnCoinSpend.solution = burnCoinSolution;
+
+  coinSpends.push(burnCoinSpend);
+
+  /* spend message coin */
+  const messageCoinParentId = GreenWeb.util.coin.getName(catBurnerCoin);
+  const messageCoinSpend = spendOutgoingMessageCoin(coinsetNetwork, messageCoinParentId);
+
+  coinSpends.push(messageCoinSpend);
+
+  /* lastly, aggregate sigs and build spend bundle */
+  const { AugSchemeMPL, G2Element } = getBLSModule();
+
+  const sb = new GreenWeb.util.serializer.types.SpendBundle();
+  sb.coinSpends = coinSpends;
+  sb.aggregatedSignature = Buffer.from(
+    AugSchemeMPL.aggregate(
+      sigs.map((sig) => G2Element.from_bytes(Buffer.from(sig, "hex")))
+    ).serialize()
+  ).toString("hex");
+
+  const nonce = GreenWeb.util.coin.getName(messageCoinSpend.coin);
+  return [sb, nonce];
 }
