@@ -1,3 +1,6 @@
+import * as GreenWeb from 'greenwebjs';
+import { SExp } from "clvm";
+
 /*
 >>> from chia.wallet.cat_wallet.cat_wallet import CAT_MOD
 >>> bytes(CAT_MOD).hex()
@@ -11,5 +14,41 @@ export const CAT_MOD = "ff02ffff01ff02ff5effff04ff02ffff04ffff04ff05ffff04ffff0b
 export const CAT_MOD_HASH = "37bef360ee858133b69d595a906dc45d01af50379dad515eb9518abb7c1d2a7a";
 
 export class CATDriver {
-  
+  static getCATPuzzle(
+    TAILProgramHash: string,
+    innerPuzzle: SExp
+  ): SExp {
+    return GreenWeb.util.sexp.curry(
+      GreenWeb.util.sexp.fromHex(CAT_MOD),
+      [
+        GreenWeb.util.sexp.bytesToAtom(CAT_MOD_HASH),
+        GreenWeb.util.sexp.bytesToAtom(TAILProgramHash),
+        innerPuzzle
+      ]
+    )
+  }
+
+  static getCATSolution(
+    innerPuzzleSolution: SExp,
+    lineageProof: SExp | null,
+    prevCoinId: string,
+    thisCoinInfo: InstanceType<typeof GreenWeb.Coin>,
+    nextCoinProof: InstanceType<typeof GreenWeb.Coin>,
+    prevSubtotal: GreenWeb.BigNumber,
+    extraDelta: GreenWeb.BigNumber
+  ): SExp {
+    return SExp.to([
+      innerPuzzleSolution,
+      lineageProof ?? SExp.FALSE,
+      GreenWeb.util.sexp.bytesToAtom(prevCoinId),
+      GreenWeb.util.coin.toProgram(thisCoinInfo),
+      GreenWeb.util.coin.toProgram(nextCoinProof),
+      GreenWeb.util.sexp.bytesToAtom(
+        GreenWeb.util.coin.amountToBytes(prevSubtotal)
+      ),
+      GreenWeb.util.sexp.bytesToAtom(
+        GreenWeb.util.coin.amountToBytes(extraDelta)
+      ),
+    ])
+  }
 }
