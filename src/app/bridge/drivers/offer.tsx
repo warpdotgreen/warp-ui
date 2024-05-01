@@ -1,5 +1,7 @@
 import * as GreenWeb from 'greenwebjs';
+import { SExp } from "clvm";
 import pako from 'pako';
+import { CAT_MOD } from './cat';
 
 /*
 >>> from chia.wallet.trading.offer import OFFER_MOD
@@ -55,8 +57,8 @@ export class OfferDriver {
   static parseXCHOffer(offer: string): [
     InstanceType<typeof GreenWeb.CoinSpend>[], // coin_spends
     string, // aggregate signature so far
-    InstanceType<typeof GreenWeb.Coin>, // XCH Security Coin
-    any, // Security Coin Secret Key
+    InstanceType<typeof GreenWeb.Coin>, // XCH security coin
+    any, // security coin secret key
   ] {
     const rawSpendBundle = OfferDriver.offerToRawSpendBundle(offer);
 
@@ -107,11 +109,108 @@ export class OfferDriver {
     securityCoin.puzzleHash = securityCoinPuzzleHash;
     securityCoin.amount = xchSourceCoin.amount;
 
+    /* spend XCH source coin to create security coin */
+    const xchSourceCoinSolution = SExp.to([
+      [
+        GreenWeb.util.sexp.bytesToAtom(
+          GreenWeb.util.coin.getName(xchSourceCoin)
+        ),
+        [
+          GreenWeb.util.sexp.bytesToAtom(securityCoinPuzzleHash),
+          xchSourceCoin.amount
+        ]
+      ],
+    ])
+
+    const xchSourceCoinSpend = new GreenWeb.util.serializer.types.CoinSpend();
+    xchSourceCoinSpend.coin = xchSourceCoin;
+    xchSourceCoinSpend.puzzleReveal = GreenWeb.util.sexp.fromHex(OFFER_MOD);
+    xchSourceCoinSpend.solution = xchSourceCoinSolution;
+    
+    const coinSpends = rawSpendBundle.coinSpends;
+    coinSpends.push(xchSourceCoinSpend);
+
     return [
-      rawSpendBundle.coinSpends,
+      coinSpends,
       rawSpendBundle.aggregatedSignature,
       securityCoin,
       tempSk
+    ];
+  }
+
+  static parseXCHAndCATOffer(offer: string): [
+    InstanceType<typeof GreenWeb.CoinSpend>[], // coin_spends
+    string, // aggregate signature so far
+    InstanceType<typeof GreenWeb.Coin>, // XCH security coin
+    any, // security coin secret key
+    string, // CAT tail hash / asset id (hex)
+    InstanceType<typeof GreenWeb.Coin>, // CAT source coin
+    InstanceType<typeof GreenWeb.Coin>, // CAT source coin lineage proof
+  ] {
+    const [
+      coinSpends,
+      aggSig,
+      xchSecurityCoin,
+      tempSk
+    ] = OfferDriver.parseXCHOffer(offer);
+
+    var tailHash = "";
+    const catSourceCoin = new GreenWeb.Coin();
+    const catSourceCoinLineageProof = new GreenWeb.Coin();
+
+    for(var i = 0; i < coinSpends.length; ++i) {
+      var conditions = GreenWeb.util.sexp.asAtomList(
+          GreenWeb.util.sexp.run(
+            coinSpends[i].puzzleReveal,
+            coinSpends[i].solution,
+          )
+      );
+
+      for(var j = 0; j < conditions.length; ++j) {
+        const cond = GreenWeb.util.sexp.asAtomList(
+          GreenWeb.util.sexp.fromHex(conditions[j])
+        );
+
+        if(cond[0] == "33") { // CREATE_COIN
+          const uncurryRes = GreenWeb.util.sexp.uncurry(
+            coinSpends[i].puzzleReveal
+          );
+          if(uncurryRes === null) { continue; }
+          
+          const [uncurried_mod, args] = uncurryRes;
+          if(args.length < 3 || GreenWeb.util.sexp.toHex(uncurried_mod) != CAT_MOD) { continue; }
+
+          const tailHash = args[1].as_bin().hex().slice(2); // remove a0 (len) from bytes representation
+
+          cat_source_coin_puzzle = getCATPuzzle(
+            tailHash,
+            GreenWeb.util.sexp.fromHex(OFFER_MOD)
+          );
+          cat_source_coin_puzzle_hash = GreenWeb.util.sexp.sha256tree(cat_source_coin_puzzle);
+
+          if(cat_source_coin_puzzle_hash != cond[1]) { continue; }
+
+          console.log({ wrappedTokenTailHash: tailHash });
+
+          cat_source_coin.parentCoinInfo = GreenWeb.util.coin.getName(coinSpend.coin);
+          cat_source_coin.puzzleHash = cat_source_coin_puzzle_hash;
+          cat_source_coin.amount = parseInt(cond[2], 16);
+
+          cat_source_coin_lineage_proof.parentCoinInfo = coinSpend.coin.parentCoinInfo;
+          cat_source_coin_lineage_proof.puzzleHash = GreenWeb.util.sexp.sha256tree(args[2]); // inner puzzle hash
+          cat_source_coin_lineage_proof.amount = coinSpend.coin.amount;
+        }
+      }
+    }
+
+    return [
+      coinSpends,
+      aggSig,
+      xchSecurityCoin,
+      tempSk,
+      tailHash,
+      catSourceCoin,
+      catSourceCoinLineageProof
     ];
   }
 }
