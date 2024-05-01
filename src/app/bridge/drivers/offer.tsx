@@ -57,6 +57,7 @@ export function parseXCHOffer(offer: string): [
   InstanceType<typeof GreenWeb.CoinSpend>[], // coin_spends
   string, // aggregate signature so far
   InstanceType<typeof GreenWeb.Coin>, // XCH security coin
+  SExp, // security coin puzzle
   any, // security coin secret key
 ] {
   const rawSpendBundle = offerToRawSpendBundle(offer);
@@ -133,6 +134,7 @@ export function parseXCHOffer(offer: string): [
     coinSpends,
     rawSpendBundle.aggregatedSignature,
     securityCoin,
+    securityCoinPuzzle,
     tempSk
   ];
 }

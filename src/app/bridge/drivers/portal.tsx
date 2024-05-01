@@ -1,6 +1,6 @@
 import * as GreenWeb from 'greenwebjs';
 import { getSingletonStruct, SINGLETON_LAUNCHER_HASH } from './singleton';
-import { SExp, Tuple, Bytes } from "clvm";
+import { SExp, Tuple, Bytes, getBLSModule } from "clvm";
 import { Network } from '../config';
 import { ConditionOpcode } from "greenwebjs/util/sexp/condition_opcodes";
 import { getCoinRecordByName, getPuzzleAndSolution } from '../util/rpc';
@@ -468,7 +468,7 @@ export async function receiveMessageAndSpendMessageCoin(
 ): Promise<[
   InstanceType<typeof GreenWeb.CoinSpend>[], // coin spends
   string[], // sigs
-  InstanceType<typeof GreenWeb.Coin> // message coin
+  InstanceType<typeof GreenWeb.Coin>, // message coin
 ]> {
   const coinSpends = [];
 
@@ -605,4 +605,29 @@ export async function receiveMessageAndSpendMessageCoin(
     sigs,
     messageCoin
   ]
+}
+
+export function getSecurityCoinSig(
+  securityCoin: InstanceType<typeof GreenWeb.Coin>,
+  conditions: SExp[],
+  tempSk: any,
+  aggSigAdditionalDataHex: string
+): string { // signature
+  const { AugSchemeMPL } = getBLSModule();
+
+  // (list AGG_SIG_ME SYNTHETIC_PUBLIC_KEY (sha256tree1 delegated_puzzle))
+  const securityDelegatedPuzzle = GreenWeb.util.sexp.run(
+      GreenWeb.util.sexp.P2_CONDITIONS_PROGRAM,
+      SExp.to([
+          SExp.to(conditions),
+      ])
+  );
+  const securityDelegatedPuzzleHash = GreenWeb.util.sexp.sha256tree(securityDelegatedPuzzle);
+  const dataToSign = securityDelegatedPuzzleHash + GreenWeb.util.coin.getName(securityCoin) + aggSigAdditionalDataHex;
+  const securityCoinSigRaw = AugSchemeMPL.sign(tempSk, Buffer.from(dataToSign, "hex"));
+  const securityCoinSig = Buffer.from(
+    securityCoinSigRaw.serialize()
+  ).toString("hex");
+
+  return securityCoinSig;
 }
