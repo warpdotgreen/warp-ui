@@ -1,7 +1,7 @@
 import * as GreenWeb from 'greenwebjs';
 import { SExp } from "clvm";
 import pako from 'pako';
-import { CAT_MOD } from './cat';
+import { CAT_MOD, CATDriver } from './cat';
 
 /*
 >>> from chia.wallet.trading.offer import OFFER_MOD
@@ -62,8 +62,8 @@ export class OfferDriver {
   ] {
     const rawSpendBundle = OfferDriver.offerToRawSpendBundle(offer);
 
-    const xchSourceCoin = new GreenWeb.Coin();
     var foundCoin = false;
+    const xchSourceCoin = new GreenWeb.Coin();
 
     for(var i = 0; i < rawSpendBundle.coinSpends.length && !foundCoin; ++i) {
       const coinSpend = rawSpendBundle.coinSpends[i];
@@ -154,15 +154,18 @@ export class OfferDriver {
       tempSk
     ] = OfferDriver.parseXCHOffer(offer);
 
+    var foundCAT = false;
     var tailHash = "";
     const catSourceCoin = new GreenWeb.Coin();
     const catSourceCoinLineageProof = new GreenWeb.Coin();
 
-    for(var i = 0; i < coinSpends.length; ++i) {
+    for(var i = 0; i < coinSpends.length && !foundCAT; ++i) {
+      const coinSpend = coinSpends[i];
+
       var conditions = GreenWeb.util.sexp.asAtomList(
           GreenWeb.util.sexp.run(
-            coinSpends[i].puzzleReveal,
-            coinSpends[i].solution,
+            coinSpend.puzzleReveal,
+            coinSpend.solution,
           )
       );
 
@@ -173,7 +176,7 @@ export class OfferDriver {
 
         if(cond[0] == "33") { // CREATE_COIN
           const uncurryRes = GreenWeb.util.sexp.uncurry(
-            coinSpends[i].puzzleReveal
+            coinSpend.puzzleReveal
           );
           if(uncurryRes === null) { continue; }
           
@@ -182,23 +185,24 @@ export class OfferDriver {
 
           const tailHash = args[1].as_bin().hex().slice(2); // remove a0 (len) from bytes representation
 
-          cat_source_coin_puzzle = getCATPuzzle(
+          const catSourceCoinPuzzle = CATDriver.getCATPuzzle(
             tailHash,
             GreenWeb.util.sexp.fromHex(OFFER_MOD)
           );
-          cat_source_coin_puzzle_hash = GreenWeb.util.sexp.sha256tree(cat_source_coin_puzzle);
+          const catSourceCoinPh = GreenWeb.util.sexp.sha256tree(catSourceCoinPuzzle);
 
-          if(cat_source_coin_puzzle_hash != cond[1]) { continue; }
+          if(catSourceCoinPh != cond[1]) { continue; }
 
-          console.log({ wrappedTokenTailHash: tailHash });
+          catSourceCoin.parentCoinInfo = GreenWeb.util.coin.getName(coinSpend.coin);
+          catSourceCoin.puzzleHash = catSourceCoinPh;
+          catSourceCoin.amount = parseInt(cond[2], 16);
 
-          cat_source_coin.parentCoinInfo = GreenWeb.util.coin.getName(coinSpend.coin);
-          cat_source_coin.puzzleHash = cat_source_coin_puzzle_hash;
-          cat_source_coin.amount = parseInt(cond[2], 16);
+          catSourceCoinLineageProof.parentCoinInfo = coinSpend.coin.parentCoinInfo;
+          catSourceCoinLineageProof.puzzleHash = GreenWeb.util.sexp.sha256tree(args[2]); // inner puzzle hash
+          catSourceCoinLineageProof.amount = coinSpend.coin.amount;
 
-          cat_source_coin_lineage_proof.parentCoinInfo = coinSpend.coin.parentCoinInfo;
-          cat_source_coin_lineage_proof.puzzleHash = GreenWeb.util.sexp.sha256tree(args[2]); // inner puzzle hash
-          cat_source_coin_lineage_proof.amount = coinSpend.coin.amount;
+          foundCAT = true;
+          break;
         }
       }
     }
