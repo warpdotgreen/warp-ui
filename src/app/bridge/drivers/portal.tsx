@@ -3,7 +3,7 @@ import { getSingletonStruct, SINGLETON_LAUNCHER_HASH } from './singleton';
 import { SExp, Tuple, Bytes, getBLSModule } from "clvm";
 import { Network } from '../config';
 import { ConditionOpcode } from "greenwebjs/util/sexp/condition_opcodes";
-import { getCoinRecordByName, getPuzzleAndSolution } from '../util/rpc';
+import { getCoinRecordByName, getPuzzleAndSolution } from './rpc';
 import { bech32m } from "bech32";
 import { SimplePool } from 'nostr-tools/pool'
 import { NETWORKS, NOSTR_CONFIG } from '../config';

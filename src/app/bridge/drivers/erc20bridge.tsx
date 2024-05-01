@@ -680,15 +680,15 @@ export async function burnCATs(
     burnInnerPuzzle
   );
 
-  const userCatCoin = new GreenWeb.Coin();
-  userCatCoin.parentCoinInfo = GreenWeb.util.coin.getName(catSourceCoin);
-  userCatCoin.puzzleHash = GreenWeb.util.sexp.sha256tree(burnCoinFullPuzzle);
-  userCatCoin.amount = catSourceCoin.amount;
+  const catBurnCoin = new GreenWeb.Coin();
+  catBurnCoin.parentCoinInfo = GreenWeb.util.coin.getName(catSourceCoin);
+  catBurnCoin.puzzleHash = GreenWeb.util.sexp.sha256tree(burnCoinFullPuzzle);
+  catBurnCoin.amount = catSourceCoin.amount;
 
   const catBurnerSolution = getCATBurnerPuzzleSolution(
-    userCatCoin.parentCoinInfo,
+    catBurnCoin.parentCoinInfo,
     wrappedTAILHash,
-    GreenWeb.BigNumber.from(userCatCoin.amount),
+    GreenWeb.BigNumber.from(catBurnCoin.amount),
     tokenContractAddress,
     ethTokenReceiverAddress.slice(2),
     catBurnerCoin
@@ -711,9 +711,6 @@ export async function burnCATs(
         ),
     ])
   ];
-  const securityCoinSolution = GreenWeb.util.sexp.standardCoinSolution(
-    securityCoinOutputConds
-  );
 
   const securityCoinSpend = new GreenWeb.util.serializer.types.CoinSpend();
   securityCoinSpend.coin = securityCoin;
@@ -731,32 +728,32 @@ export async function burnCATs(
   ));
 
   /* spend CAT coin */
-  const burnInnerSolution = getBurnInnerPuzzleSolution(
+  const catBurnInnerSolution = getBurnInnerPuzzleSolution(
     catBurnerCoin.parentCoinInfo,
-    GreenWeb.util.coin.getName(userCatCoin),
+    GreenWeb.util.coin.getName(catBurnCoin),
     wrappedTAIL
   );
 
-  const burnCoinSolution = getCATSolution(
-    burnInnerSolution,
+  const catBurnCoinSolution = getCATSolution(
+    catBurnInnerSolution,
     GreenWeb.util.coin.toProgram(catSourceCoinProof),
-    GreenWeb.util.coin.getName(userCatCoin),
-    userCatCoin,
+    GreenWeb.util.coin.getName(catBurnCoin),
+    catBurnCoin,
     {
-      parentCoinInfo: userCatCoin.parentCoinInfo,
+      parentCoinInfo: catBurnCoin.parentCoinInfo,
       puzzleHash: GreenWeb.util.sexp.sha256tree(burnInnerPuzzle),
-      amount: userCatCoin.amount
+      amount: catBurnCoin.amount
     }, // next coin proof
     GreenWeb.BigNumber.from(0),
     GreenWeb.BigNumber.from(-catSourceCoin.amount)
   )
 
-  const burnCoinSpend = new GreenWeb.util.serializer.types.CoinSpend();
-  burnCoinSpend.coin = userCatCoin;
-  burnCoinSpend.puzzleReveal = burnCoinFullPuzzle;
-  burnCoinSpend.solution = burnCoinSolution;
+  const catBurnCoinSpend = new GreenWeb.util.serializer.types.CoinSpend();
+  catBurnCoinSpend.coin = catBurnCoin;
+  catBurnCoinSpend.puzzleReveal = burnCoinFullPuzzle;
+  catBurnCoinSpend.solution = catBurnCoinSolution;
 
-  coinSpends.push(burnCoinSpend);
+  coinSpends.push(catBurnCoinSpend);
 
   /* spend message coin */
   const messageCoinParentId = GreenWeb.util.coin.getName(catBurnerCoin);
