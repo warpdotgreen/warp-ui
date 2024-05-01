@@ -1,7 +1,8 @@
 import * as GreenWeb from 'greenwebjs';
 import { SExp, Tuple, Bytes, getBLSModule } from "clvm";
 import { CAT_MOD_HASH } from './cat';
-import { BRIDGING_PUZZLE_HASH, getMessageCoinPuzzle1stCurry } from './portal';
+import { BRIDGING_PUZZLE_HASH, getMessageCoinPuzzle1stCurry, stringToHex } from './portal';
+import { CHIA_NETWORK, Network } from '../config';
 
 /*
 >>> from drivers.wrapped_assets import CAT_BURNER_MOD
@@ -390,4 +391,18 @@ export function getCATBurnerPuzzleSolution(
       GreenWeb.util.coin.getName(myCoin)
     )
   ]);
+}
+
+export function getWrappedERC20AssetID(sourceChain: Network, erc20ContractAddress: string) {
+  erc20ContractAddress = GreenWeb.util.unhexlify(erc20ContractAddress)!;
+  erc20ContractAddress = "0".repeat(64 - erc20ContractAddress.length) + erc20ContractAddress;
+
+  return GreenWeb.util.sexp.sha256tree(
+    getWrappedTAIL(
+      CHIA_NETWORK.portalLauncherId!,
+      stringToHex(sourceChain.id),
+      GreenWeb.util.unhexlify(sourceChain.erc20BridgeAddress!)!,
+      erc20ContractAddress
+    )
+  );
 }
