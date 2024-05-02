@@ -8,7 +8,7 @@ function Header() {
       <TopBanner />
       <header className="flex justify-center sm:justify-between px-8 py-4">
 
-        <div className="text-green-500 text-2xl font-normal pt-1">warp.green bridge</div>
+        <h1 className="text-green-500 text-2xl font-normal pt-1">warp.green bridge</h1>
 
         <div className="hidden sm:flex">
           <EthereumWalletButton />
