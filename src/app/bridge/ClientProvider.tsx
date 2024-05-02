@@ -1,12 +1,12 @@
-"use client";
-import { WagmiProvider } from "wagmi";
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query' 
-import { wagmiConfig, WALLETCONNECT_PROJECT_ID } from "./config";
-import { createWeb3Modal } from "@web3modal/wagmi";
-import { ChiaWalletContext } from "./ChiaWalletContext";
-import { useEffect, useState } from "react";
+"use client"
+import { WagmiProvider } from "wagmi"
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { wagmiConfig, WALLETCONNECT_PROJECT_ID } from "./config"
+import { createWeb3Modal } from "@web3modal/wagmi"
+import { useEffect, useState } from "react"
+import { ChiaWalletProvider } from "./ChiaWalletManager/WalletContext"
 
-const queryClient = new QueryClient() 
+const queryClient = new QueryClient()
 
 createWeb3Modal({
   wagmiConfig: wagmiConfig,
@@ -15,29 +15,21 @@ createWeb3Modal({
   themeMode: 'dark',
 })
 
-export function ClientProvider({ children }: {
-  children: React.ReactNode
-}) {
-  const [chiaWalletContext, setChiaWalletContext] = useState({
-    connected: false,
-    address: "",
-    setChiaWalletContext: (_: any) => {},
-  });
-  chiaWalletContext.setChiaWalletContext = setChiaWalletContext;
+export function ClientProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      (window as any).Buffer = Buffer;
+      (window as any).Buffer = Buffer
     }
-  }, []);
+  }, [])
 
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
-        <ChiaWalletContext.Provider value={chiaWalletContext}>
+        <ChiaWalletProvider>
           {children}
-        </ChiaWalletContext.Provider>
+        </ChiaWalletProvider>
       </QueryClientProvider>
     </WagmiProvider>
-  );
+  )
 }
