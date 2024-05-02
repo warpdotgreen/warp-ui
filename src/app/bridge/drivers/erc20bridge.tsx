@@ -404,7 +404,7 @@ export function getWrappedERC20AssetID(sourceChain: Network, erc20ContractAddres
   );
 }
 
-export async function getCATMintSpendBundle(
+export async function mintCATs(
   offer: string,
   rawMessage: RawMessage,
   coinsetNetwork: Network,

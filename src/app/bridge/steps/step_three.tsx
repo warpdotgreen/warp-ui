@@ -9,10 +9,12 @@ import Link from "next/link";
 import { getStepThreeURL } from "./urls";
 import { useQuery } from "@tanstack/react-query";
 import { useWriteContract } from "wagmi";
-import { decodeSignature, getSigsAndSelectors } from "../drivers/portal";
+import { decodeSignature, getSigsAndSelectors, RawMessage } from "../drivers/portal";
 import { stringToHex } from "../drivers/util";
 import { PortalABI } from "../drivers/abis";
 import { getCoinRecordByName, pushTx, sbToJSON } from "../drivers/rpc";
+import { mintCATs } from "../drivers/erc20bridge";
+import { unlockCATs } from "../drivers/catbridge";
 
 export default function StepThree({
   sourceChain,
@@ -163,24 +165,27 @@ function StepThreeCoinsetDestination({
         contents
       }
 
+      const rawMessage: RawMessage = {
+        nonce: nonce.replace("0x", ""),
+        destinationHex: destination.replace("0x", ""),
+        destinationChainHex: stringToHex(destinationChain.id),
+        sourceHex: source.replace("0x", ""),
+        sourceChainHex: stringToHex(sourceChain.id),
+        contents: contents.map((c: string) => c.replace("0x", "")),
+      };
+
       var sb, txId;
       if(!isNativeCAT) { // wrapped ERC20s
-        ({ sb, txId } = mintCATs(
-          messageData,
-          portalCoinRecord,
-          portalParentSpend,
-          nonces,
-          lastUsedChainAndNonces,
+        [sb, txId] = await mintCATs(
           offer!,
-          sigs,
-          selectors,
-          stringToHex(sourceChain.id),
-          sourceChain.erc20BridgeAddress!,
-          destinationChain.portalLauncherId!,
-        ));
-      } else { // native CATs being unwrapped
+          rawMessage,
+          destinationChain,
+          setStatus
+        );
+      } else {
+        // native CATs being unwrapped
         // find asset id via bruteforce
-        var assetId = "00".repeat(32);
+        var assetId: string = "00".repeat(32);
         TOKENS.forEach((token) => {
           token.supported.forEach((tokenInfo) => {
             if(tokenInfo.contractAddress === source) {
@@ -188,25 +193,15 @@ function StepThreeCoinsetDestination({
             }
           });
         });
-        console.log({ assetIdForUnlock: assetId });
 
-        ({ sb, txId} = unlockCATs(
-          messageData,
-          portalCoinRecord,
-          portalParentSpend,
-          nonces,
-          lastUsedChainAndNonces,
+        [sb, txId] = await unlockCATs(
           offer!,
-          sigs,
-          selectors,
-          stringToHex(sourceChain.id),
-          source,
-          destinationChain.portalLauncherId!,
-          lockedCoinsAndProofs[0],
-          lockedCoinsAndProofs[1],
-          destinationChain.aggSigData!,
-          assetId === "00".repeat(32) ? null : assetId
-        ));
+          rawMessage,
+          assetId == "00".repeat(32) ? null : assetId,
+          sourceChain,
+          destinationChain,
+          setStatus
+        );
       }
 
       const pushTxResp = await pushTx(destinationChain.rpcUrl, sb);

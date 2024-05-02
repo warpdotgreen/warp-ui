@@ -257,7 +257,10 @@ export async function lockCATs(
   wrappedCatContractAddress: string,
   ethTokenReceiverAddress: string,
   updateStatus: (status: string) => void
-): Promise<[any, string]> {
+): Promise<[
+  InstanceType<typeof GreenWeb.util.serializer.types.SpendBundle>,
+  string
+]> {
   wrappedCatContractAddress = GreenWeb.util.unhexlify(wrappedCatContractAddress)!;
   ethTokenReceiverAddress = GreenWeb.util.unhexlify(ethTokenReceiverAddress)!;
 
@@ -281,7 +284,7 @@ export async function lockCATs(
 
   if(tokenTailHash !== tokenTailHash) {
     alert("You were about to offer the wrong CAT...");
-    return [undefined, ""];
+    return [new GreenWeb.util.serializer.types.SpendBundle(), ""];
   }
 
   const bridgeXCH = tailHashHex === null;
@@ -442,7 +445,7 @@ export async function lockCATs(
   coinSpends.push(messageCoinSpend);
 
   /* lastly, aggregate sigs and build spend bundle */
-  const sb = buildSpendBundle(coinSpends, sigs);
+  const sb = await buildSpendBundle(coinSpends, sigs);
   const nonce = GreenWeb.util.coin.getName(messageCoinSpend.coin);
   
   return [sb, nonce];
@@ -455,7 +458,10 @@ export async function unlockCATs(
   evmNetwork: Network, // source
   coinsetNetwork: Network, // destination
   updateStatus: (status: string) => void
-) {
+): Promise<[
+  InstanceType<typeof GreenWeb.util.serializer.types.SpendBundle>,
+  string
+]> {
   const [xchReceiverPh, tokenAmount_b32] = rawMessage.contents;
   const tokenAmountInt = GreenWeb.BigNumber.from("0x" + tokenAmount_b32);
 
