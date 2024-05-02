@@ -17,6 +17,7 @@ createWeb3Modal({
 
 export function ClientProvider({ children }: { children: React.ReactNode }) {
 
+  // Required for GreenWeb
   useEffect(() => {
     if (typeof window !== 'undefined') {
       (window as any).Buffer = Buffer
