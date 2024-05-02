@@ -11,7 +11,7 @@ export function MultiStepForm({
 }) {
   const steps = [
     { text: `Send tokens on ${sourceChainName}`, icon: <FeeIcon />, iconText: "Fee" },
-    { text: "Wait for transaction confirmation", icon: <ClockIcon />, iconText: "~18 min" },
+    { text: "Wait for transaction confirmation", icon: <ClockIcon />, iconText: "~15 min" },
     { text: `Claim tokens on ${destinationChainName}`, icon: <FeeIcon />, iconText: "Fee" },
   ]
 

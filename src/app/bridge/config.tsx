@@ -2,7 +2,7 @@ import { defaultWagmiConfig } from "@web3modal/wagmi";
 import { ethers } from "ethers";
 import { http, createConfig } from 'wagmi'
 import { sepolia, baseSepolia } from 'wagmi/chains'
-import { getWrappedERC20AssetID } from "./util/driver";
+import { getWrappedERC20AssetID } from "./drivers/erc20bridge";
 
 export const TESTNET = true;
 

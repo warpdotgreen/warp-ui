@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { ClientProvider } from "./client_provider";
+import { ClientProvider } from "./ClientProvider";
 import { ChiaWalletButton } from "./ChiaWalletButton";
 import { TESTNET } from "./config";
-import EthereumWalletButton from "./ethereum_wallet_button";
+import EthereumWalletButton from "./EthereumWalletButton";
 import { Suspense } from "react";
 
 export default function BridgeUILayout({
