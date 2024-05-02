@@ -15,7 +15,7 @@ export default function UILayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <head>
         <title>warp.green</title>
       </head>
