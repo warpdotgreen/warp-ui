@@ -3,10 +3,10 @@
 import { useAccount, useAccountEffect } from "wagmi";
 import { Network, NETWORKS, NetworkType, TOKENS } from "./../config";
 import { useState } from "react";
-import { ChiaWalletContext } from "./../chia_wallet_context";
 import { useRouter } from "next/navigation";
 import { Token } from "../config";
 import { getStepOneURL } from "./urls";
+import { ChiaWalletContext } from "../ChiaWalletContext";
 
 export default function StepZero() {
   const router = useRouter();

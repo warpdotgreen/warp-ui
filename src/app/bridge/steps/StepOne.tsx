@@ -3,15 +3,15 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Network, NetworkType, Token, TOKENS } from "../config";
 import { ethers } from "ethers";
-import { useAccount, usePrepareTransactionRequest, useReadContract, useTransactionConfirmations, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
-import { erc20ABI, ERC20BridgeABI, WrappedCATABI } from "@/app/bridge/util/abis";
+import { useAccount, useReadContract, useTransactionConfirmations, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import * as GreenWeb from 'greenwebjs';
 import { useEffect, useState } from "react";
 import { getStepTwoURL } from "./urls";
 import { initializeBLS } from "clvm";
-import { burnCATs, lockCATs, sbToJSON } from "../util/driver";
-import { stringToHex } from "@/app/bridge/util/sig";
-import { pushTx } from "../util/rpc";
+import { erc20ABI, ERC20BridgeABI, WrappedCATABI } from "../drivers/abis";
+import { burnCATs } from "../drivers/erc20bridge";
+import { lockCATs } from "../drivers/catbridge";
+import { pushTx, sbToJSON } from "../drivers/rpc";
 
 export default function StepOne({
   sourceChain,
@@ -210,7 +210,6 @@ function EthereumButton({
       });
     } else {
       // token.sourceNetworkType == NetworkType.COINSET
-      console.log("coinset!");
       writeContract({
         address: tokenInfo.contractAddress,
         abi: WrappedCATABI,
@@ -232,7 +231,7 @@ function EthereumButton({
       functionName: "approve",
       args: [
         sourceChain.erc20BridgeAddress as `0x${string}`,
-        BigInt("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+        ethers.parseEther(amount)
       ]
     });
   }
@@ -265,7 +264,6 @@ function ChiaButton({
   sourceChain,
   destinationChain,
   recipient,
-  amount,
   amountMojo
 } : {
   token: Token,
@@ -276,15 +274,10 @@ function ChiaButton({
   amountMojo: bigint
 }) {
   const router = useRouter();
-  const [waitingForTx, setWaitingForTx] = useState(false);
+  const [status, setStatus] = useState("");
 
   const initiateBridgingFromChiaToEVM = async () => {
-    setWaitingForTx(true);
-
-    await initializeBLS();
-
     const tokenInfo = token.supported.find((supported) => supported.coinsetNetworkId === sourceChain.id && supported.evmNetworkId === destinationChain.id)!;
-    console.log({ reqAssetId: tokenInfo.assetId });
     
     var offerMojoAmount = BigInt(sourceChain.messageToll)
     if(token.sourceNetworkType == NetworkType.EVM) {
@@ -297,9 +290,7 @@ function ChiaButton({
     var xchAmount = parseInt(offerMojoAmount.toString());
     var offerAssets = [];
     if(tokenInfo.assetId === "00".repeat(32)) {
-      console.log({ xchAmount })
       xchAmount += parseInt(amountMojo.toString());
-      console.log({ xchAmount })
     } else {
       offerAssets.push({
         assetId: tokenInfo.assetId,
@@ -326,29 +317,26 @@ function ChiaButton({
 
     if(!offer) {
       alert("Failed to generate offer");
-      setWaitingForTx(false);
+      setStatus("");
       return;
     }
     
     const [sb, nonce] = await (token.sourceNetworkType == NetworkType.EVM ? burnCATs(
-        offer,
-        stringToHex(destinationChain.id),
-        tokenInfo.contractAddress,
-        recipient,
-        destinationChain.erc20BridgeAddress!,
-        sourceChain.portalLauncherId!,
-        parseInt(sourceChain.messageToll.toString()),
-        sourceChain.aggSigData!
-      ) : lockCATs(
-        offer,
-        stringToHex(destinationChain.id),
-        tokenInfo.contractAddress,
-        recipient,
-        sourceChain.portalLauncherId!,
-        parseInt(sourceChain.messageToll.toString()),
-        sourceChain.aggSigData!
-      )
-    );
+      offer,
+      sourceChain,
+      destinationChain,
+      tokenInfo.contractAddress,
+      recipient,
+      setStatus
+    ) : lockCATs(
+      offer,
+      destinationChain,
+      sourceChain,
+      tokenInfo.assetId == "00".repeat(32) ? null : tokenInfo.assetId,
+      tokenInfo.contractAddress,
+      recipient,
+      setStatus
+    ));
 
     const pushTxResp = await pushTx(sourceChain.rpcUrl, sb);
     if(!pushTxResp.success) {
@@ -356,7 +344,7 @@ function ChiaButton({
       await navigator.clipboard.writeText(JSON.stringify(sbJson, null, 2));
       alert("Failed to push transaction - please check console for more details.");
       console.error(pushTxResp);
-      setWaitingForTx(false);
+      setStatus("");
       return;
     } else {
       router.push(getStepTwoURL({
@@ -367,9 +355,9 @@ function ChiaButton({
     }
   };
 
-  if(waitingForTx) {
+  if(status.length > 0) {
     return (
-      <LoadingButton text="Waiting for transaction..." />
+      <LoadingButton text={status} />
     );
   }
 

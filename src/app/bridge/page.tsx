@@ -1,12 +1,12 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import StepZero from "./steps/step_zero";
-import { NETWORKS, TOKENS } from "./config";
+import StepZero from "./steps/StepZero";
+import { NETWORKS } from "./config";
 import { MultiStepForm } from "./MultiStepForm";
-import StepOne from "./steps/step_one";
-import StepTwo from "./steps/step_two";
-import StepThree from "./steps/step_three";
+import StepOne from "./steps/StepOne";
+import StepTwo from "./steps/StepTwo";
+import StepThree from "./steps/StepThree";
 
 export default function BridgeInterface() {
   const searchParams = useSearchParams();
