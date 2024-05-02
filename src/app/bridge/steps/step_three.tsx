@@ -4,18 +4,15 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {  Network, NetworkType, TOKENS, XCH_TOKEN } from "../config";
 import {  useState } from "react";
 import { initializeBLS } from "clvm";
-import { findLatestPortalState } from "@/app/bridge/util/portal_receiver";
 import { WindToy } from "react-svg-spinners";
-import { decodeSignature, getSigsAndSelectors, stringToHex } from "@/app/bridge/util/sig";
-import { getCoinRecordByName, getCoinRecordsByPuzzleHash, getPuzzleAndSolution, pushTx } from "@/app/bridge/util/rpc";
-import { getCATPuzzle, getP2ControllerPuzzleHashInnerPuzzle, mintCATs, sbToJSON, unlockCATs } from "@/app/bridge/util/driver";
 import Link from "next/link";
 import { getStepThreeURL } from "./urls";
 import { useQuery } from "@tanstack/react-query";
 import { useWriteContract } from "wagmi";
-import { PortalABI } from "../util/abis";
-import * as GreenWeb from 'greenwebjs';
-
+import { decodeSignature, getSigsAndSelectors } from "../drivers/portal";
+import { stringToHex } from "../drivers/util";
+import { PortalABI } from "../drivers/abis";
+import { getCoinRecordByName, pushTx, sbToJSON } from "../drivers/rpc";
 
 export default function StepThree({
   sourceChain,
@@ -35,16 +32,6 @@ export default function StepThree({
       destinationChain={destinationChain}
     />
   )
-}
-
-function getSigStringFromSigs(sigs: string[]): `0x${string}` {
-  // todo: multi-validator support
-  let sigsSoFar = "";
-  for(const sig of sigs) {
-    const [originChain, destinationChain, nonce, coinId, sigData] = decodeSignature(sig);
-    sigsSoFar += sigData;
-  }
-  return ("0x" + sigsSoFar) as `0x${string}`;
 }
 
 function StepThreeEVMDestination({
@@ -96,14 +83,6 @@ function StepThreeEVMDestination({
   const generateTxPls = async () => {
     setWaitingForTx(true);
 
-    console.log({
-      nonce: ("0x" + nonce),
-      src_chain: ("0x" + stringToHex(sourceChain.id)),
-      source: ("0x" + source),
-      destination,
-      contents,
-      sisig: getSigStringFromSigs(sigs)
-    })
     writeContract({
       address: destinationChain.portalAddress! as `0x${string}`,
       abi: PortalABI,
@@ -114,7 +93,7 @@ function StepThreeEVMDestination({
         ("0x" + source) as `0x${string}`,
         destination,
         contents,
-        getSigStringFromSigs(sigs)
+        "0x" + sigs.map(sig => decodeSignature(sig)[4]).join("") as `0x${string}`
       ],
       chainId: destinationChain.chainId
     });
@@ -161,11 +140,7 @@ function StepThreeCoinsetDestination({
   
   const offer: string | null = searchParams.get("offer");
 
-  const [blsInitialized, setBlsInitialized] = useState(false);
-  const [lastPortalInfo, setLastPortalInfo] = useState<any>(null);
-  const [sigs, setSigs] = useState<string[]>([]);
-  const [selectors, setSelectors] = useState<boolean[]>([]);
-  const [lockedCoinsAndProofs, setLockedCoinsAndProofs] = useState<[any[], any[]]>([[], []]);
+  const [status, setStatus] = useState("Loading...");
 
   const nonce: `0x${string}` = (searchParams.get("nonce") ?? "0x") as `0x${string}`;
   const source = searchParams.get("source") ?? "";
@@ -179,126 +154,9 @@ function StepThreeCoinsetDestination({
   const amount = parseInt(contents.length > 0 ? (isNativeCAT ? contents[1] : contents[2]) : "0", 16);
 
   const destTxId = searchParams.get("tx");
-
-  useQuery({
-    queryKey: ['StepThree_initializeBLS'],
-    queryFn: () => initializeBLS().then(() => {
-      setBlsInitialized(true);
-      return 1;
-    }),
-    enabled: offer !== null && destTxId === null && !blsInitialized,
-    refetchInterval: 10000,
-  });
-  useQuery({
-    queryKey: ['StepThree_initializeBLS'],
-    queryFn: () => initializeBLS().then(() => {
-      setBlsInitialized(true);
-      return 1;
-    }),
-    enabled: offer !== null && destTxId === null && !blsInitialized,
-    refetchInterval: 10000,
-  });
-  useQuery({
-    queryKey: ['StepThree_findLatestPortalState'],
-    queryFn: () => findLatestPortalState(destinationChain.rpcUrl, destinationChain.portalLauncherId!).then((
-      { coinId, nonces, lastUsedChainAndNonces }
-    ) => {
-      console.log({ msg: 'portal synced', coinId, nonces, lastUsedChainAndNonces });
-      setLastPortalInfo({ coinId, nonces, lastUsedChainAndNonces });
-      return 1;
-    }),
-    enabled: offer !== null && destTxId === null && lastPortalInfo === null && blsInitialized,
-  });
-  useQuery({
-    queryKey: ['StepThree_getSigsAndSelectors'],
-    queryFn: () => getSigsAndSelectors(
-      stringToHex(sourceChain.id),
-      stringToHex(destinationChain.id),
-      nonce,
-      lastPortalInfo.coinId!
-    ).then((sigsAndSelectors) => {
-      setSigs(sigsAndSelectors[0]);
-      setSelectors(sigsAndSelectors[1]);
-      return 1;
-    }),
-    enabled: lastPortalInfo?.coinId && offer !== null && destTxId === null && sigs.length < destinationChain.signatureThreshold,
-    refetchInterval: 5000,
-  });
-  useQuery({
-    queryKey: ['StepThree_fetchLockedCoinsAndProofs'],
-    queryFn: async () => {
-      const unlockerPuzzleHash = destination;
-      const lockerInnerPuzzle = getP2ControllerPuzzleHashInnerPuzzle(unlockerPuzzleHash);
-      var lockerPuzzle = lockerInnerPuzzle;
-      
-      const assetId = TOKENS
-        .filter((token) => token.sourceNetworkType == NetworkType.COINSET)
-        .filter((token) => token.supported.some((tokenInfo) => tokenInfo.contractAddress === source))
-        .map((token) => token.supported[0].assetId)[0];
-
-      if(assetId !== "00".repeat(32)) {
-        lockerPuzzle = getCATPuzzle(
-          assetId,
-          lockerInnerPuzzle
-        );
-      }
-
-      const vaultPuzzleHash = GreenWeb.util.sexp.sha256tree(lockerPuzzle);
-
-      const coinRecords = await getCoinRecordsByPuzzleHash(destinationChain.rpcUrl, vaultPuzzleHash);
-      const totalAmount = coinRecords.reduce((acc: bigint, coinRec: any) => acc + BigInt(coinRec.coin.amount.toString()), BigInt(0));
-
-      if(totalAmount >= amount) {
-        const coins = coinRecords.map((coinRec: any) => coinRec.coin);
-        const proofs: any[] = [];
-
-        console.log({ assetId })
-        if(assetId !== "00".repeat(32)) {
-          await coinRecords.forEach(async (coinRecord: any) => {
-            const parentSpend = await getPuzzleAndSolution(destinationChain.rpcUrl, coinRecord.coin.parent_coin_info, coinRecord.confirmed_block_index);
-
-            const uncurryRes = GreenWeb.util.sexp.uncurry(
-              GreenWeb.util.sexp.fromHex(
-                GreenWeb.util.unhexlify(parentSpend.puzzle_reveal)!
-              )
-            );
-            if(uncurryRes === null) {
-              alert('error in getting lineage proof :|');
-              return;
-            }
-            const [_, args] = uncurryRes;
-
-            proofs.push({
-              parent_coin_info: parentSpend.coin.parent_coin_info,
-              puzzle_hash: GreenWeb.util.sexp.sha256tree(args[2]), // inner puzzle hash
-              amount: parentSpend.coin.amount,
-            })
-          });
-        }
-
-        setLockedCoinsAndProofs([coins, proofs]);
-        console.log({ coins })
-      }
-
-      return 1;
-    },
-    enabled: offer !== null && destTxId === null && sigs.length >= destinationChain.signatureThreshold && isNativeCAT && lockedCoinsAndProofs[0].length === 0,
-    refetchInterval: 10000,
-  });
   useQuery({
     queryKey: ['StepThree_buildAndSubmitTx'],
     queryFn: async () => {
-      const { coinId, nonces, lastUsedChainAndNonces } = lastPortalInfo;
-      const portalCoinRecord = await getCoinRecordByName(
-        destinationChain.rpcUrl,
-        coinId
-      );
-      const portalParentSpend = await getPuzzleAndSolution(
-        destinationChain.rpcUrl,
-        portalCoinRecord.coin.parent_coin_info,
-        portalCoinRecord.confirmed_block_index
-      );
-
       const messageData = {
         nonce,
         destination,
@@ -367,7 +225,7 @@ function StepThreeCoinsetDestination({
 
       return 1;
     },
-    enabled: offer !== null && destTxId === null && sigs.length >= destinationChain.signatureThreshold && (!isNativeCAT || lockedCoinsAndProofs[0].length > 0),
+    enabled: offer !== null && destTxId === null,
   });
 
   if(!offer && !destTxId) {
@@ -401,17 +259,7 @@ function StepThreeCoinsetDestination({
       <div className="text-zinc-300 flex font-medium text-md items-center justify-center">
         <div className="flex items-center">
           <WindToy color="rgb(212 212 216)" />
-          <p className="pl-2"> {
-            blsInitialized ? (
-              lastPortalInfo !== null ? (
-                sigs.length >= destinationChain.signatureThreshold ? (
-                  isNativeCAT && lockedCoinsAndProofs[0].length == 0 ? "Finding locked coins..." : "Building transaction..."
-                ) : (
-                  `Collecting signatures (${sigs.length}/${destinationChain.signatureThreshold})`
-                )
-              ) : "Syncing portal..."
-            ) : "Initializing BLS..."
-          } </p>
+          <p className="pl-2"> {status} </p>
         </div>
       </div>
     );

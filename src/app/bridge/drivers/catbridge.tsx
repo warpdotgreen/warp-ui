@@ -6,6 +6,7 @@ import { OFFER_MOD, OFFER_MOD_HASH, parseXCHAndCATOffer, parseXCHOffer } from '.
 import { Network } from '../config';
 import { initializeBLS } from "clvm";
 import { buildSpendBundle, stringToHex } from './util';
+import { getCoinRecordsByPuzzleHash, getPuzzleAndSolution } from './rpc';
 
 export const LOCKER_MOD = "ff02ffff01ff04ffff04ff10ffff04ff8202ffff808080ffff04ffff04ff18ffff04ff8205ffff808080ffff04ffff04ff12ffff04ff8217ffff808080ffff04ffff04ff14ffff04ffff0bffff02ffff03ffff09ff82017fff8080ffff012fffff01ff0bff56ffff0bff1affff0bff1aff66ff1780ffff0bff1affff0bff76ffff0bff1affff0bff1aff66ffff0bffff0101ff178080ffff0bff1affff0bff76ffff0bff1affff0bff1aff66ffff0bffff0101ff82017f8080ffff0bff1affff0bff76ffff0bff1affff0bff1aff66ff2f80ffff0bff1aff66ff46808080ff46808080ff46808080ff4680808080ff0180ffff02ff1effff04ff02ffff04ffff04ff8205ffffff04ffff04ff81bfffff04ff820bffff808080ff808080ff8080808080ff808080ffff04ffff04ff1cffff04ff5fffff04ff8202ffffff04ffff04ff05ffff04ff0bffff04ff8217ffffff04ff820bffff8080808080ff8080808080ff808080808080ffff04ffff01ffffff4946ff3f33ffff3c02ffffffa04bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459aa09dcf97a184f32623d11a73124ceb99a5709b083721e878a16d78f596718ba7b2ffa102a12871fee210fb8619291eaea194581cbd2531e4b23759d225f6806923f63222a102a8d5dd63fba471ebcb1f3e8f7c1e1879b7152a6e7298a91ce119a63400ade7c5ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff1effff04ff02ffff04ff09ff80808080ffff02ff1effff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080";
 export const UNLOCKER_MOD = "ff02ffff01ff02ff3cffff04ff02ffff04ffff0bffff02ffff03ffff09ffff0dff82017f80ffff012080ffff0182017fffff01ff088080ff0180ffff02ff36ffff04ff02ffff04ff17ffff04ffff0bffff0102ffff0bffff0101ff2f80ff8202ff80ffff04ff5fffff04ffff0bffff0101ff8217ff80ffff04ffff0bffff0101ffff02ff3effff04ff02ffff04ffff04ff8205ffffff04ff820bffff808080ff8080808080ff8080808080808080ff8080ffff04ff822fffffff04ffff02ff12ffff04ff02ffff04ffff02ffff03ffff09ffff12ff81bfffff010180ff8080ffff01ff02ff36ffff04ff02ffff04ff0bffff04ffff0bffff0101ff8217ff80ff8080808080ffff01ff02ff36ffff04ff02ffff04ff05ffff04ffff0bffff0101ff0580ffff04ffff0bffff0101ff81bf80ffff04ffff02ff36ffff04ff02ffff04ff0bffff04ffff0bffff0101ff8217ff80ff8080808080ff8080808080808080ff0180ffff04ffff02ff36ffff04ff02ffff04ff0bffff04ffff0bffff0101ff8217ff80ff8080808080ffff04ff822fffffff04ffff12ffff0101ff820bff80ffff04ff8205ffffff04ffff12ffff0101ff820bff80ffff04ff825fffffff04ffff04ffff04ff28ffff04ff822fffff808080ffff04ffff04ff38ffff04ff8217ffff808080ff808080ff8080808080808080808080ff808080808080ffff04ffff01ffffff3dff4648ffff333cff02ff04ffff04ff10ffff04ffff0bff05ff0b80ff808080ffff04ffff04ff34ffff04ff05ff808080ff178080ffffff02ff2affff04ff02ffff04ffff0bffff02ffff03ffff09ffff0dff82047f80ffff012080ffff0182047fffff01ff088080ff0180ff05ffff02ffff03ffff15ff82067fff8080ffff0182067fffff01ff088080ff018080ffff04ff17ffff04ffff02ffff03ff82037fffff01ff01a04bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459affff01ff02ff3effff04ff02ffff04ffff04ffff0101ffff04ffff04ff24ffff04ff5fffff04ff2fffff04ffff04ff5fff8080ff8080808080ffff02ffff03ffff09ff82067fff81bf80ff80ffff01ff04ffff04ff24ffff04ff0bffff04ffff11ff82067fff81bf80ff80808080ff808080ff01808080ff8080808080ff0180ffff04ffff02ffff03ff82037fffff01ff02ff12ffff04ff02ffff04ff05ffff04ff0bffff04ff17ffff04ff2fffff04ff5fffff04ffff11ff81bfff82067f80ffff04ff82037fffff04ff8202ffff8080808080808080808080ffff018202ff80ff0180ff80808080808080ffff04ffff04ff10ffff04ffff0bff05ffff0bff0bff178080ff808080ffff04ffff04ff34ffff04ffff0bff05ff1780ff808080ff2f8080ff02ffff03ff05ffff01ff0bff81e6ffff02ff2effff04ff02ffff04ff09ffff04ffff02ff3affff04ff02ffff04ff0dff80808080ff808080808080ffff0181c680ff0180ffffffffa04bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459aa09dcf97a184f32623d11a73124ceb99a5709b083721e878a16d78f596718ba7b2ffa102a12871fee210fb8619291eaea194581cbd2531e4b23759d225f6806923f63222a102a8d5dd63fba471ebcb1f3e8f7c1e1879b7152a6e7298a91ce119a63400ade7c5ff0bff81a6ffff02ff2effff04ff02ffff04ff05ffff04ffff02ff3affff04ff02ffff04ff07ff80808080ff808080808080ffff0bff2cffff0bff2cff81c6ff0580ffff0bff2cff0bff81868080ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff3effff04ff02ffff04ff09ff80808080ffff02ff3effff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080";
@@ -477,22 +478,7 @@ export async function unlockCATs(
   sigStrings.push(offerAggSig);
 
   updateStatus("Finding locked coins...");
-  const lockedCoins: InstanceType<typeof GreenWeb.Coin>[] = [];
   const lockedCoinProofs: InstanceType<typeof GreenWeb.Coin>[] = [];
-
-  /* locked_coins = locked_coins.map((coin: any) => GreenWeb.util.goby.parseGobyCoin({
-    parent_coin_info: GreenWeb.util.unhexlify(coin.parent_coin_info),
-    puzzle_hash: GreenWeb.util.unhexlify(coin.puzzle_hash),
-    amount: coin.amount
-  })!);
-  locked_coin_proofs = locked_coin_proofs.map((coin: any) => GreenWeb.util.goby.parseGobyCoin({
-    parent_coin_info: GreenWeb.util.unhexlify(coin.parent_coin_info),
-    puzzle_hash: GreenWeb.util.unhexlify(coin.puzzle_hash),
-    amount: coin.amount
-  })!); */
-  // todo
-
-  /* get and spend message coin & associated thingies */
 
   const unlockerPuzzle = getUnlockerPuzzle(
     stringToHex(evmNetwork.id),
@@ -501,6 +487,52 @@ export async function unlockCATs(
     tokenTailHash
   );
   const unlockerPuzzleHash = GreenWeb.util.sexp.sha256tree(unlockerPuzzle);
+  const vaultInnerPuzzle = getP2ControllerPuzzleHashInnerPuzzle(unlockerPuzzleHash);
+
+  const vaultPuzzle = tokenTailHash === null ? vaultInnerPuzzle : getCATPuzzle(
+    tokenTailHash,
+    vaultInnerPuzzle
+  );
+  const vaultPuzzleHash = GreenWeb.util.sexp.sha256tree(vaultPuzzle);
+
+  const coinRecords = await getCoinRecordsByPuzzleHash(coinsetNetwork.rpcUrl, vaultPuzzleHash);
+
+  const lockedCoins: InstanceType<typeof GreenWeb.Coin>[] = coinRecords.map((coinRecord: any) => GreenWeb.util.goby.parseGobyCoin({
+    parent_coin_info: GreenWeb.util.unhexlify(coinRecord.coin.parent_coin_info),
+    puzzle_hash: GreenWeb.util.unhexlify(coinRecord.coin.puzzle_hash),
+    amount: coinRecord.coin.amount
+  })!);
+
+  if(tokenTailHash !== null) {
+    updateStatus("Getting proofs...");
+
+    await coinRecords.forEach(async (coinRecord: any) => {
+      const parentSpend = await getPuzzleAndSolution(
+        coinsetNetwork.rpcUrl,
+        coinRecord.coin.parent_coin_info,
+        coinRecord.confirmed_block_index
+      );
+
+      const uncurryRes = GreenWeb.util.sexp.uncurry(
+        GreenWeb.util.sexp.fromHex(
+          GreenWeb.util.unhexlify(parentSpend.puzzle_reveal)!
+        )
+      );
+      if(uncurryRes === null) {
+        alert('error in getting lineage proof :|');
+        return;
+      }
+      const [_, args] = uncurryRes;
+
+      lockedCoinProofs.push(GreenWeb.util.goby.parseGobyCoin({
+        parent_coin_info: parentSpend.coin.parent_coin_info,
+        puzzle_hash: GreenWeb.util.sexp.sha256tree(args[2]), // inner puzzle hash
+        amount: parentSpend.coin.amount,
+      })!);
+    });
+  }
+
+  /* get and spend message coin & associated thingies */
 
   const unlockerCoin = new GreenWeb.Coin();
   unlockerCoin.parentCoinInfo = GreenWeb.util.coin.getName(securityCoin);
