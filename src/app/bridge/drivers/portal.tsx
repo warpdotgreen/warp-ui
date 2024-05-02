@@ -8,6 +8,7 @@ import { bech32m } from "bech32";
 import { SimplePool } from 'nostr-tools/pool'
 import { NETWORKS, NOSTR_CONFIG } from '../config';
 import { hexToString } from './util';
+import { ethers } from 'ethers';
 
 export const MESSAGE_COIN_PUZZLE_MOD = "ff02ffff01ff02ff16ffff04ff02ffff04ff05ffff04ff82017fffff04ff8202ffffff04ffff0bffff02ffff03ffff09ffff0dff82013f80ffff012080ffff0182013fffff01ff088080ff0180ffff02ffff03ffff09ffff0dff2f80ffff012080ffff012fffff01ff088080ff0180ff8201bf80ff80808080808080ffff04ffff01ffffff3d46ff473cffff02ffffa04bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459aa09dcf97a184f32623d11a73124ceb99a5709b083721e878a16d78f596718ba7b2ffa102a12871fee210fb8619291eaea194581cbd2531e4b23759d225f6806923f63222a102a8d5dd63fba471ebcb1f3e8f7c1e1879b7152a6e7298a91ce119a63400ade7c5ffff04ffff04ff18ffff04ff17ff808080ffff04ffff04ff14ffff04ffff0bff13ffff0bff5affff0bff12ffff0bff12ff6aff0980ffff0bff12ffff0bff7affff0bff12ffff0bff12ff6affff02ff1effff04ff02ffff04ff05ff8080808080ffff0bff12ffff0bff7affff0bff12ffff0bff12ff6aff1b80ffff0bff12ff6aff4a808080ff4a808080ff4a808080ffff010180ff808080ffff04ffff04ff1cffff04ff2fff808080ffff04ffff04ff10ffff04ffff0bff2fff1780ff808080ff8080808080ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff1effff04ff02ffff04ff09ff80808080ffff02ff1effff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080"
 
@@ -639,4 +640,50 @@ export function spendOutgoingMessageCoin(
   messageCoinSpend.solution = messageCoinSolution;
 
   return messageCoinSpend;
+}
+
+export async function getMessageSentFromXCHStepThreeData(
+  coinsetNetwork: Network,
+  nonce: string
+): Promise<any> {
+  const messageCoinRecord = await getCoinRecordByName(coinsetNetwork.rpcUrl, nonce);
+  const messageCoinParentSpend = await getPuzzleAndSolution(
+    coinsetNetwork.rpcUrl,
+    messageCoinRecord.coin.parent_coin_info,
+    messageCoinRecord.confirmed_block_index
+  );
+
+  const [_, conditionsDict, __] = GreenWeb.util.sexp.conditionsDictForSolution(
+    GreenWeb.util.sexp.fromHex(messageCoinParentSpend.puzzle_reveal.slice(2)),
+    GreenWeb.util.sexp.fromHex(messageCoinParentSpend.solution.slice(2)),
+    GreenWeb.util.sexp.MAX_BLOCK_COST_CLVM
+  )
+  var createCoinConds = conditionsDict?.get("33" as ConditionOpcode) ?? [];
+
+  createCoinConds.forEach((cond) => {
+    if(cond.vars[0] === messageCoinRecord.coin.puzzle_hash.slice(2) &&
+       cond.vars[1] === GreenWeb.util.coin.amountToBytes(messageCoinRecord.coin.amount)) {
+        const memos = GreenWeb.util.sexp.fromHex(cond.vars[2]);
+        
+        const destination_chain_id = GreenWeb.util.sexp.toHex(memos.first()).slice(2);
+        const destination = GreenWeb.util.sexp.toHex(memos.rest().first()).slice(2);
+        
+        const contents = GreenWeb.util.sexp.asAtomList(memos.rest().rest()).map((val) => {
+          if(val.length === 64) {
+            return val;
+          }
+
+          return "0".repeat(64 - val.length) + val;
+        });
+
+        return {
+          sourceNetworkId: coinsetNetwork.id,
+          destinationNetworkId: hexToString(destination_chain_id),
+          nonce,
+          source: messageCoinParentSpend.coin.puzzle_hash.slice(2),
+          destination: ethers.getAddress("0x" + destination),
+          contents
+        };
+      }
+  });
 }
