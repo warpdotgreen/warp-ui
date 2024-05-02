@@ -6,7 +6,7 @@ function Header() {
   return (
     <>
       <TopBanner />
-      <header className="flex justify-between px-8 py-4">
+      <header className="flex justify-center sm:justify-between px-8 py-4">
 
         <div className="text-green-500 text-2xl font-normal pt-1">warp.green bridge</div>
 
