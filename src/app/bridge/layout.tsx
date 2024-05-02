@@ -1,10 +1,7 @@
 import Link from "next/link"
 import { ClientProvider } from "./ClientProvider"
-import { TESTNET } from "./config"
-import EthereumWalletButton from "./EthereumWalletButton"
 import { Suspense } from "react"
-import ChiaWalletModal from "./ChiaWalletModal"
-import TopBanner from "./components/TopBanner"
+import Header from "./components/Header"
 
 export default function BridgeUILayout({
   children,
@@ -14,16 +11,7 @@ export default function BridgeUILayout({
   return (
     <ClientProvider>
       <div className="bg-zinc-950 min-h-screen flex flex-col justify-between">
-        <div>
-          <TopBanner />
-          <div className="flex justify-between px-8 py-4 border-b border-zinc-700 bg-zinc-950">
-            <div className="text-zinc-300 text-2xl font-normal pt-1">Bridging Interface</div>
-            <div className="flex space-x-2">
-              <EthereumWalletButton />
-              <ChiaWalletModal />
-            </div>
-          </div>
-        </div>
+        <Header />
 
         <Suspense>
           {children}
