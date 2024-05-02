@@ -139,13 +139,15 @@ export function parseXCHOffer(offer: string): [
   ];
 }
 
-export function parseXCHAndCATOffer(offer: string): [
+export function parseXCHAndCATOffer(
+  offer: string
+): [
   InstanceType<typeof GreenWeb.CoinSpend>[], // coin_spends
   string, // aggregate signature so far
   InstanceType<typeof GreenWeb.Coin>, // XCH security coin
   SExp, // security coin puzzle
   any, // security coin secret key
-  string, // CAT tail hash / asset id (hex)
+  string | null, // CAT tail hash / asset id (hex)
   InstanceType<typeof GreenWeb.Coin>, // CAT source coin
   InstanceType<typeof GreenWeb.Coin>, // CAT source coin lineage proof
 ] {
@@ -158,7 +160,7 @@ export function parseXCHAndCATOffer(offer: string): [
   ] = parseXCHOffer(offer);
 
   var foundCAT = false;
-  var tailHash = "";
+  var tailHash: string | null = null;
   const catSourceCoin = new GreenWeb.Coin();
   const catSourceCoinLineageProof = new GreenWeb.Coin();
 

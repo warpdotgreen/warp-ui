@@ -610,7 +610,7 @@ export async function burnCATs(
 
   /* spend CAT source coin */
   const catSourceCoinPuzzle = getCATPuzzle(
-    tailHash,
+    tailHash!,
     GreenWeb.util.sexp.fromHex(OFFER_MOD_HASH)
   );
 
