@@ -436,7 +436,7 @@ export async function getCATMintSpendBundle(
   const minterPuzzle = getCATMinterPuzzle(
     coinsetNetwork.portalLauncherId!,
     rawMessage.sourceChainHex,
-    rawMessage.source
+    rawMessage.sourceHex
   );
   const minterPuzzleHash = GreenWeb.util.sexp.sha256tree(minterPuzzle);
   
@@ -456,6 +456,7 @@ export async function getCATMintSpendBundle(
     updateStatus
   );
 
+  updateStatus("Building transaction...")
   coinSpends.push(...portalCoinSpends);
   sigs.push(...portalSigs);
 
@@ -477,7 +478,7 @@ export async function getCATMintSpendBundle(
   const wrappedAssetTAIL = getWrappedTAIL(
     coinsetNetwork.portalLauncherId!,
     rawMessage.sourceChainHex,
-    rawMessage.source,
+    rawMessage.sourceHex,
     ethAssetContract
   );
   const wrappedAssetTAILHash = GreenWeb.util.sexp.sha256tree(wrappedAssetTAIL);

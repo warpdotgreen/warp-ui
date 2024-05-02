@@ -452,9 +452,9 @@ export function messageContentsAsSexp(messageContents: any): GreenWeb.clvm.SExp 
 
 export type RawMessage = {
   nonce: string;
-  destination: string;
+  destinationHex: string;
   destinationChainHex: string;
-  source: string;
+  sourceHex: string;
   sourceChainHex: string;
   contents: string[]
 }
@@ -497,7 +497,7 @@ export async function receiveMessageAndSpendMessageCoin(
   updateStatus(`Collecting signatures (0/${network.signatureThreshold})`);
   [sigStrings, sigSwitches] = await getSigsAndSelectors(
     message.sourceChainHex,
-    message.destination,
+    message.destinationHex,
     message.nonce,
     portalCoinId
   );
@@ -506,7 +506,7 @@ export async function receiveMessageAndSpendMessageCoin(
     await new Promise(r => setTimeout(r, 10000));
     [sigStrings, sigSwitches] = await getSigsAndSelectors(
       message.sourceChainHex,
-      message.destination,
+      message.destinationHex,
       message.nonce,
       portalCoinId
     );
@@ -554,8 +554,8 @@ export async function receiveMessageAndSpendMessageCoin(
     sigSwitches,
     message.nonce,
     message.sourceChainHex,
-    message.source,
-    message.destination,
+    message.sourceHex,
+    message.destinationHex,
     message.contents
   );
   const portalSolution = GreenWeb.util.sexp.singletonSolution(
@@ -574,9 +574,9 @@ export async function receiveMessageAndSpendMessageCoin(
   const messageCoinPuzzle = getMessageCoinPuzzle(
     portalLauncherId,
     message.sourceChainHex,
-    GreenWeb.util.unhexlify(message.source)!,
+    GreenWeb.util.unhexlify(message.sourceHex)!,
     message.nonce,
-    message.destination,
+    message.destinationHex,
     GreenWeb.util.sexp.sha256tree(
       messageContentsAsSexp(message.contents)
     )

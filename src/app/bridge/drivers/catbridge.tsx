@@ -1,9 +1,9 @@
 import * as GreenWeb from 'greenwebjs';
 import { CAT_MOD_HASH, getCATPuzzle, getCATSolution } from './cat';
-import { BRIDGING_PUZZLE_HASH, getMessageCoinPuzzle1stCurry, getSecurityCoinSig, spendOutgoingMessageCoin, stringToHex } from './portal';
+import { BRIDGING_PUZZLE_HASH, getMessageCoinPuzzle1stCurry, getSecurityCoinSig, RawMessage, receiveMessageAndSpendMessageCoin, spendOutgoingMessageCoin, stringToHex } from './portal';
 import { SExp, Tuple, Bytes, getBLSModule } from "clvm";
-import { OFFER_MOD, OFFER_MOD_HASH, parseXCHAndCATOffer } from './offer';
-import { Network } from '../config';
+import { OFFER_MOD, OFFER_MOD_HASH, parseXCHAndCATOffer, parseXCHOffer } from './offer';
+import { Network, Token } from '../config';
 import { initializeBLS } from "clvm";
 
 export const LOCKER_MOD = "ff02ffff01ff04ffff04ff10ffff04ff8202ffff808080ffff04ffff04ff18ffff04ff8205ffff808080ffff04ffff04ff12ffff04ff8217ffff808080ffff04ffff04ff14ffff04ffff0bffff02ffff03ffff09ff82017fff8080ffff012fffff01ff0bff56ffff0bff1affff0bff1aff66ff1780ffff0bff1affff0bff76ffff0bff1affff0bff1aff66ffff0bffff0101ff178080ffff0bff1affff0bff76ffff0bff1affff0bff1aff66ffff0bffff0101ff82017f8080ffff0bff1affff0bff76ffff0bff1affff0bff1aff66ff2f80ffff0bff1aff66ff46808080ff46808080ff46808080ff4680808080ff0180ffff02ff1effff04ff02ffff04ffff04ff8205ffffff04ffff04ff81bfffff04ff820bffff808080ff808080ff8080808080ff808080ffff04ffff04ff1cffff04ff5fffff04ff8202ffffff04ffff04ff05ffff04ff0bffff04ff8217ffffff04ff820bffff8080808080ff8080808080ff808080808080ffff04ffff01ffffff4946ff3f33ffff3c02ffffffa04bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459aa09dcf97a184f32623d11a73124ceb99a5709b083721e878a16d78f596718ba7b2ffa102a12871fee210fb8619291eaea194581cbd2531e4b23759d225f6806923f63222a102a8d5dd63fba471ebcb1f3e8f7c1e1879b7152a6e7298a91ce119a63400ade7c5ff02ffff03ffff07ff0580ffff01ff0bffff0102ffff02ff1effff04ff02ffff04ff09ff80808080ffff02ff1effff04ff02ffff04ff0dff8080808080ffff01ff0bffff0101ff058080ff0180ff018080";
@@ -251,6 +251,7 @@ export async function lockCATs(
   offer: string,
   evmNetwork: Network, // destination
   coinsetNetwork: Network, // source
+  tokenTailHash: string | null,
   wrappedCatContractAddress: string,
   ethTokenReceiverAddress: string,
   updateStatus: (status: string) => void
@@ -275,6 +276,11 @@ export async function lockCATs(
     catSourceCoin,
     catSourceCoinLineageProof
   ] = parseXCHAndCATOffer(offer);
+
+  if(tokenTailHash !== tokenTailHash) {
+    alert("You were about to offer the wrong CAT...");
+    return [undefined, ""];
+  }
 
   const bridgeXCH = tailHashHex === null;
   coinSpends.push(...offerCoinSpends);
@@ -390,7 +396,7 @@ export async function lockCATs(
           ],
           lockNotarizedPayment,
         ]);
-        
+
         break;
       }
     }
@@ -446,4 +452,230 @@ export async function lockCATs(
 
   const nonce = GreenWeb.util.coin.getName(messageCoinSpend.coin);
   return [sb, nonce];
+}
+
+export async function unlockCATs(
+  offer: string,
+  rawMessage: RawMessage,
+  tokenTailHash: string | null,
+  evmNetwork: Network, // source
+  coinsetNetwork: Network, // destination
+  updateStatus: (status: string) => void
+) {
+  const [xchReceiverPh, tokenAmount_b32] = rawMessage.contents;
+  const tokenAmountInt = GreenWeb.BigNumber.from("0x" + tokenAmount_b32);
+
+  const coinSpends: InstanceType<typeof GreenWeb.CoinSpend>[] = [];
+  const sigStrings: string[] = [];
+
+  updateStatus("Initializing BLS...");
+  await initializeBLS();
+
+  updateStatus("Parsing offer...");
+  const [
+    offerCoinSpends,
+    offerAggSig,
+    securityCoin,
+    securityCoinPuzzle,
+    securityCoinSk
+  ] = parseXCHOffer(offer);
+
+  coinSpends.push(...offerCoinSpends);
+  sigStrings.push(offerAggSig);
+
+  updateStatus("Finding locked coins...");
+  const lockedCoins: InstanceType<typeof GreenWeb.Coin>[] = [];
+  const lockedCoinProofs: InstanceType<typeof GreenWeb.Coin>[] = [];
+
+  /* locked_coins = locked_coins.map((coin: any) => GreenWeb.util.goby.parseGobyCoin({
+    parent_coin_info: GreenWeb.util.unhexlify(coin.parent_coin_info),
+    puzzle_hash: GreenWeb.util.unhexlify(coin.puzzle_hash),
+    amount: coin.amount
+  })!);
+  locked_coin_proofs = locked_coin_proofs.map((coin: any) => GreenWeb.util.goby.parseGobyCoin({
+    parent_coin_info: GreenWeb.util.unhexlify(coin.parent_coin_info),
+    puzzle_hash: GreenWeb.util.unhexlify(coin.puzzle_hash),
+    amount: coin.amount
+  })!); */
+  // todo
+
+  /* get and spend message coin & associated thingies */
+
+  const unlockerPuzzle = getUnlockerPuzzle(
+    stringToHex(evmNetwork.id),
+    rawMessage.sourceHex,
+    coinsetNetwork.portalLauncherId!,
+    tokenTailHash
+  );
+  const unlockerPuzzleHash = GreenWeb.util.sexp.sha256tree(unlockerPuzzle);
+
+  const unlockerCoin = new GreenWeb.Coin();
+  unlockerCoin.parentCoinInfo = GreenWeb.util.coin.getName(securityCoin);
+  unlockerCoin.puzzleHash = unlockerPuzzleHash;
+  unlockerCoin.amount = 0;
+
+  const [
+    portalCoinSpends,
+    portalSigs,
+    messageCoin
+  ] = await receiveMessageAndSpendMessageCoin(
+    coinsetNetwork,
+    rawMessage,
+    unlockerCoin,
+    updateStatus
+  );
+
+  coinSpends.push(...portalCoinSpends);
+  sigStrings.push(...portalSigs);
+
+  /* spend unlocker coin */
+  const unlockerCoinName = GreenWeb.util.coin.getName(unlockerCoin);
+
+  const unlockerCoinSolution = getUnlockerSolution(
+    messageCoin.parentCoinInfo,
+    rawMessage.nonce,
+    xchReceiverPh,
+    tokenAmount_b32,
+    unlockerPuzzleHash,
+    unlockerCoinName,
+    lockedCoins.map((coin) => 
+      [coin.parentCoinInfo, GreenWeb.BigNumber.from(coin.amount)])
+  );
+
+  const unlockerCoinSpend = new GreenWeb.util.serializer.types.CoinSpend();
+  unlockerCoinSpend.coin = unlockerCoin;
+  unlockerCoinSpend.puzzleReveal = unlockerPuzzle;
+  unlockerCoinSpend.solution = unlockerCoinSolution;
+
+  coinSpends.push(unlockerCoinSpend);
+
+  /* spend locked coins */
+  const p2ControllerPuzzleHashInnerPuzzle = getP2ControllerPuzzleHashInnerPuzzle(unlockerPuzzleHash);
+  const p2ControllerPuzzleHashInnerPuzzleHash = GreenWeb.util.sexp.sha256tree(p2ControllerPuzzleHashInnerPuzzle);
+
+  const p2ControllerPuzzleHashPuzzle = tokenTailHash == null ? p2ControllerPuzzleHashInnerPuzzle : getCATPuzzle(
+    tokenTailHash,
+    p2ControllerPuzzleHashInnerPuzzle
+  );
+
+  const totalVaultValue = lockedCoins.reduce(
+    (acc, coin) => acc.add(GreenWeb.BigNumber.from(coin.amount)), GreenWeb.BigNumber.from(0)
+  );
+
+  const leadVaultConditions = [
+    1, 
+    GreenWeb.spend.createCoinCondition(
+      xchReceiverPh,
+      tokenAmountInt,
+      [ xchReceiverPh ]
+    )
+  ];
+  if(!GreenWeb.BigNumber.from(tokenAmountInt).eq(totalVaultValue)) {
+    leadVaultConditions.push(
+      GreenWeb.spend.createCoinCondition(
+        p2ControllerPuzzleHashInnerPuzzleHash,
+        totalVaultValue.sub(tokenAmountInt)
+      )
+    );
+  }
+  const leadVaultDelegatedPuzzle = SExp.to(leadVaultConditions);
+
+  const innerSolutions = lockedCoins.map((lockedCoin, index) => {
+    return getP2ControllerPuzzleHashInnerSolution(
+      GreenWeb.util.coin.getName(lockedCoin),
+      unlockerCoin.parentCoinInfo,
+      GreenWeb.BigNumber.from(unlockerCoin.amount),
+      index == lockedCoins.length - 1 ? leadVaultDelegatedPuzzle : SExp.to([]),
+      SExp.to([]) // delegated solution
+    );
+  });
+
+  if(tokenTailHash === null) {
+    innerSolutions.forEach((innerSolution, index) => {
+      const cs = new GreenWeb.util.serializer.types.CoinSpend();
+      cs.coin = lockedCoins[index];
+      cs.puzzleReveal = p2ControllerPuzzleHashPuzzle;
+      cs.solution = innerSolution;
+
+      coinSpends.push(cs);
+    });
+  } else {
+    var amountSoFar = GreenWeb.BigNumber.from(0);
+    lockedCoins.forEach((lockedCoin, index) => {
+      const innerSolution = innerSolutions[index];
+
+      const nextCoin = lockedCoins[(index + 1) % lockedCoins.length];
+      const nextCoinProof = new GreenWeb.Coin();
+      nextCoinProof.parentCoinInfo = nextCoin.parentCoinInfo;
+      nextCoinProof.puzzleHash = p2ControllerPuzzleHashInnerPuzzleHash;
+      nextCoinProof.amount = nextCoin.amount;
+
+      const solution = getCATSolution(
+        innerSolution,
+        GreenWeb.util.coin.toProgram(lockedCoinProofs[index]),
+        GreenWeb.util.coin.getName(lockedCoins[(lockedCoins.length + index - 1) % lockedCoins.length]),
+        lockedCoin,
+        nextCoinProof,
+        index === 0 ? GreenWeb.BigNumber.from(0) : amountSoFar,
+        GreenWeb.BigNumber.from(0)
+      );
+      amountSoFar = amountSoFar.add(
+        GreenWeb.BigNumber.from(lockedCoin.amount)
+      );
+      
+      const cs = new GreenWeb.util.serializer.types.CoinSpend();
+      cs.coin = lockedCoin;
+      cs.puzzleReveal = p2ControllerPuzzleHashPuzzle;
+      cs.solution = solution;
+
+      coinSpends.push(cs);
+    });
+  }
+
+  /* spend security coin */
+  const securityCoinOutputConds = [
+    SExp.to([
+        GreenWeb.util.sexp.bytesToAtom("40"), // ASSERT_CONCURRENT_SPEND
+        GreenWeb.util.sexp.bytesToAtom(unlockerCoinName),
+    ]),
+    GreenWeb.spend.reserveFeeCondition(
+      securityCoin.amount
+    ),
+    GreenWeb.spend.createCoinCondition(
+      unlockerPuzzleHash,
+      0
+    ),
+  ];
+
+  const securityCoinSpend = new GreenWeb.util.serializer.types.CoinSpend();
+  securityCoinSpend.coin = securityCoin;
+  securityCoinSpend.puzzleReveal = securityCoinPuzzle;
+  securityCoinSpend.solution = GreenWeb.util.sexp.standardCoinSolution(
+    securityCoinOutputConds
+  );
+
+  coinSpends.push(securityCoinSpend);
+  sigStrings.push(getSecurityCoinSig(
+    securityCoin,
+    securityCoinOutputConds,
+    securityCoinSk,
+    coinsetNetwork.aggSigData!
+  ));
+
+  /* lastly, aggregate sigs  and build spend bundle */
+
+  const { AugSchemeMPL, G2Element } = getBLSModule();
+
+  const sb = new GreenWeb.util.serializer.types.SpendBundle();
+  sb.coinSpends = coinSpends;
+  sb.aggregatedSignature = Buffer.from(
+    AugSchemeMPL.aggregate(
+      sigStrings.map((sig) => G2Element.from_bytes(Buffer.from(sig, "hex")))
+    ).serialize()
+  ).toString("hex");
+
+  return [
+    sb,
+    GreenWeb.util.coin.getName(messageCoin)
+  ];
 }
