@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation"
 import { Token } from "../config"
 import { getStepOneURL } from "./urls"
 import { useWallet } from "../ChiaWalletManager/WalletContext"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 
 export default function StepZero() {
   const router = useRouter()
@@ -125,13 +127,14 @@ export default function StepZero() {
                   selectedValue={sourceNetworkId}
                   updateSelectedValue={setSourceNetworkId}
                 />
-                <button
+                <Button
+                  variant="ghost"
                   type="button"
                   className="mx-2 p-2 text-zinc-300 hover:bg-zinc-700 rounded-xl"
                   onClick={swapNetworks}
                 >
                   <ChangeArrow />
-                </button>
+                </Button>
                 <BlockchainDropdown
                   label="To"
                   options={networks}
@@ -139,7 +142,7 @@ export default function StepZero() {
                   updateSelectedValue={setDestinationNetworkId}
                 />
               </div>
-              <input
+              <Input
                 type="text"
                 placeholder="Amount"
                 className="w-full px-2 py-2 border border-zinc-700 rounded outline-none bg-zinc-800 text-zinc-300 placeholder-zinc-500 text-lg"
@@ -147,8 +150,9 @@ export default function StepZero() {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
               />
-              <input
+              <Input
                 type="text"
+                disabled
                 placeholder="Receive Address"
                 className="w-full px-2 py-2 border border-zinc-700 rounded outline-none bg-zinc-800 text-zinc-300 placeholder-zinc-500 text-lg"
                 value={destinationAddress}
@@ -159,21 +163,22 @@ export default function StepZero() {
             <div className="flex justify-center">
               {
                 walletConnected && account?.address !== undefined ? (
-                  <button
+                  <Button
                     type="submit"
-                    className="w-64 px-2 py-3 text-zinc-100 rounded-3xl bg-green-500 text-bg hover:bg-green-700 font-semibold transition-colors duration-300"
+                    className="w-64 px-2 py-3 text-zinc-100 rounded-3xl bg-green-500 text-secondary hover:bg-green-700 font-semibold transition-colors duration-300"
                     onClick={goToFirstStep}
+                    disabled={Boolean(!amount)}
                   >
-                    Bridge
-                  </button>
+                    {Boolean(amount) ? "Bridge" : "Enter an Amount"}
+                  </Button>
                 ) : (
-                  <button
+                  <Button
                     type="submit"
                     className="w-64 px-2 py-3 text-zinc-300 rounded-3xl bg-green-900 font-semibold"
                     disabled={true}
                   >
                     Connect wallets first
-                  </button>
+                  </Button>
                 )
               }
             </div>
