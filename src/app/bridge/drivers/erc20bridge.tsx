@@ -1,10 +1,11 @@
 import * as GreenWeb from 'greenwebjs';
 import { SExp, getBLSModule } from "clvm";
 import { CAT_MOD_HASH, getCATPuzzle, getCATSolution } from './cat';
-import { BRIDGING_PUZZLE_HASH, getMessageCoinPuzzle1stCurry, getSecurityCoinSig, messageContentsAsSexp, RawMessage, receiveMessageAndSpendMessageCoin, spendOutgoingMessageCoin, stringToHex } from './portal';
+import { BRIDGING_PUZZLE_HASH, getMessageCoinPuzzle1stCurry, getSecurityCoinSig, messageContentsAsSexp, RawMessage, receiveMessageAndSpendMessageCoin, spendOutgoingMessageCoin } from './portal';
 import { CHIA_NETWORK, Network } from '../config';
 import { OFFER_MOD_HASH, parseXCHAndCATOffer, parseXCHOffer } from './offer';
 import { initializeBLS } from "clvm";
+import { buildSpendBundle, stringToHex } from './util';
 
 /*
 >>> from drivers.wrapped_assets import CAT_BURNER_MOD
@@ -554,20 +555,12 @@ export async function getCATMintSpendBundle(
   ));
 
   /* lastly, aggregate sigs  and build spend bundle */
-
-  const { AugSchemeMPL, G2Element } = getBLSModule();
-
-  const sb = new GreenWeb.util.serializer.types.SpendBundle();
-  sb.coinSpends = coinSpends;
-  sb.aggregatedSignature = Buffer.from(
-    AugSchemeMPL.aggregate(
-      sigs.map((sig) => G2Element.from_bytes(Buffer.from(sig, "hex")))
-    ).serialize()
-  ).toString("hex");
+  const sb = await buildSpendBundle(coinSpends, sigs);
+  const txId = GreenWeb.util.coin.getName(messageCoin);
 
   return [
     sb,
-    GreenWeb.util.coin.getName(messageCoin)
+    txId
   ];
 }
 
@@ -763,16 +756,8 @@ export async function burnCATs(
   coinSpends.push(messageCoinSpend);
 
   /* lastly, aggregate sigs and build spend bundle */
-  const { AugSchemeMPL, G2Element } = getBLSModule();
-
-  const sb = new GreenWeb.util.serializer.types.SpendBundle();
-  sb.coinSpends = coinSpends;
-  sb.aggregatedSignature = Buffer.from(
-    AugSchemeMPL.aggregate(
-      sigs.map((sig) => G2Element.from_bytes(Buffer.from(sig, "hex")))
-    ).serialize()
-  ).toString("hex");
-
+  const sb = await buildSpendBundle(coinSpends, sigs);
   const nonce = GreenWeb.util.coin.getName(messageCoinSpend.coin);
+  
   return [sb, nonce];
 }
