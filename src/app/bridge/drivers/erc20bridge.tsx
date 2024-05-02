@@ -3,7 +3,7 @@ import { SExp, getBLSModule } from "clvm";
 import { CAT_MOD_HASH, getCATPuzzle, getCATSolution } from './cat';
 import { BRIDGING_PUZZLE_HASH, getMessageCoinPuzzle1stCurry, getSecurityCoinSig, messageContentsAsSexp, RawMessage, receiveMessageAndSpendMessageCoin, spendOutgoingMessageCoin } from './portal';
 import { CHIA_NETWORK, Network } from '../config';
-import { OFFER_MOD_HASH, parseXCHAndCATOffer, parseXCHOffer } from './offer';
+import { OFFER_MOD, OFFER_MOD_HASH, parseXCHAndCATOffer, parseXCHOffer } from './offer';
 import { initializeBLS } from "clvm";
 import { buildSpendBundle, stringToHex } from './util';
 
@@ -296,7 +296,7 @@ def get_cat_mint_and_payout_inner_puzzle_solution(
 */
 function getCATMintAndPayoutInnerPuzzleSolution(
   tailPuzzle: GreenWeb.clvm.SExp,
-  myAmount: number,
+  myAmount: GreenWeb.BigNumber,
   parentParentInfo: string,
 ): GreenWeb.clvm.SExp {
   return SExp.to([
@@ -414,7 +414,7 @@ export async function mintCATs(
   string // txId
 ]> {
   const [ethAssetContract, xchReceiverPh, tokenAmount] = rawMessage.contents;
-  const tokenAmountInt: number = parseInt(tokenAmount, 16);
+  const tokenAmountInt: GreenWeb.BigNumber = GreenWeb.BigNumber.from("0x" + tokenAmount);
   const coinSpends: InstanceType<typeof GreenWeb.CoinSpend>[] = [];
   const sigs: string[] = []
 
@@ -466,7 +466,7 @@ export async function mintCATs(
     rawMessage.contents,
     minterCoin.puzzleHash,
     GreenWeb.util.coin.getName(minterCoin),
-    minterCoin.parentCoinInfo
+    messageCoin.parentCoinInfo
   );
 
   const minterCoinSpend = new GreenWeb.util.serializer.types.CoinSpend();
@@ -579,6 +579,8 @@ export async function burnCATs(
   tokenContractAddress = GreenWeb.util.unhexlify(tokenContractAddress)!;
   tokenContractAddress = "0".repeat(64 - tokenContractAddress.length) + tokenContractAddress;
 
+  ethTokenReceiverAddress = GreenWeb.util.unhexlify(ethTokenReceiverAddress)!;
+
   updateStatus("Initializing BLS...");
   await initializeBLS();
 
@@ -605,14 +607,14 @@ export async function burnCATs(
   /* spend CAT source coin */
   const catSourceCoinPuzzle = getCATPuzzle(
     tailHash!,
-    GreenWeb.util.sexp.fromHex(OFFER_MOD_HASH)
+    GreenWeb.util.sexp.fromHex(OFFER_MOD)
   );
 
   const burnInnerPuzzle = getCATBurnInnerPuzzle(
     stringToHex(evmNetwork.id),
     evmNetwork.erc20BridgeAddress!.slice(2),
     tokenContractAddress,
-    ethTokenReceiverAddress.slice(2),
+    ethTokenReceiverAddress,
     GreenWeb.BigNumber.from(coinsetNetwork.messageToll!)
   );
   const burnInnerPuzzleHash = GreenWeb.util.sexp.sha256tree(burnInnerPuzzle);
@@ -624,7 +626,11 @@ export async function burnCATs(
       ),
       [
         GreenWeb.util.sexp.bytesToAtom(burnInnerPuzzleHash),
-        catSourceCoin.amount
+        GreenWeb.util.sexp.bytesToAtom(
+          GreenWeb.util.coin.amountToBytes(
+            catSourceCoin.amount
+          )
+        )
       ]
     ],
   ]);
@@ -684,7 +690,7 @@ export async function burnCATs(
     wrappedTAILHash,
     GreenWeb.BigNumber.from(catBurnCoin.amount),
     tokenContractAddress,
-    ethTokenReceiverAddress.slice(2),
+    ethTokenReceiverAddress,
     catBurnerCoin
   );
 

@@ -117,7 +117,11 @@ export function parseXCHOffer(offer: string): [
       ),
       [
         GreenWeb.util.sexp.bytesToAtom(securityCoinPuzzleHash),
-        xchSourceCoin.amount
+        GreenWeb.util.sexp.bytesToAtom(
+          GreenWeb.util.coin.amountToBytes(
+            xchSourceCoin.amount
+          )
+        )
       ]
     ],
   ])
@@ -188,15 +192,17 @@ export function parseXCHAndCATOffer(
         const [uncurried_mod, args] = uncurryRes;
         if(args.length < 3 || GreenWeb.util.sexp.toHex(uncurried_mod) != CAT_MOD) { continue; }
 
-        const tailHash = args[1].as_bin().hex().slice(2); // remove a0 (len) from bytes representation
+        const thisTailHash = args[1].as_bin().hex().slice(2); // remove a0 (len) from bytes representation
 
         const catSourceCoinPuzzle = getCATPuzzle(
-          tailHash,
+          thisTailHash,
           GreenWeb.util.sexp.fromHex(OFFER_MOD)
         );
         const catSourceCoinPh = GreenWeb.util.sexp.sha256tree(catSourceCoinPuzzle);
 
         if(catSourceCoinPh != cond[1]) { continue; }
+
+        tailHash = thisTailHash;
 
         catSourceCoin.parentCoinInfo = GreenWeb.util.coin.getName(coinSpend.coin);
         catSourceCoin.puzzleHash = catSourceCoinPh;

@@ -292,9 +292,6 @@ export async function lockCATs(
   sigs.push(offerAggSig);
   updateStatus("Building transaction...");
 
-  /* If locking XCH, we need to modify security coin amount & later rewrite spend to also lock CATs */
-  securityCoin.amount = GreenWeb.BigNumber.from(coinsetNetwork.messageToll);
-
   /* spend locker coin */
   const lockerPuzzle = getLockerPuzzle(
     stringToHex(evmNetwork.id),
@@ -310,13 +307,13 @@ export async function lockCATs(
   lockerCoin.amount = coinsetNetwork.messageToll;
 
   const lockerCoinName = GreenWeb.util.coin.getName(lockerCoin);
-  const asset_amount = bridgeXCH ?
+  const assetAmount = bridgeXCH ?
     GreenWeb.BigNumber.from(securityCoin.amount).sub(GreenWeb.BigNumber.from(coinsetNetwork.messageToll)) :
     catSourceCoin.amount;
   const lockerCoinSolution = getLockerSolution(
     GreenWeb.BigNumber.from(lockerCoin.amount),
     GreenWeb.util.coin.getName(lockerCoin),
-    GreenWeb.BigNumber.from(asset_amount),
+    GreenWeb.BigNumber.from(assetAmount),
     ethTokenReceiverAddress
   );
 
@@ -343,19 +340,19 @@ export async function lockCATs(
     p2ControllerPuzzleHashInnerPuzzle
   );
 
-  const lockNotarizedPayment = [
-    GreenWeb.util.sexp.bytesToAtom(
-      lockerCoinName
-    ),
+  const lockerCoinNotarizedPayment = [
+    GreenWeb.util.sexp.bytesToAtom(lockerCoinName),
     [
       GreenWeb.util.sexp.bytesToAtom(p2ControllerPuzzleHashInnerPuzzleHash),
-      catSourceCoin.amount
+      GreenWeb.util.sexp.bytesToAtom(
+        GreenWeb.util.coin.amountToBytes(assetAmount)
+      )
     ]
   ];
 
   if(tailHashHex !== null) {
     const catSourceCoinInnerSolution = SExp.to([
-      lockNotarizedPayment,
+      lockerCoinNotarizedPayment
     ]);
 
     const catSourceCoinProof = new GreenWeb.Coin();
@@ -369,7 +366,7 @@ export async function lockCATs(
       GreenWeb.util.coin.getName(catSourceCoin),
       catSourceCoin,
       catSourceCoinProof,
-      GreenWeb.BigNumber.from(catSourceCoin.amount.toString()),
+      GreenWeb.BigNumber.from(catSourceCoin.amount),
       GreenWeb.BigNumber.from(0)
     );
 
@@ -396,10 +393,12 @@ export async function lockCATs(
             GreenWeb.util.sexp.bytesToAtom(spentCoinName),
             [
               GreenWeb.util.sexp.bytesToAtom(securityCoin.puzzleHash),
-              securityCoin.amount
+              GreenWeb.util.sexp.bytesToAtom(
+                GreenWeb.util.coin.amountToBytes(securityCoin.amount)
+              )
             ]
           ],
-          lockNotarizedPayment,
+          lockerCoinNotarizedPayment
         ]);
 
         break;
@@ -450,6 +449,7 @@ export async function lockCATs(
   
   return [sb, nonce];
 }
+
 
 export async function unlockCATs(
   offer: string,

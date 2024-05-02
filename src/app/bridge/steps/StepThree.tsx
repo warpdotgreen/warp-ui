@@ -151,20 +151,10 @@ function StepThreeCoinsetDestination({
 
   const isNativeCAT = contents.length == 2;
 
-  // const erc20ContractAddress = contents.length > 0 ? contents[0] : "";
-  // const receiverPhOnChia = contents.length > 0 ? contents[1] : "";
-  const amount = parseInt(contents.length > 0 ? (isNativeCAT ? contents[1] : contents[2]) : "0", 16);
-
   const destTxId = searchParams.get("tx");
   useQuery({
     queryKey: ['StepThree_buildAndSubmitTx'],
     queryFn: async () => {
-      const messageData = {
-        nonce,
-        destination,
-        contents
-      }
-
       const rawMessage: RawMessage = {
         nonce: nonce.replace("0x", ""),
         destinationHex: destination.replace("0x", ""),
@@ -176,12 +166,17 @@ function StepThreeCoinsetDestination({
 
       var sb, txId;
       if(!isNativeCAT) { // wrapped ERC20s
-        [sb, txId] = await mintCATs(
-          offer!,
-          rawMessage,
-          destinationChain,
-          setStatus
-        );
+        try {
+          [sb, txId] = await mintCATs(
+            offer!,
+            rawMessage,
+            destinationChain,
+            setStatus
+          );
+        } catch(_) {
+          console.error(_);
+          alert("Failed to mint wrapped ERC-20 CATs.");
+        }
       } else {
         // native CATs being unwrapped
         // find asset id via bruteforce
@@ -194,14 +189,19 @@ function StepThreeCoinsetDestination({
           });
         });
 
-        [sb, txId] = await unlockCATs(
-          offer!,
-          rawMessage,
-          assetId == "00".repeat(32) ? null : assetId,
-          sourceChain,
-          destinationChain,
-          setStatus
-        );
+        try {
+          [sb, txId] = await unlockCATs(
+            offer!,
+            rawMessage,
+            assetId === "00".repeat(32) ? null : assetId,
+            sourceChain,
+            destinationChain,
+            setStatus
+          );
+        } catch(_) {
+          console.error(_);
+          alert("Failed to unlock CATs.");
+        }
       }
 
       const pushTxResp = await pushTx(destinationChain.rpcUrl, sb);

@@ -1,5 +1,5 @@
 "use client";
-import { ChiaWalletContext } from "./chia_wallet_context";
+import { ChiaWalletContext } from "./ChiaWalletContext";
 import * as GreenWeb from 'greenwebjs';
 import { CHIA_NETWORK } from "./config";
 

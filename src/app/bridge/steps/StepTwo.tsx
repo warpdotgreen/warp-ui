@@ -8,9 +8,7 @@ import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { getStepThreeURL, getStepTwoURL } from "./urls";
 import { useQuery } from "@tanstack/react-query";
-import * as GreenWeb from 'greenwebjs';
-import { ConditionOpcode } from "greenwebjs/util/sexp/condition_opcodes";
-import { getBlockchainState, getCoinRecordByName, getPuzzleAndSolution } from "../drivers/rpc";
+import { getBlockchainState, getCoinRecordByName } from "../drivers/rpc";
 import { getMessageSentFromXCHStepThreeData } from "../drivers/portal";
 import { L1BlockABI } from "../drivers/abis";
 
@@ -192,7 +190,6 @@ const getNonceAndNavigate = (
   const eventLog = (txReceipt!.data as any).logs.filter((log: any) => log.topics[0] === eventSignature)[0];
 
   const nonce = eventLog.topics[1];
-  console.log({ nonce });
 
   /* 
   event MessageSent(

@@ -210,7 +210,6 @@ function EthereumButton({
       });
     } else {
       // token.sourceNetworkType == NetworkType.COINSET
-      console.log("coinset!");
       writeContract({
         address: tokenInfo.contractAddress,
         abi: WrappedCATABI,
@@ -279,7 +278,6 @@ function ChiaButton({
 
   const initiateBridgingFromChiaToEVM = async () => {
     const tokenInfo = token.supported.find((supported) => supported.coinsetNetworkId === sourceChain.id && supported.evmNetworkId === destinationChain.id)!;
-    console.log({ reqAssetId: tokenInfo.assetId });
     
     var offerMojoAmount = BigInt(sourceChain.messageToll)
     if(token.sourceNetworkType == NetworkType.EVM) {
@@ -292,9 +290,7 @@ function ChiaButton({
     var xchAmount = parseInt(offerMojoAmount.toString());
     var offerAssets = [];
     if(tokenInfo.assetId === "00".repeat(32)) {
-      console.log({ xchAmount })
       xchAmount += parseInt(amountMojo.toString());
-      console.log({ xchAmount })
     } else {
       offerAssets.push({
         assetId: tokenInfo.assetId,

@@ -99,7 +99,7 @@ def get_portal_receiver_inner_puzzle(
 */
 export function getPortalReceiverInnerPuzzle(
   launcherId: string,
-  signatureTreshold: number,
+  signatureTreshold: GreenWeb.BigNumber,
   signaturePubkeys: string[],
   updaterPuzzleHash: string,
   lastChainsAndNonces: [string, string][] = [],
@@ -236,7 +236,7 @@ export function getPortalReceiverInnerSolution(
 }
 
 export function getMOfNDelegateDirectPuzzle(
-  keyThreshold: number,
+  keyThreshold: GreenWeb.BigNumber,
   keys: string[]
 ): GreenWeb.clvm.SExp {
   return GreenWeb.util.sexp.curry(
@@ -296,6 +296,7 @@ export async function getSigsAndSelectors(
 ): Promise<[string[], boolean[]]> {
   const routingDataBuff = Buffer.from(sourceChainHex + destinationChainHex + nonce.replace("0x", ""), "hex");
   const routingData = bech32m.encode("r", bech32m.toWords(routingDataBuff));
+
   var coinData = "";
   if(coinId !== null) {
     coinData = GreenWeb.util.address.puzzleHashToAddress(coinId, "c");
@@ -486,7 +487,7 @@ export async function receiveMessageAndSpendMessageCoin(
   updateStatus(`Collecting signatures (0/${network.signatureThreshold})`);
   [sigStrings, sigSwitches] = await getSigsAndSelectors(
     message.sourceChainHex,
-    message.destinationHex,
+    message.destinationChainHex,
     message.nonce,
     portalCoinId
   );
@@ -495,7 +496,7 @@ export async function receiveMessageAndSpendMessageCoin(
     await new Promise(r => setTimeout(r, 10000));
     [sigStrings, sigSwitches] = await getSigsAndSelectors(
       message.sourceChainHex,
-      message.destinationHex,
+      message.destinationChainHex,
       message.nonce,
       portalCoinId
     );
@@ -507,14 +508,14 @@ export async function receiveMessageAndSpendMessageCoin(
   updateStatus("Building portal spend...");
 
   const updatePuzzle = getMOfNDelegateDirectPuzzle(
-    network.multisigThreshold!,
+    GreenWeb.BigNumber.from(network.multisigThreshold!),
     network.multisigInfos!,
   );
 
   const portalLauncherId = network.portalLauncherId!;
   const portalInnerPuzzle = getPortalReceiverInnerPuzzle(
     portalLauncherId,
-    network.signatureThreshold!,
+    GreenWeb.BigNumber.from(network.signatureThreshold!),
     network.validatorInfos!,
     GreenWeb.util.sexp.sha256tree(updatePuzzle),
     lastUsedChainAndNonces
@@ -660,7 +661,8 @@ export async function getMessageSentFromXCHStepThreeData(
   )
   var createCoinConds = conditionsDict?.get("33" as ConditionOpcode) ?? [];
 
-  createCoinConds.forEach((cond) => {
+  for(var i = 0; i < createCoinConds.length; ++i) {
+    const cond = createCoinConds[i];
     if(cond.vars[0] === messageCoinRecord.coin.puzzle_hash.slice(2) &&
        cond.vars[1] === GreenWeb.util.coin.amountToBytes(messageCoinRecord.coin.amount)) {
         const memos = GreenWeb.util.sexp.fromHex(cond.vars[2]);
@@ -685,5 +687,7 @@ export async function getMessageSentFromXCHStepThreeData(
           contents
         };
       }
-  });
+  }
+
+  return null;
 }
