@@ -1,5 +1,3 @@
-import ChiaWalletButtons from "../ChiaWalletButtons"
-import EthereumWalletButton from "../EthereumWalletButton"
 import WalletModal from "../WalletModal/WalletModal"
 import TopBanner from "./TopBanner"
 
