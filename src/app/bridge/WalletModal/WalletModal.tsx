@@ -8,12 +8,13 @@ import {
 } from "@/components/ui/dialog"
 import ChiaWalletButtons from "../ChiaWalletButtons"
 import EthereumWalletButton from "../EthereumWalletButton"
+import { Button } from "@/components/ui/button"
 
 
 function WalletModal() {
   return (
     <Dialog>
-      <DialogTrigger>Connect Wallet</DialogTrigger>
+      <DialogTrigger asChild><Button>Connect Wallet</Button></DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Connect Wallet</DialogTitle>
