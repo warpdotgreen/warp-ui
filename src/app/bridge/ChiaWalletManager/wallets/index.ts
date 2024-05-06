@@ -5,7 +5,7 @@ export interface WalletConfig {
   id: string
   name: string
   icon: string
-  connect: (isPersistanceConnect: boolean) => Promise<string>
+  connect: (ispersistenceConnect: boolean) => Promise<string>
   disconnect: () => void
 }
 
@@ -21,7 +21,7 @@ export const walletConfigs: WalletConfig[] = [
     id: 'chiawalletconnect',
     name: 'Chia Wallet Connect',
     icon: '/icons/Walletconnect-icon-gradient.png',
-    connect: (isPersistanceConnect: boolean) => ChiaWalletConnect.connect(isPersistanceConnect),
+    connect: (ispersistenceConnect: boolean) => ChiaWalletConnect.connect(ispersistenceConnect),
     disconnect: ChiaWalletConnect.disconnect,
   },
   // Add new wallets here as they are implemented
