@@ -1,6 +1,8 @@
 "use client"
 import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react'
 import { walletConfigs } from './wallets'
+import { toast } from "sonner"
+
 
 interface WalletContextType {
   address: string | null
@@ -26,15 +28,13 @@ export const ChiaWalletProvider: React.FC<{ children: ReactNode }> = ({ children
   const connectWallet = useCallback(async (walletId: string, isPersistanceConnect?: boolean) => {
     const wallet = walletConfigs.find(w => w.id === walletId)
     if (wallet) {
-      try {
-        const addr = await wallet.connect(isPersistanceConnect == true ?? isPersistanceConnect)
-        setAddress(addr)
-        setWalletConnected(wallet.id)
-        localStorage.setItem('walletConnected', wallet.id)  // Save connected wallet ID
-        localStorage.setItem('walletAddress', addr)
-      } catch (error: any) {
-        console.error('Failed to connect wallet:', error)
-        throw new Error(error)
+      const addr = await wallet.connect(Boolean(isPersistanceConnect))
+      setAddress(addr)
+      setWalletConnected(wallet.id)
+      localStorage.setItem('walletConnected', wallet.id)  // Save connected wallet ID
+      localStorage.setItem('walletAddress', addr)
+      if (!isPersistanceConnect) {
+        toast.success('Connected Wallet', { id: "connect-wallet", duration: 2000 })
       }
     }
   }, [])
@@ -54,6 +54,7 @@ export const ChiaWalletProvider: React.FC<{ children: ReactNode }> = ({ children
       setAddress(savedAddress)  // Set the address from localStorage
       setWalletConnected(savedWalletId)  // Set the wallet type from localStorage
       connectWallet(savedWalletId, true).catch(() => {
+        toast.error('Disconnected Wallet', { id: "disconnect-wallet" })
         // If reconnection fails, clear the local storage
         localStorage.removeItem('walletConnected')
         localStorage.removeItem('walletAddress')
