@@ -34,10 +34,10 @@ function WalletModal() {
           </DialogDescription>
         </DialogHeader>
 
-        <p className="border-b">Chia</p>
+        <p className="-mb-1">Chia</p>
         <ChiaWalletButtons />
 
-        <p className="border-b">Ethereum</p>
+        <p className="-mb-1">Ethereum</p>
         <EthereumWalletButton />
 
       </DialogContent>
