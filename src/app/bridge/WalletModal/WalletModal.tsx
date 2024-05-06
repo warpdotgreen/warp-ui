@@ -17,7 +17,7 @@ function WalletModal() {
   const { walletConnected } = useWallet()
   const buttonTrigger = !walletConnected
     ?
-    <Button>Connect Wallet</Button>
+    <Button variant="theme">Connect Wallet</Button>
     :
     <Avatar className="hover:opacity-80 bg-muted cursor-pointer"></Avatar>
 
