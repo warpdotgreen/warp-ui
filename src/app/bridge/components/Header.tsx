@@ -1,3 +1,4 @@
+import Image from "next/image"
 import WalletModal from "../WalletModal/WalletModal"
 import TopBanner from "./TopBanner"
 
@@ -6,7 +7,7 @@ function Header() {
     <>
       <TopBanner />
       <header className="flex items-center justify-between px-4 sm:px-8 py-4">
-        <h1 className="text-green-500 text-xl sm:text-2xl font-normal pt-1">warp.green<br />bridge interface</h1>
+        <Image src="/warp-green-logo.png" className="h-24 w-auto" alt="warp.green logo" width={837} height={281} />
         <WalletModal />
       </header>
     </>
