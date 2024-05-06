@@ -7,7 +7,7 @@ import { toast } from "sonner"
 interface WalletContextType {
   address: string | null
   walletConnected: string | null
-  connectWallet: (walletId: string, ispersistenceConnect?: boolean) => Promise<void>
+  connectWallet: (walletId: string, isPersistenceConnect?: boolean) => Promise<void>
   disconnectWallet: () => void
 }
 
@@ -25,15 +25,15 @@ export const ChiaWalletProvider: React.FC<{ children: ReactNode }> = ({ children
   const [address, setAddress] = useState<string | null>(null)
   const [walletConnected, setWalletConnected] = useState<string | null>(null)
 
-  const connectWallet = useCallback(async (walletId: string, ispersistenceConnect?: boolean) => {
+  const connectWallet = useCallback(async (walletId: string, isPersistenceConnect?: boolean) => {
     const wallet = walletConfigs.find(w => w.id === walletId)
     if (wallet) {
-      const addr = await wallet.connect(Boolean(ispersistenceConnect))
+      const addr = await wallet.connect(Boolean(isPersistenceConnect))
       setAddress(addr)
       setWalletConnected(wallet.id)
       localStorage.setItem('walletConnected', wallet.id)  // Save connected wallet ID
       localStorage.setItem('walletAddress', addr)
-      if (!ispersistenceConnect) {
+      if (!isPersistenceConnect) {
         toast.success('Connected Wallet', { id: "connect-wallet", duration: 2000 })
       }
     }
