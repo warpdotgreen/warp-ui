@@ -1,6 +1,8 @@
-import { CHIA_NETWORK, WALLETCONNECT_PROJECT_ID, WcMetadata } from '../../config'
+import { WALLETCONNECT_PROJECT_ID, WcMetadata } from '../../config'
 import SignClient from '@walletconnect/sign-client'
 import { SessionTypes } from '@walletconnect/types'
+
+const chain = process.env.NEXT_PUBLIC_TESTNET ? 'chia:testnet' : 'chia:mainnet'
 
 // Wallet 1 specific logic
 export async function connect(ispersistenceConnect?: boolean): Promise<string> {
@@ -61,7 +63,7 @@ async function getSession(ispersistenceConnect?: boolean) {
           methods: [
             'chia_getCurrentAddress',
           ],
-          chains: ['chia:mainnet'],
+          chains: [chain],
           events: []
         }
       }
@@ -91,7 +93,7 @@ async function getAddress() {
   try {
     const result = await signClient.request({
       topic: session.topic,
-      chainId: 'chia:mainnet',
+      chainId: chain,
       request: {
         method: 'chia_getCurrentAddress',
         params: {
