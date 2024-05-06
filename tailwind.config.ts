@@ -27,6 +27,10 @@ const config = {
         theme: {
           purple: "hsl(var(--theme-purple))",
         },
+        "theme-green": {
+          DEFAULT: "hsl(var(--theme-green))",
+          foreground: "hsl(var(--theme-green-foreground))",
+        },
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
