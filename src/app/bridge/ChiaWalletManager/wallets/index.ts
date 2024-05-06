@@ -1,11 +1,11 @@
 import * as goby from './goby'
-import * as Wallet2 from './wallet2'
+import * as ChiaWalletConnect from './walletconnect'
 
 export interface WalletConfig {
   id: string
   name: string
   icon: string
-  connect: () => Promise<string>
+  connect: (isPersistanceConnect: boolean) => Promise<string>
   disconnect: () => void
 }
 
@@ -18,11 +18,11 @@ export const walletConfigs: WalletConfig[] = [
     disconnect: goby.disconnect,
   },
   {
-    id: 'wallet2',
-    name: 'Wallet 2',
+    id: 'chiawalletconnect',
+    name: 'Chia Wallet Connect',
     icon: '/icons/Walletconnect-icon-gradient.png',
-    connect: Wallet2.connect,
-    disconnect: Wallet2.disconnect,
+    connect: (isPersistanceConnect: boolean) => ChiaWalletConnect.connect(isPersistanceConnect),
+    disconnect: ChiaWalletConnect.disconnect,
   },
   // Add new wallets here as they are implemented
 ]
