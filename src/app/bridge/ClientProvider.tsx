@@ -2,7 +2,7 @@
 import { WagmiProvider } from "wagmi"
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { wagmiConfig, WALLETCONNECT_PROJECT_ID } from "./config"
-import { createWeb3Modal } from "@web3modal/wagmi"
+import { createWeb3Modal } from "@web3modal/wagmi/react"
 import { useEffect, useState } from "react"
 import { ChiaWalletProvider } from "./ChiaWalletManager/WalletContext"
 
