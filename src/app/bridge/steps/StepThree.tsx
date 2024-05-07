@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import {  Network, NetworkType, TOKENS, XCH_TOKEN } from "../config";
+import {  Network, NetworkType, TOKENS } from "../config";
 import {  useState } from "react";
 import { initializeBLS } from "clvm";
 import { WindToy } from "react-svg-spinners";
