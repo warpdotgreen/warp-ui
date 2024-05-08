@@ -80,13 +80,14 @@ export const ETHEREUM_NETWORK: Network = {
   messageToll: ethers.parseEther("0.00001"),
   signatureThreshold: 3,
   validatorInfos: [
-    "0x113f132a978B7679Aa72c02B0234a32569507043",
+      "0x113f132a978B7679Aa72c02B0234a32569507043",
       "0xC1cF931aE32e7592fa25f5a0978B7663f20aafBd",
       "0xE42277e12F577810e73f70b42e184dd5BcD30ce6",
       "0x5110FB4762021ad3954Bdf2caBF4510C0ACd6d2f",
       "0x716f7ff65adcbBc68cb5bF34178C87aBC2B08ab6",
       "0x7d325C4783F9F572Fde31Ae358e28Cc3d120Cd8A",
-      "0x92c02A599E056B2706f74421f4250951E1f736ab"
+      "0x92c02A599E056B2706f74421f4250951E1f736ab",
+      // "0xcF46Dd34bB1B1a4c5dCC9aEed02E494180C637f1"
   ],
   confirmationMinHeight: 64,
   portalAddress: "0xB5651bA4DeaF815f5929243d6ACF99D2d7C113eb",
@@ -109,7 +110,8 @@ export const BASE_NETWORK: Network = {
     "0x5110FB4762021ad3954Bdf2caBF4510C0ACd6d2f",
     "0x716f7ff65adcbBc68cb5bF34178C87aBC2B08ab6",
     "0x7d325C4783F9F572Fde31Ae358e28Cc3d120Cd8A",
-    "0x92c02A599E056B2706f74421f4250951E1f736ab"
+    "0x92c02A599E056B2706f74421f4250951E1f736ab",
+    // "0xcF46Dd34bB1B1a4c5dCC9aEed02E494180C637f1"
   ],
   confirmationMinHeight: 10,
   l1BlockContractAddress: "0x4200000000000000000000000000000000000015",
@@ -172,35 +174,49 @@ const USDT_TOKEN: Token = {
   ]
 };
 
-// const XCH_ASSET_ID = "00".repeat(32);
-// const WXCH_ADDRESS_ETHERUM : `0x${string}` = '0xFD45fef1C1829FEd9256f765A030Ef50a41d4204';
-// export const XCH_TOKEN: Token = {
-//   symbol: 'XCH',
-//   sourceNetworkType: NetworkType.COINSET,
-//   supported: [
-//     {
-//       evmNetworkId: ETHEREUM_NETWORK.id,
-//       coinsetNetworkId: CHIA_NETWORK.id,
-//       assetId: XCH_ASSET_ID,
-//       contractAddress: WXCH_ADDRESS_ETHERUM
-//     },
-//   ]
-// };
+const XCH_ASSET_ID = "00".repeat(32);
+const WXCH_ADDRESS_ETHERUM : `0x${string}` = '0xEC6a48BD01E7B031050FB1d1F4246abfd31114FA';
+const WXCH_ADDRESS_BASE : `0x${string}` = '0x092bA3a8CbF8126255E83f3D548085F9FB87F5C8';
+export const XCH_TOKEN: Token = {
+  symbol: 'XCH',
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: ETHEREUM_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: XCH_ASSET_ID,
+      contractAddress: WXCH_ADDRESS_ETHERUM
+    },
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: XCH_ASSET_ID,
+      contractAddress: WXCH_ADDRESS_BASE
+    },
+  ]
+};
 
-// const DBX_ASSET_ID = "d82dd03f8a9ad2f84353cd953c4de6b21dbaaf7de3ba3f4ddd9abe31ecba80ad";
-// const WDBX_ADDRESS_ETHERUM : `0x${string}` = '0x44a63DED7582De03C44c1b8AC8492373C8b3E974';
-// export const DBX_TOKEN: Token = {
-//   symbol: 'DBX',
-//   sourceNetworkType: NetworkType.COINSET,
-//   supported: [
-//     {
-//       evmNetworkId: ETHEREUM_NETWORK.id,
-//       coinsetNetworkId: CHIA_NETWORK.id,
-//       assetId: DBX_ASSET_ID,
-//       contractAddress: WDBX_ADDRESS_ETHERUM
-//     },
-//   ]
-// };
+const DBX_ASSET_ID = "d82dd03f8a9ad2f84353cd953c4de6b21dbaaf7de3ba3f4ddd9abe31ecba80ad";
+const WDBX_ADDRESS_ETHERUM : `0x${string}` = '0x5C5d6FA07c570DF689A34C9334B1DC9fe6E9dF1C';
+const WDBX_ADDRESS_BASE : `0x${string}` = '0x2FD5f17f7F9284f1c12ff7bF45cB38df02519Ea5';
+export const DBX_TOKEN: Token = {
+  symbol: 'DBX',
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: ETHEREUM_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: DBX_ASSET_ID,
+      contractAddress: WDBX_ADDRESS_ETHERUM
+    },
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: DBX_ASSET_ID,
+      contractAddress: WDBX_ADDRESS_BASE
+    },
+  ]
+};
 
 
 export const TOKENS = [
@@ -247,6 +263,7 @@ export const NOSTR_CONFIG = {
     "2239f413ce7b399ad1e91e2fb4742960d73637b87a3616c4a28771cc84fb648e",
     "6b8d53c62a1d5f9bc68605a7139c06c9ce6d727ecf815044b46cb983fcc17e52",
     "c26ce22c6241420e136b8562f9d89e73553a89f29ee15cb0194dd2be184601b8",
-    "38c4190c961bfbc0a23b2c274c36fd6ccad5d50033e8bb263fc4aa23930ededf"
+    "38c4190c961bfbc0a23b2c274c36fd6ccad5d50033e8bb263fc4aa23930ededf",
+    // "e492322cbbc745127af4bd59227d7e7d7b54a98d3a013d2072c4261dff319f88"
   ]
 }
