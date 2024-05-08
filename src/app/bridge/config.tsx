@@ -222,8 +222,8 @@ export const DBX_TOKEN: Token = {
 export const TOKENS = [
   ETH_TOKEN,
   USDT_TOKEN,
-  // XCH_TOKEN,
-  // DBX_TOKEN
+  XCH_TOKEN,
+  DBX_TOKEN
 ]
 
 declare module 'wagmi' { 
