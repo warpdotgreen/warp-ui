@@ -19,7 +19,7 @@ export const walletConfigs: WalletConfig[] = [
   },
   {
     id: 'chiawalletconnect',
-    name: 'Chia Wallet Connect',
+    name: 'Wallet Connect',
     icon: '/icons/Walletconnect-icon-gradient.png',
     connect: (isPersistenceConnect: boolean) => ChiaWalletConnect.connect(isPersistenceConnect),
     disconnect: ChiaWalletConnect.disconnect,
