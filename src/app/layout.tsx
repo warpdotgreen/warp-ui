@@ -16,13 +16,20 @@ export default function UILayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark font-extralight">
       <head>
         <title>warp.green</title>
       </head>
       <body className={inter.className}>
         {children}
-        <Toaster />
+        <Toaster
+          toastOptions={{
+            classNames: {
+              toast: 'border-input bg-accent',
+              title: 'font-extralight text-base'
+            }
+          }}
+        />
       </body>
     </html>
   )
