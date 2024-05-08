@@ -7,19 +7,21 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Avatar } from "@/components/ui/avatar"
 import ChiaWalletButtons from "../ChiaWalletButtons"
-import EthereumWalletButton from "../EthereumWalletButton"
 import { Button } from "@/components/ui/button"
 import { useWallet } from "../ChiaWalletManager/WalletContext"
+import Image from "next/image"
 
 function WalletModal() {
-  const { walletConnected } = useWallet()
+  const { walletConnected, address } = useWallet()
   const buttonTrigger = !walletConnected
     ?
-    <Button variant="theme">Connect Wallet</Button>
+    <Button variant="outline" className="shadow-sm shadow-green-300 grayscale">Connect Wallet</Button>
     :
-    <Avatar className="hover:opacity-80 bg-muted cursor-pointer"></Avatar>
+    <Button variant="outline" className="group flex gap-2 shadow-sm ">
+      <Image className='group-hover:opacity-80 w-6 h-auto p-1 shadow-sm shadow-white/50 border rounded-full aspect-square bg-accent object-contain' src="/icons/chia-icon.svg" width={40} height={40} alt={`Chia wallet icon`} priority />
+      {!!address ? `${address.slice(0, 5)}...${address.slice(-3)}` : 'Manage Wallet'}
+    </Button>
 
   return (
     <Dialog>
@@ -28,17 +30,14 @@ function WalletModal() {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Connect Wallet</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="sr-only">Wallets</DialogTitle>
+          <DialogDescription className="sr-only">
             Connect a wallet for Chia & Ethereum chains
           </DialogDescription>
         </DialogHeader>
 
-        <p className="-mb-1">Chia</p>
+        <p className="-mb-1 font-extralight text-xl">Connect Chia Wallet</p>
         <ChiaWalletButtons />
-
-        <p className="-mb-1">Ethereum</p>
-        <EthereumWalletButton />
 
       </DialogContent>
     </Dialog>
