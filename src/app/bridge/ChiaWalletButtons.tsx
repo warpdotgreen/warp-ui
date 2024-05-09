@@ -5,7 +5,9 @@ import { walletConfigs } from './ChiaWalletManager/wallets'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import Image from 'next/image'
-import { Loader, LogOut } from 'lucide-react'
+import { Copy, Loader, LogOut, X } from 'lucide-react'
+import QRCode from "react-qr-code"
+import CopyButton from '@/components/CopyButton'
 
 const ChiaWalletButtons: React.FC = () => {
   const { connectWallet, disconnectWallet, walletConnected } = useWallet()
@@ -18,6 +20,26 @@ const ChiaWalletButtons: React.FC = () => {
     } finally {
       setLoadingWalletId('')
     }
+  }
+
+  const connectUri = ''
+
+  if (connectUri) {
+    return (
+      <div className='h-auto mx-auto w-full max-w-full flex flex-col gap-6'>
+        <p>Connect to a Chia wallet via Wallet Connect</p>
+        <QRCode
+          size={256}
+          className='h-auto max-w-full w-full border-accent border-2 rounded-lg p-2 animate-in fade-in slide-in-from-bottom-2 duration-500'
+          value={connectUri}
+          viewBox={`0 0 256 256`}
+        />
+        <div className='grid grid-cols-2 gap-2'>
+          <Button variant="ghost" className='flex gap-1 border-accent' onClick={disconnectWallet}>Cancel</Button>
+          <CopyButton copyText={connectUri}>Copy Link</CopyButton>
+        </div>
+      </div>
+    )
   }
 
   return (
