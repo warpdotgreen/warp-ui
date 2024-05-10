@@ -13,7 +13,7 @@ import { useWallet } from "../ChiaWalletManager/WalletContext"
 import Image from "next/image"
 
 function WalletModal() {
-  const { walletConnected, address } = useWallet()
+  const { walletConnected, address, setWalletConnectUri } = useWallet()
   const buttonTrigger = !walletConnected
     ?
     <Button variant="outline" className="shadow-sm shadow-green-300 grayscale">Connect Wallet</Button>
@@ -24,7 +24,7 @@ function WalletModal() {
     </Button>
 
   return (
-    <Dialog>
+    <Dialog onOpenChange={(value) => !value && setWalletConnectUri(null)}>
       <DialogTrigger asChild>
         {buttonTrigger}
       </DialogTrigger>
