@@ -5,12 +5,12 @@ import { walletConfigs } from './ChiaWalletManager/wallets'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import Image from 'next/image'
-import { Copy, Loader, LogOut, X } from 'lucide-react'
+import { Loader, LogOut } from 'lucide-react'
 import QRCode from "react-qr-code"
 import CopyButton from '@/components/CopyButton'
 
 const ChiaWalletButtons: React.FC = () => {
-  const { connectWallet, disconnectWallet, walletConnected } = useWallet()
+  const { connectWallet, disconnectWallet, walletConnected, walletConnectUri, setWalletConnectUri } = useWallet()
   const [loadingWalletId, setLoadingWalletId] = useState<string>('')
 
   const connectWithLoading = async (walletId: string) => {
@@ -22,28 +22,30 @@ const ChiaWalletButtons: React.FC = () => {
     }
   }
 
-  const connectUri = ''
+  const onClose = () => {
+    setWalletConnectUri(null)
+    setLoadingWalletId('')
+  }
 
-  if (connectUri) {
+  if (walletConnectUri) {
     return (
       <div className='h-auto mx-auto w-full max-w-full flex flex-col gap-6'>
-        <p>Connect to a Chia wallet via Wallet Connect</p>
         <QRCode
           size={256}
           className='h-auto max-w-full w-full border-accent border-2 rounded-lg p-2 animate-in fade-in slide-in-from-bottom-2 duration-500'
-          value={connectUri}
+          value={walletConnectUri}
           viewBox={`0 0 256 256`}
         />
         <div className='grid grid-cols-2 gap-2'>
-          <Button variant="ghost" className='flex gap-1 border-accent' onClick={disconnectWallet}>Cancel</Button>
-          <CopyButton copyText={connectUri}>Copy Link</CopyButton>
+          <Button variant="ghost" className='flex gap-1 border-accent' onClick={onClose}>Cancel</Button>
+          <CopyButton copyText={walletConnectUri}>Copy Link</CopyButton>
         </div>
       </div>
     )
   }
 
   return (
-    <div className='grid gap-2'>
+    <div className='grid gap-2 animate-in fade-in slide-in-from-bottom-2 duration-500'>
       {walletConfigs.map(wallet => (
         <div key={wallet.id} className='relative flex flex-col h-36 max-h-36 w-full'>
           <Button
