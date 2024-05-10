@@ -38,7 +38,7 @@ function MobileNav() {
             {navConfig.map(navItem => (
               <li key={navItem.name}>
                 <DialogClose asChild>
-                  <Link target={cn(navItem.isExternalLink ? '_blank' : '_self')} className={cn("transition-all w-full flex", pathName !== navItem.link && 'opacity-80 hover:opacity-100')} href={navItem.link}>
+                  <Link target={cn(navItem.isExternalLink ? '_blank' : '_self')} className={cn("transition-colors focus-visible:outline-none ring-offset-accent rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 w-full flex", pathName !== navItem.link && 'opacity-80 hover:opacity-100')} href={navItem.link}>
                     {navItem.name}
                     {navItem.isExternalLink && <ArrowUpRight className="w-4 mb-2 h-auto" />}
                   </Link>
