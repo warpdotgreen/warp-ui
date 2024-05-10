@@ -5,8 +5,8 @@ import { SessionTypes } from '@walletconnect/types'
 const chain = process.env.NEXT_PUBLIC_TESTNET ? 'chia:testnet' : 'chia:mainnet'
 
 // Wallet 1 specific logic
-export async function connect(ispersistenceConnect?: boolean): Promise<string> {
-  await getSession(ispersistenceConnect)
+export async function connect(ispersistenceConnect: boolean, setWalletConnectUri: (uri: string) => void): Promise<string> {
+  await getSession(ispersistenceConnect, setWalletConnectUri)
   const res = await getAddress() as { data?: string }
   const address = res?.data
   if (!address) throw new Error('Failed to get Chia wallet address [WalletConnect]')
@@ -44,7 +44,7 @@ async function getClient() {
 }
 
 
-async function getSession(ispersistenceConnect?: boolean) {
+async function getSession(ispersistenceConnect?: boolean, setWalletConnectUri?: (uri: string) => void) {
   const signClient = await getClient()
   // If previous session exists, use it instead of initialising a new pairing
   const lastKeyIndex = signClient.session.getAll().length - 1
@@ -71,8 +71,9 @@ async function getSession(ispersistenceConnect?: boolean) {
 
     // Open QRCode modal if a URI was returned (i.e. we're not connecting an existing pairing).
     if (uri) {
-      await navigator.clipboard.writeText(uri)
-      alert("WalletConnect URI Copied to Clipboard. Paste into your Chia wallet to connect).")
+      if (setWalletConnectUri) {
+        setWalletConnectUri(uri)
+      }
       const session = await approval()
       console.log("*** SESSION CREATED ***")
       return session
