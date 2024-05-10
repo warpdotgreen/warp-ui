@@ -11,7 +11,7 @@ import { navConfig } from "./navConfig"
 function DesktopNav() {
   const pathName = usePathname()
   return (
-    <Button variant="outline" className="hover:bg-accent/100 hover:text-accent-foreground/100" asChild>
+    <Button variant="outline" className="hover:bg-accent/100 hover:text-accent-foreground/100 animate-in fade-in slide-in-from-top-2 duration-500" asChild>
       <nav>
         <ul className="flex items-center gap-8">
 
