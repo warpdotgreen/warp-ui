@@ -7,15 +7,19 @@ import { toast } from "sonner"
 interface WalletContextType {
   address: string | null
   walletConnected: string | null
+  walletConnectUri: string | null
   connectWallet: (walletId: string, isPersistenceConnect?: boolean) => Promise<void>
   disconnectWallet: () => void
+  setWalletConnectUri: (uri: string | null) => void
 }
 
 const defaultContext: WalletContextType = {
   address: null,
   walletConnected: null,
+  walletConnectUri: null,
   connectWallet: async () => { console.warn("connectWallet function called without a WalletProvider") },
-  disconnectWallet: () => { console.warn("disconnectWallet function called without a WalletProvider") }
+  disconnectWallet: () => { console.warn("disconnectWallet function called without a WalletProvider") },
+  setWalletConnectUri: () => { console.warn("setWalletConnectUri function called without a WalletConnectProvider") }
 }
 
 const WalletContext = createContext<WalletContextType>(defaultContext)
@@ -24,11 +28,13 @@ export const ChiaWalletProvider: React.FC<{ children: ReactNode }> = ({ children
 
   const [address, setAddress] = useState<string | null>(null)
   const [walletConnected, setWalletConnected] = useState<string | null>(null)
+  const [walletConnectUri, setWalletConnectUri] = useState<string | null>(null)
 
   const connectWallet = useCallback(async (walletId: string, isPersistenceConnect?: boolean) => {
     const wallet = walletConfigs.find(w => w.id === walletId)
     if (wallet) {
-      const addr = await wallet.connect(Boolean(isPersistenceConnect))
+      const addr = await wallet.connect(Boolean(isPersistenceConnect), setWalletConnectUri)
+      setWalletConnectUri(null)
       setAddress(addr)
       setWalletConnected(wallet.id)
       localStorage.setItem('walletConnected', wallet.id)  // Save connected wallet ID
@@ -65,7 +71,7 @@ export const ChiaWalletProvider: React.FC<{ children: ReactNode }> = ({ children
   }, [connectWallet])
 
   return (
-    <WalletContext.Provider value={{ address, connectWallet, disconnectWallet, walletConnected }}>
+    <WalletContext.Provider value={{ address, connectWallet, disconnectWallet, walletConnected, walletConnectUri, setWalletConnectUri }}>
       {children}
     </WalletContext.Provider>
   )
