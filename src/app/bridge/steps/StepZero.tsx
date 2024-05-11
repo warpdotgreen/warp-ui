@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { ArrowRight, ChevronRight } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 
 export default function StepZero() {
@@ -191,7 +192,7 @@ export default function StepZero() {
                   </Select>
                 </div>
 
-                <div className="flex justify-center">
+                <div className={cn("flex justify-center", !walletConnected || account?.address == undefined || !Boolean(amount) && 'cursor-not-allowed')}>
                   {
                     <Button
                       type="submit"
