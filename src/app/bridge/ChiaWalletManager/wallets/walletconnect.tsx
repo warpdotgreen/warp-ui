@@ -13,8 +13,8 @@ export async function connect(ispersistenceConnect: boolean, setWalletConnectUri
   return address
 }
 
-export function disconnect(): void {
-  console.log("Disconnecting Wallet 2...")
+export async function disconnect(): Promise<void> {
+  await disconnectWC()
 }
 
 
@@ -112,4 +112,18 @@ async function getAddress() {
       throw new Error(error)
     }
   }
+}
+
+async function disconnectWC() {
+  const signClient = await getClient()
+  const session = await getSession()
+  if (!signClient || !session) throw new Error('Get Chia Address Request Failed')
+  const result = await signClient.disconnect({
+    topic: session.topic,
+    reason: {
+      code: 6000,
+      message: "USER_DISCONNECTED"
+    }
+  })
+  return result
 }

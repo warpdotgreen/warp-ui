@@ -9,7 +9,7 @@ interface WalletContextType {
   walletConnected: string | null
   walletConnectUri: string | null
   connectWallet: (walletId: string, isPersistenceConnect?: boolean) => Promise<void>
-  disconnectWallet: () => void
+  disconnectWallet: () => Promise<void>
   setWalletConnectUri: (uri: string | null) => void
 }
 
@@ -18,7 +18,7 @@ const defaultContext: WalletContextType = {
   walletConnected: null,
   walletConnectUri: null,
   connectWallet: async () => { console.warn("connectWallet function called without a WalletProvider") },
-  disconnectWallet: () => { console.warn("disconnectWallet function called without a WalletProvider") },
+  disconnectWallet: async () => { console.warn("disconnectWallet function called without a WalletProvider") },
   setWalletConnectUri: () => { console.warn("setWalletConnectUri function called without a WalletConnectProvider") }
 }
 
@@ -45,12 +45,22 @@ export const ChiaWalletProvider: React.FC<{ children: ReactNode }> = ({ children
     }
   }, [])
 
-  const disconnectWallet = useCallback(() => {
-    setAddress(null)
-    setWalletConnected(null)
-    localStorage.removeItem('walletConnected')
-    localStorage.removeItem('walletAddress')
-  }, [])
+  const disconnectWallet = useCallback(async () => {
+    console.log('disconnecting wallet')
+    const wallet = walletConfigs.find(w => w.id === walletConnected)
+    if (wallet) {
+      try {
+        await wallet.disconnect()
+        setAddress(null)
+        setWalletConnected(null)
+        localStorage.removeItem('walletConnected')
+        localStorage.removeItem('walletAddress')
+        toast.success('Disconnected Wallet', { id: "disconnect-wallet" })
+      } catch (error) {
+        toast.error('Action Failed', { id: "action-failed" })
+      }
+    }
+  }, [walletConnected])
 
   // Attempt to reconnect to the wallet on initialization
   useEffect(() => {

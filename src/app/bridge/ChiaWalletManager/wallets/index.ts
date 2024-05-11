@@ -6,7 +6,7 @@ export interface WalletConfig {
   name: string
   icon: string
   connect: (isPersistenceConnect: boolean, setWalletConnectUri: (uri: string) => void) => Promise<string>
-  disconnect: () => void
+  disconnect: () => Promise<void>
 }
 
 export const walletConfigs: WalletConfig[] = [

@@ -9,6 +9,7 @@ export async function connect(): Promise<string> {
   return address
 }
 
-export function disconnect(): void {
-  console.log("Disconnecting Wallet 1...")
+export async function disconnect(): Promise<void> {
+  // Currently not possible to disconnect from Goby wallet
+  return new Promise(() => { })
 }
