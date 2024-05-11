@@ -95,6 +95,18 @@ export default function StepZero() {
     setDestinationNetworkId(temp)
 
     updateDestinationAddress(temp)
+
+    // If new selected token network doesn't match source network, fix it
+    const newSourceNetwork = NETWORKS.find(network => network.id === destinationNetworkId)
+    const selectedToken = TOKENS.find(token => token.symbol === tokenSymbol)
+
+    if (newSourceNetwork && selectedToken && newSourceNetwork?.type !== selectedToken?.sourceNetworkType) {
+      const firstCompatibleToken = TOKENS.find(token => token.sourceNetworkType === newSourceNetwork.type)
+      if (!firstCompatibleToken) return
+      setTokenSymbol(firstCompatibleToken.symbol)
+    }
+
+
   }
 
   useEffect(() => {
@@ -192,7 +204,7 @@ export default function StepZero() {
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                   />
-                  <Select defaultValue={tokenSymbol} onValueChange={onTokenChange}>
+                  <Select defaultValue={tokenSymbol} value={tokenSymbol} onValueChange={onTokenChange}>
                     <SelectTrigger id="tokenSelector" className="text-2xl w-[180px] h-full pr-4 border-0 bg-theme-purple hover:opacity-80 rounded-sm">
                       <SelectValue placeholder="Select..." />
                     </SelectTrigger>
