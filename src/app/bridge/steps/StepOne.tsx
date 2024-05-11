@@ -59,7 +59,7 @@ export default function StepOne({
     return (
       <TooltipProvider delayDuration={0}>
         <Tooltip>
-          <TooltipTrigger>{triggerText}</TooltipTrigger>
+          <TooltipTrigger className="rounded-full transition-colors focus-visible:outline-none ring-offset-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">{triggerText}</TooltipTrigger>
           <TooltipContent>
             <p>{toolTopContent}</p>
           </TooltipContent>
