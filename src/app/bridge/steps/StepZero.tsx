@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { ArrowRight } from "lucide-react"
 
 
 export default function StepZero() {
@@ -132,7 +133,7 @@ export default function StepZero() {
                   </Select>
                 </div>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="bg-accent border border-input rounded-lg p-1 flex items-center justify-between">
                 <BlockchainDropdown
                   label="From"
                   options={networks}
@@ -142,9 +143,10 @@ export default function StepZero() {
                 <Button
                   variant="ghost"
                   type="button"
-                  className="mx-2 p-2 text-zinc-300 hover:bg-zinc-700 rounded-xl"
+                  className="mx-2 p-2 border-0 text-neutral-500 hover:opacity-80 rounded-xl"
                   onClick={swapNetworks}
                 >
+                  {/* <ArrowRight /> */}
                   <ChangeArrow />
                 </Button>
                 <BlockchainDropdown
@@ -210,18 +212,16 @@ type BlockchainDropdownProps = {
 }
 function BlockchainDropdown({ label, options, selectedValue, updateSelectedValue }: BlockchainDropdownProps) {
   return (
-    <div className="px-2 py-2 relative flex w-full flex-col border border-zinc-700 rounded bg-zinc-800">
-      <label className="text-zinc-500 text-sm mb-1">{label}</label>
-      <select
-        value={selectedValue}
-        onChange={(e) => updateSelectedValue(e.target.value)}
-        className="flex-1 bg-zinc-800 text-zinc-300 outline-none appearance-none"
-      >
+    <Select onValueChange={updateSelectedValue} value={selectedValue} defaultValue={selectedValue}>
+      <SelectTrigger className="text-2xl border-0 rounded-sm hover:opacity-80 h-16">
+        <SelectValue placeholder="" />
+      </SelectTrigger>
+      <SelectContent>
         {options.map((n) => (
-          <option key={n.id} value={n.id}>{n.displayName}</option>
+          <SelectItem className="text-2xl" key={n.id} value={n.id}>{n.displayName}</SelectItem>
         ))}
-      </select>
-    </div>
+      </SelectContent>
+    </Select>
   )
 }
 
