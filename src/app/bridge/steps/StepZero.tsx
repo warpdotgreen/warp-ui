@@ -193,24 +193,18 @@ export default function StepZero() {
 
                 <div className="flex justify-center">
                   {
-                    walletConnected && account?.address !== undefined ? (
-                      <Button
-                        type="submit"
-                        className="w-full h-16 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-2xl"
-                        onClick={goToFirstStep}
-                        disabled={Boolean(!amount)}
-                      >
-                        {Boolean(amount) ? "Bridge" : "Enter an Amount"}
-                      </Button>
-                    ) : (
-                      <Button
-                        type="submit"
-                        className="w-64 px-2 py-3 text-zinc-300 rounded-3xl bg-green-900 font-semibold"
-                        disabled={true}
-                      >
-                        Connect wallets first
-                      </Button>
-                    )
+                    <Button
+                      type="submit"
+                      className="w-full h-16 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-2xl"
+                      onClick={goToFirstStep}
+                      disabled={Boolean(!amount) || !walletConnected || account?.address == undefined}
+                    >
+                      {
+                        (!walletConnected || account?.address == undefined) ? "Connect Wallets First"
+                          :
+                          Boolean(amount) ? "Bridge" : "Enter an Amount"
+                      }
+                    </Button>
                   }
                 </div>
 
