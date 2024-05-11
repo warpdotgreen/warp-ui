@@ -30,13 +30,11 @@ function WalletModal() {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="sr-only">Wallets</DialogTitle>
+          <DialogTitle>Connect Chia Wallet</DialogTitle>
           <DialogDescription className="sr-only">
             Connect a wallet for Chia & Ethereum chains
           </DialogDescription>
         </DialogHeader>
-
-        <p className="-mb-1 font-extralight text-xl">Connect Chia Wallet</p>
         <ChiaWalletButtons />
 
       </DialogContent>
