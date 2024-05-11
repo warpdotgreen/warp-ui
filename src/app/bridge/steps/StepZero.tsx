@@ -90,8 +90,8 @@ export default function StepZero() {
 
   return (
     <>
-      <div className="max-w-md mx-auto py-8">
-        <div className="mx-auto border-zinc-700 rounded-lg border p-6 bg-zinc-900">
+      <div className="max-w-md mx-auto w-full grow flex flex-col justify-center py-8">
+        <div className="border-zinc-700 rounded-lg border p-6 bg-zinc-900">
           <div className="space-y-6">
             <div className="space-y-2">
               <div className="flex justify-right items-center">

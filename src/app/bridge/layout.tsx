@@ -10,13 +10,11 @@ export default function BridgeUILayout({
 }) {
   return (
     <ClientProvider>
-      <div className="bg-black min-h-screen flex flex-col justify-between">
-        <div>
-          <Header />
-          <Suspense>
-            {children}
-          </Suspense>
-        </div>
+      <div className="bg-black min-h-screen flex flex-col">
+        <Header />
+        <Suspense>
+          {children}
+        </Suspense>
 
         <Footer />
       </div>
