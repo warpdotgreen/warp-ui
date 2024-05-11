@@ -107,9 +107,13 @@ export default function StepZero() {
   }, [walletConnected, address, destinationNetworkId])
 
   const onTokenChange = (newValue: string) => {
+    const newToken = TOKENS.find((t: Token) => t.symbol === newValue)!
     setTokenSymbol(newValue)
 
-    const newToken = TOKENS.find((t: Token) => t.symbol === newValue)!
+    if (newToken.sourceNetworkType !== sourceNetworks[0].type) {
+      swapNetworks()
+    }
+
     setSourceNetworkId(
       newToken.sourceNetworkType !== NetworkType.EVM ?
         newToken.supported[0].coinsetNetworkId : newToken.supported[0].evmNetworkId
