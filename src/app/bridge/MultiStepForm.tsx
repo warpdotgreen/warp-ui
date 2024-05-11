@@ -1,4 +1,7 @@
+import { Button } from "@/components/ui/button"
 import { NetworkType, type Network } from "./config"
+import { ChevronLeft } from "lucide-react"
+import Link from "next/link"
 
 export function MultiStepForm({
   sourceChain,
@@ -29,9 +32,17 @@ export function MultiStepForm({
                 </p>
               )}
               <div key={index} className={`w-full rounded-lg p-2 border bg-accent ${activeStep - 1 == index ? '' : 'opacity-50 mt-4'}`}>
-                <div className="flex justify-between items-center p-4">
+                <div className="flex flex-col-reverse sm:flex-row gap-2 items-start justify-between sm:items-center p-4">
                   <p className="text-2xl">{index + 1}. {step.text}</p>
                   <p className="px-2 rounded-full bg-theme-purple font-light">{step.iconText}</p>
+                  {index === 0 && (
+                    <Button variant="outline" className="w-full sm:w-fit" asChild>
+                      <Link href="/bridge">
+                        <ChevronLeft className="w-4 h-auto -ml-1 mr-1" />
+                        Back
+                      </Link>
+                    </Button>
+                  )}
                 </div>
                 <div>
                   {activeStep - 1 == index && (
