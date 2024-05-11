@@ -9,6 +9,14 @@ import { getStepOneURL } from "./urls"
 import { useWallet } from "../ChiaWalletManager/WalletContext"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+
 
 export default function StepZero() {
   const router = useRouter()
@@ -88,37 +96,41 @@ export default function StepZero() {
     }
   }, [walletConnected, address, destinationNetworkId])
 
+  const onTokenChange = (newValue: string) => {
+    setTokenSymbol(newValue)
+
+    const newToken = TOKENS.find((t: Token) => t.symbol === newValue)!
+    setSourceNetworkId(
+      newToken.sourceNetworkType !== NetworkType.EVM ?
+        newToken.supported[0].coinsetNetworkId : newToken.supported[0].evmNetworkId
+    )
+
+    const destNetworkId = newToken.sourceNetworkType === NetworkType.EVM ?
+      newToken.supported[0].coinsetNetworkId : newToken.supported[0].evmNetworkId
+    setDestinationNetworkId(destNetworkId)
+    updateDestinationAddress(destNetworkId)
+  }
+
   return (
     <>
       <div className="max-w-md mx-auto w-full grow flex flex-col justify-center py-8">
-        <div className="border-zinc-700 rounded-lg border p-6 bg-zinc-900">
+        <div className="p-6">
           <div className="space-y-6">
             <div className="space-y-2">
               <div className="flex justify-right items-center">
-                <label className="text-zinc-300 text-xl font-medium pr-4">Token</label>
-                {/* todo: https://headlessui.com/react/listbox */}
-                <select
-                  className="px-2 py-2 border border-zinc-700 rounded bg-zinc-800 text-zinc-100 outline-none"
-                  value={tokenSymbol}
-                  onChange={(e) => {
-                    setTokenSymbol(e.target.value)
-
-                    const newToken = TOKENS.find((t: Token) => t.symbol === e.target.value)!
-                    setSourceNetworkId(
-                      newToken.sourceNetworkType !== NetworkType.EVM ?
-                        newToken.supported[0].coinsetNetworkId : newToken.supported[0].evmNetworkId
-                    )
-
-                    const destNetworkId = newToken.sourceNetworkType === NetworkType.EVM ?
-                      newToken.supported[0].coinsetNetworkId : newToken.supported[0].evmNetworkId
-                    setDestinationNetworkId(destNetworkId)
-                    updateDestinationAddress(destNetworkId)
-                  }}
-                >
-                  {TOKENS.map((t: Token) => (
-                    <option key={t.symbol} value={t.symbol}>{t.symbol}</option>
-                  ))}
-                </select>
+                <div className="flex items-center h-[74px] bg-accent border rounded-lg w-full p-1 pl-4">
+                  <label htmlFor="tokenSelector" className="text-2xl pr-4 mr-auto">Token</label>
+                  <Select defaultValue={tokenSymbol} onValueChange={onTokenChange}>
+                    <SelectTrigger id="tokenSelector" className="text-2xl w-[130px] h-full pr-4 border-0 bg-theme-purple hover:opacity-80 rounded-sm">
+                      <SelectValue placeholder="Select..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {TOKENS.map((t: Token) => (
+                        <SelectItem key={t.symbol} value={t.symbol} className="text-2xl">{t.symbol}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
               <div className="flex items-center justify-between">
                 <BlockchainDropdown
