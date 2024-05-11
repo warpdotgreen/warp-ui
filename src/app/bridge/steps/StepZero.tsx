@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, ChevronRight } from "lucide-react"
 
 
 export default function StepZero() {
@@ -118,7 +118,9 @@ export default function StepZero() {
         <div className="p-6">
           <div className="space-y-6">
             <div className="space-y-2">
-              <div className="flex justify-right items-center">
+
+
+              {/* <div className="flex justify-right items-center">
                 <div className="flex items-center h-[74px] bg-accent border rounded-lg w-full p-1 pl-4">
                   <label htmlFor="tokenSelector" className="text-2xl pr-4 mr-auto">Token</label>
                   <Select defaultValue={tokenSymbol} onValueChange={onTokenChange}>
@@ -132,8 +134,11 @@ export default function StepZero() {
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
-              <div className="bg-accent border border-input rounded-lg p-1 flex items-center justify-between">
+              </div> */}
+
+
+              {/* Chain Selector/Switcher */}
+              <div className="bg-accent border border-input rounded-lg p-2 flex items-center justify-between animate-in fade-in slide-in-from-bottom-2 duration-500">
                 <BlockchainDropdown
                   label="From"
                   options={networks}
@@ -146,8 +151,9 @@ export default function StepZero() {
                   className="mx-2 p-2 border-0 text-neutral-500 hover:opacity-80 rounded-xl"
                   onClick={swapNetworks}
                 >
+                  <ChevronRight />
                   {/* <ArrowRight /> */}
-                  <ChangeArrow />
+                  {/* <ChangeArrow /> */}
                 </Button>
                 <BlockchainDropdown
                   label="To"
@@ -156,46 +162,84 @@ export default function StepZero() {
                   updateSelectedValue={setDestinationNetworkId}
                 />
               </div>
-              <Input
-                type="text"
-                placeholder="Amount"
-                className="w-full px-2 py-2 border border-zinc-700 rounded outline-none bg-zinc-800 text-zinc-300 placeholder-zinc-500 text-lg"
-                pattern="^\d*(\.\d{0,8})?$"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-              />
-              <Input
+
+
+
+
+              {/* Amount Input & Token Selector */}
+              <div className="flex flex-col gap-4 bg-accent border rounded-lg p-2 animate-[delayed-fade-in_0.7s_ease_forwards]">
+
+                <div className="flex items-center h-16 w-full gap-2">
+                  <label htmlFor="tokenSelector" className="text-2xl pr-4 mr-auto sr-only">Token amount</label>
+                  <Input
+                    type="text"
+                    placeholder="Amount"
+                    className="text-2xl h-full border-0"
+                    pattern="^\d*(\.\d{0,8})?$"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                  />
+                  <Select defaultValue={tokenSymbol} onValueChange={onTokenChange}>
+                    <SelectTrigger id="tokenSelector" className="text-2xl w-[180px] h-full pr-4 border-0 bg-theme-purple hover:opacity-80 rounded-sm">
+                      <SelectValue placeholder="Select..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {TOKENS.map((t: Token) => (
+                        <SelectItem key={t.symbol} value={t.symbol} className="text-2xl">{t.symbol}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex justify-center">
+                  {
+                    walletConnected && account?.address !== undefined ? (
+                      <Button
+                        type="submit"
+                        className="w-full h-16 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-2xl"
+                        onClick={goToFirstStep}
+                        disabled={Boolean(!amount)}
+                      >
+                        {Boolean(amount) ? "Bridge" : "Enter an Amount"}
+                      </Button>
+                    ) : (
+                      <Button
+                        type="submit"
+                        className="w-64 px-2 py-3 text-zinc-300 rounded-3xl bg-green-900 font-semibold"
+                        disabled={true}
+                      >
+                        Connect wallets first
+                      </Button>
+                    )
+                  }
+                </div>
+
+
+              </div>
+
+
+              {/* <div className="flex relative h-16">
+                <Input
+                  type="text"
+                  placeholder="Amount"
+                  className="text-2xl h-full"
+                  pattern="^\d*(\.\d{0,8})?$"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                />
+              </div> */}
+              {/* <Input
                 type="text"
                 disabled
                 placeholder="Receive Address"
                 className="w-full px-2 py-2 border border-zinc-700 rounded outline-none bg-zinc-800 text-zinc-300 placeholder-zinc-500 text-lg"
                 value={destinationAddress}
                 onChange={(e) => setDestinationAddress(e.target.value)}
-              />
+              /> */}
+
             </div>
 
-            <div className="flex justify-center">
-              {
-                walletConnected && account?.address !== undefined ? (
-                  <Button
-                    type="submit"
-                    className="w-64 px-2 py-3 text-zinc-100 rounded-3xl bg-green-500 text-secondary hover:bg-green-700 font-semibold transition-colors duration-300"
-                    onClick={goToFirstStep}
-                    disabled={Boolean(!amount)}
-                  >
-                    {Boolean(amount) ? "Bridge" : "Enter an Amount"}
-                  </Button>
-                ) : (
-                  <Button
-                    type="submit"
-                    className="w-64 px-2 py-3 text-zinc-300 rounded-3xl bg-green-900 font-semibold"
-                    disabled={true}
-                  >
-                    Connect wallets first
-                  </Button>
-                )
-              }
-            </div>
+
           </div>
         </div>
       </div>
