@@ -84,7 +84,7 @@
 
   @keyframes delayed-fade-in {
     0%,
-    30% {
+    25% {
       opacity: 0;
       transform: translateY(0.5rem);
     }
