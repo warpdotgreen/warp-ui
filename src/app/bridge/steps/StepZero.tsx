@@ -81,7 +81,15 @@ export default function StepZero() {
     }
   }
 
+  const [sourceNetworks, setSourceNetworks] = useState(networks.filter(opt => opt.displayName !== "Chia"))
+  const [destinationNetworks, setDestinationNetworks] = useState(networks.filter(opt => opt.displayName === "Chia"))
+
   const swapNetworks = () => {
+    const newSourceNetworks = [...destinationNetworks]
+    const newDestinationNetworks = [...sourceNetworks]
+    setSourceNetworks(newSourceNetworks)
+    setDestinationNetworks(newDestinationNetworks)
+
     const temp = sourceNetworkId
     setSourceNetworkId(destinationNetworkId)
     setDestinationNetworkId(temp)
@@ -142,7 +150,7 @@ export default function StepZero() {
               <div className="bg-accent border border-input rounded-lg p-2 flex items-center justify-between animate-in fade-in slide-in-from-bottom-2 duration-500">
                 <BlockchainDropdown
                   label="From"
-                  options={networks}
+                  options={sourceNetworks}
                   selectedValue={sourceNetworkId}
                   updateSelectedValue={setSourceNetworkId}
                 />
@@ -158,7 +166,7 @@ export default function StepZero() {
                 </Button>
                 <BlockchainDropdown
                   label="To"
-                  options={networks}
+                  options={destinationNetworks}
                   selectedValue={destinationNetworkId}
                   updateSelectedValue={setDestinationNetworkId}
                 />
