@@ -155,7 +155,7 @@ export default function StepZero() {
               <div className="bg-accent border border-input rounded-lg p-2 flex items-center justify-between animate-in fade-in slide-in-from-bottom-2 duration-500">
                 <BlockchainDropdown
                   label="From"
-                  options={networks.filter(i => i.id !== destinationNetworkId)}
+                  options={sourceNetworks}
                   selectedValue={sourceNetworkId}
                   updateSelectedValue={setSourceNetworkId}
                 />
@@ -166,12 +166,10 @@ export default function StepZero() {
                   onClick={swapNetworks}
                 >
                   <ChevronRight />
-                  {/* <ArrowRight /> */}
-                  {/* <ChangeArrow /> */}
                 </Button>
                 <BlockchainDropdown
                   label="To"
-                  options={networks.filter(i => i.id !== sourceNetworkId)}
+                  options={destinationNetworks}
                   selectedValue={destinationNetworkId}
                   updateSelectedValue={setDestinationNetworkId}
                 />
