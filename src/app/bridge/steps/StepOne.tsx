@@ -148,7 +148,7 @@ export default function StepOne({
 
 
       <div className="p-6 mt-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-[delayed-fade-in_0.7s_ease_forwards]">
-        <p className="mb-2 font-extralight opacity-80">Recipient address:</p>
+        <p className="mb-2 font-extralight opacity-80">Recipient address</p>
         <p className="text-xl mb-4">{recipient}</p>
         <div className="flex">
           {sourceChain.type == NetworkType.COINSET ? (
