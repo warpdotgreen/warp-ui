@@ -115,7 +115,7 @@ export default function StepOne({
         <div className="flex gap-4">
           {chainIcons.sourceChainIcon}
           {/* Pls check whether warped text shows in correct places here */}
-          <p className="text-xl flex items-center gap-2">{amount} {sourceChain.type !== token.sourceNetworkType && "Warped"} {token.symbol === "ETH" && sourceChain.type == NetworkType.COINSET ? <>milliETH {withToolTip(<div className="group-hover:opacity-80 h-5 flex justify-center items-center shadow-sm shadow-white/50 border rounded-full aspect-square bg-accent text-sm font-normal text-primary/80 w-auto">?</div>, 'milliEther automatically converts to ETH at a 1000:1 ratio.')}</> : token.symbol}</p>
+          <p className="text-xl flex items-center gap-2">{amount} {sourceChain.type !== token.sourceNetworkType && `${destinationChain.displayName} Warped`} {token.symbol === "ETH" && sourceChain.type == NetworkType.COINSET ? <>milliETH {withToolTip(<div className="group-hover:opacity-80 h-5 flex justify-center items-center shadow-sm shadow-white/50 border rounded-full aspect-square bg-accent text-sm font-normal text-primary/80 w-auto">?</div>, 'milliEther automatically converts to ETH at a 1000:1 ratio.')}</> : token.symbol}</p>
         </div>
 
         <div className="flex gap-4">
@@ -139,7 +139,7 @@ export default function StepOne({
             token.symbol == "XCH" ? (
               <p className="text-xl">{ethers.formatUnits(amountMojoAfterFee, 12)} XCH</p>
             ) : (
-              <p className="text-xl flex items-center gap-2">{ethers.formatUnits(amountMojoAfterFee, 3)} {token.symbol === "ETH" ? <>Warped milliETH {withToolTip(<div className="group-hover:opacity-80 h-5 flex justify-center items-center shadow-sm shadow-white/50 border rounded-full aspect-square bg-accent text-sm font-normal text-primary/80 w-auto">?</div>, 'Ether automatically converts to milliETH at a 1:1000 ratio.')}</> : token.symbol}</p> // Pls check whether warped text shows in correct places here
+              <p className="text-xl flex items-center gap-2">{ethers.formatUnits(amountMojoAfterFee, 3)} {token.symbol === "ETH" ? <>{sourceChain.displayName} Warped milliETH {withToolTip(<div className="group-hover:opacity-80 h-5 flex justify-center items-center shadow-sm shadow-white/50 border rounded-full aspect-square bg-accent text-sm font-normal text-primary/80 w-auto">?</div>, 'Ether automatically converts to milliETH at a 1:1000 ratio.')}</> : token.symbol}</p> // Pls check whether warped text shows in correct places here
             )
           )
           }
@@ -480,7 +480,7 @@ function ArrowRight() {
 
 function BaseIcon() {
   return (
-    <svg className="w-6 h-auto" width="111" height="111" viewBox="0 0 111 111" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg className="w-6 h-auto shrink-0" width="111" height="111" viewBox="0 0 111 111" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M54.921 110.034C85.359 110.034 110.034 85.402 110.034 55.017C110.034 24.6319 85.359 0 54.921 0C26.0432 0 2.35281 22.1714 0 50.3923H72.8467V59.6416H3.9565e-07C2.35281 87.8625 26.0432 110.034 54.921 110.034Z" fill="white" />
     </svg>
   )
@@ -488,6 +488,6 @@ function BaseIcon() {
 
 function ETHIcon() {
   return (
-    <svg className="w-6 h-auto" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48px" height="48px"><path fill="#9fa8da" d="M11 24L25 2 39 24 25 32z" /><path fill="#7986cb" d="M25 2L39 24 25 32z" /><path fill="#9fa8da" d="M11 27L25 35 39 27 25 46z" /><path fill="#7986cb" d="M25 35L39 27 25 46zM11 24L25 18 39 24 25 32z" /><path fill="#5c6bc0" d="M25 18L39 24 25 32z" /></svg>
+    <svg className="w-6 h-auto shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48px" height="48px"><path fill="#9fa8da" d="M11 24L25 2 39 24 25 32z" /><path fill="#7986cb" d="M25 2L39 24 25 32z" /><path fill="#9fa8da" d="M11 27L25 35 39 27 25 46z" /><path fill="#7986cb" d="M25 35L39 27 25 46zM11 24L25 18 39 24 25 32z" /><path fill="#5c6bc0" d="M25 18L39 24 25 32z" /></svg>
   )
 }
