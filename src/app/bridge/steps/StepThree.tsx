@@ -73,14 +73,13 @@ function StepThreeEVMDestination({
 
   if (sigs.length < destinationChain.signatureThreshold) {
     return (
-      <div className="text-zinc-300 flex font-medium text-md items-center justify-center">
-        <div className="flex items-center">
-          <WindToy color="rgb(212 212 216)" />
-          <p className="pl-2"> {
-            `Collecting signatures (${sigs?.length ?? 0}/${destinationChain.signatureThreshold})`
-          } </p>
+      <div className="flex gap-2 items-center bg-background h-16 w-full px-6 rounded-md font-light ">
+        <Loader className="w-4 shrink-0 h-auto animate-spin" />
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <p className="animate-pulse"> {`Collecting signatures (${sigs?.length ?? 0}/${destinationChain.signatureThreshold})`}</p>
         </div>
-      </div>)
+      </div>
+    )
   }
 
   const generateTxPls = async () => {
@@ -252,11 +251,9 @@ function StepThreeCoinsetDestination({
 
   if (!destTxId) {
     return (
-      <div className="text-zinc-300 flex font-medium text-md items-center justify-center">
-        <div className="flex items-center">
-          <WindToy color="rgb(212 212 216)" />
-          <p className="pl-2"> {status} </p>
-        </div>
+      <div className="flex gap-2 items-center bg-background h-16 w-full px-6 rounded-md font-light">
+        <Loader className="w-4 shrink-0 h-auto animate-spin" />
+        <p className="animate-pulse"> {status} </p>
       </div>
     )
   }
@@ -349,24 +346,22 @@ function FinalCoinsetTxConfirmer({
 
   return <>
     Transaction id: {txId}
-    <div className="pt-8 text-zinc-300 flex font-medium text-md items-center justify-center">
-      <div className="flex items-center">
-        {
-          includedInBlock ? (
-            <>
-              <p>Transaction sent.</p>
-              <Link href={`${destinationChain.explorerUrl}/coin/0x${txId}`} target="_blank" className="pl-2 underline text-green-500 hover:text-green-300">Verify on SpaceScan.</Link>
-            </>
-          ) : (
-            <>
-              <WindToy color="rgb(212 212 216)" />
-              <p className="pl-2">
-                Waiting for transaction to be included in a block...
-              </p>
-            </>
-          )
-        }
-      </div>
+    <div className="flex gap-2 items-center bg-background h-16 w-full px-6 rounded-md font-light">
+      {
+        includedInBlock ? (
+          <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <p>Transaction sent.</p>
+            <Link href={`${destinationChain.explorerUrl}/coin/0x${txId}`} target="_blank" className="pl-2 underline text-green-500 hover:text-green-300">Verify on SpaceScan.</Link>
+          </div>
+        ) : (
+          <>
+            <Loader className="w-4 shrink-0 h-auto animate-spin" />
+            <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+              <p className="animate-pulse">Waiting for transaction to be included in a block...</p>
+            </div>
+          </>
+        )
+      }
     </div>
   </>
 }

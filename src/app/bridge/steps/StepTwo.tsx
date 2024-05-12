@@ -100,7 +100,7 @@ function XCHMempoolFollower({
   }, [data, setBlock])
 
   return (
-    <p>Waiting for transaction to be included in a block...</p>
+    <p className="animate-in fade-in slide-in-from-bottom-2 duration-500">Waiting for transaction to be included in a block...</p>
   )
 }
 
@@ -131,7 +131,7 @@ function XCHBlockConfirmer({
   }, [confirmations, confirmationMinHeight, onConfirmation])
 
   return (
-    <p>Confirming transaction ({confirmations.toString()}/{confirmationMinHeight})</p>
+    <p className="animate-in fade-in slide-in-from-bottom-2 duration-500">Confirming transaction ({confirmations.toString()}/{confirmationMinHeight})</p>
   )
 }
 
@@ -158,7 +158,7 @@ function EVMValidationTextElement({
 
   if (!txReceipt.isSuccess) {
     return (
-      <p>Waiting for transaction to be included in a block...</p>
+      <p className="animate-in fade-in slide-in-from-bottom-2 duration-500">Waiting for transaction to be included in a block...</p>
     )
   }
 
