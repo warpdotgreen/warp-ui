@@ -116,7 +116,7 @@ export default function StepOne({
         <div className="flex gap-4">
           {chainIcons.sourceChainIcon}
           {/* Pls check whether warped text shows in correct places here */}
-          <p className="text-2xl">{amount} {sourceChain.type !== token.sourceNetworkType && "Warped"} {token.symbol === "ETH" && sourceChain.type == NetworkType.COINSET ? "milliETH" : token.symbol}</p>
+          <p className="text-2xl flex items-center gap-2">{amount} {sourceChain.type !== token.sourceNetworkType && "Warped"} {token.symbol === "ETH" && sourceChain.type == NetworkType.COINSET ? <>milliETH {withToolTip(<div className="group-hover:opacity-80 h-7 flex justify-center items-center shadow-sm shadow-white/50 border rounded-full aspect-square bg-accent text-base font-normal text-primary/80 w-auto">?</div>, 'milliEther automatically converts to ETH at a 1000:1 ratio.')}</> : token.symbol}</p>
         </div>
 
         <div className="flex gap-4">
@@ -140,7 +140,7 @@ export default function StepOne({
             token.symbol == "XCH" ? (
               <p className="text-2xl">{ethers.formatUnits(amountMojoAfterFee, 12)} XCH</p>
             ) : (
-              <p className="text-2xl">{ethers.formatUnits(amountMojoAfterFee, 3)} {token.symbol === "ETH" ? "Warped milliETH" : token.symbol}</p> // Pls check whether warped text shows in correct places here
+              <p className="text-2xl flex items-center gap-2">{ethers.formatUnits(amountMojoAfterFee, 3)} {token.symbol === "ETH" ? <>Warped milliETH {withToolTip(<div className="group-hover:opacity-80 h-7 flex justify-center items-center shadow-sm shadow-white/50 border rounded-full aspect-square bg-accent text-base font-normal text-primary/80 w-auto">?</div>, 'Ether automatically converts to milliETH at a 1:1000 ratio.')}</> : token.symbol}</p> // Pls check whether warped text shows in correct places here
             )
           )
           }
