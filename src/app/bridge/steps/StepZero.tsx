@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { ArrowRight, ChevronRight } from "lucide-react"
+import { ArrowRight, ArrowRightLeft, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 
@@ -162,10 +162,10 @@ export default function StepZero() {
                 <Button
                   variant="ghost"
                   type="button"
-                  className="mx-2 p-2 border-0 text-neutral-500 hover:opacity-80 rounded-xl"
+                  className="mx-2 mt-7 p-2 border-0 text-neutral-500 hover:opacity-80 rounded-xl"
                   onClick={swapNetworks}
                 >
-                  <ChevronRight />
+                  <ArrowRightLeft />
                 </Button>
                 <BlockchainDropdown
                   label="To"
@@ -262,16 +262,19 @@ type BlockchainDropdownProps = {
 }
 function BlockchainDropdown({ label, options, selectedValue, updateSelectedValue }: BlockchainDropdownProps) {
   return (
-    <Select onValueChange={updateSelectedValue} value={selectedValue} defaultValue={selectedValue}>
-      <SelectTrigger className="text-2xl border-0 rounded-sm hover:opacity-80 h-16">
-        <SelectValue placeholder="" />
-      </SelectTrigger>
-      <SelectContent>
-        {options.map((n) => (
-          <SelectItem className="text-2xl" key={n.id} value={n.id}>{n.displayName}</SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <div className="w-full flex flex-col gap-1">
+      <p className="px-2 opacity-80">{label}</p>
+      <Select onValueChange={updateSelectedValue} value={selectedValue} defaultValue={selectedValue}>
+        <SelectTrigger className="text-2xl border-0 rounded-sm hover:opacity-80 h-16">
+          <SelectValue placeholder="" />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((n) => (
+            <SelectItem className="text-2xl" key={n.id} value={n.id}>{n.displayName}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
   )
 }
 
