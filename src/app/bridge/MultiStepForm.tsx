@@ -27,7 +27,7 @@ export function MultiStepForm({
           return (
             <>
               {index === 0 && activeStep === 1 && (
-                <p className="bg-accent rounded-sm p-6 mb-4 font-light border text-center">
+                <p className="bg-accent rounded-sm p-6 font-light border text-center">
                   {sourceChain.type == NetworkType.EVM ? '' : 'milli'}Ether automatically converts to {destinationChain.type == NetworkType.EVM ? 'ETH' : 'milliETH'} at a {sourceChain.type == NetworkType.EVM ? '1:1000' : '1000:1'} ratio.
                 </p>
               )}
