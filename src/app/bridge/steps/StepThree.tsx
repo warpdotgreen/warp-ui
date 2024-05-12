@@ -14,6 +14,8 @@ import { PortalABI } from "../drivers/abis"
 import { getCoinRecordByName, pushTx, sbToJSON } from "../drivers/rpc"
 import { mintCATs } from "../drivers/erc20bridge"
 import { unlockCATs } from "../drivers/catbridge"
+import { Button } from "@/components/ui/button"
+import { Loader } from "lucide-react"
 
 export default function StepThree({
   sourceChain,
@@ -298,27 +300,27 @@ function GenerateOfferPrompt({
   }
 
   return (
-    <div className="text-zinc-300">
-      <p className="pb-6">
-        Please use the button below to generate an offer that will be used to mint the wrapped assets on {destinationChain.displayName}.
-        Note that using a low fee will result in longer confirmation times.
+    <div>
+      <p className="px-4">
+        Click the button below to create an offer for minting wrapped assets on {destinationChain.displayName}.
+        Note that lower fees mean slower confirmations.
       </p>
-      <div className="flex">
+      <div className="flex mt-6">
         {!waitingForTx ? (
-          <button
-            className="rounded-full text-zinc-100 bg-green-500 hover:bg-green-700 max-w-xs w-full px-4 py-2 font-semibold mx-auto"
+          <Button
+            className="w-full h-16 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-2xl"
             onClick={generateOfferPls}
           >
             Generate Offer
-          </button>
+          </Button>
         ) : (
-          <button
-            className="rounded-full text-zinc-100 bg-zinc-800 max-w-xs w-full px-4 py-2 font-medium mx-auto"
-            onClick={() => { }}
+          <Button
+            className="relative flex items-center gap-2 w-full h-16 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-2xl"
             disabled={true}
           >
-            Waiting for transaction approval
-          </button>
+            <Loader className='animate-spin w-4 h-auto absolute top-3 left-3' />
+            <p className="animate-pulse whitespace-normal">Waiting for transaction approval</p>
+          </Button>
         )}
       </div>
     </div>
