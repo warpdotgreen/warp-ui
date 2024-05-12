@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation"
 import { Network, NetworkType, TOKENS } from "../config"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { WindToy } from "react-svg-spinners"
 import Link from "next/link"
 import { getStepThreeURL } from "./urls"
@@ -143,6 +143,11 @@ function StepThreeCoinsetDestination({
   const offer: string | null = searchParams.get("offer")
 
   const [status, setStatus] = useState("Loading...")
+  const [key, setKey] = useState(0)
+  useEffect(() => {
+    // Update status key to re-trigger fade-in animation
+    setKey(prevKey => prevKey + 1)
+  }, [status])
 
   const nonce: `0x${string}` = (searchParams.get("nonce") ?? "0x") as `0x${string}`
   const source = searchParams.get("source") ?? ""
@@ -253,7 +258,9 @@ function StepThreeCoinsetDestination({
     return (
       <div className="flex gap-2 items-center bg-background h-16 w-full px-6 rounded-md font-light">
         <Loader className="w-4 shrink-0 h-auto animate-spin" />
-        <p className="animate-pulse"> {status} </p>
+        <div key={key} className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <p className="animate-pulse">{status}</p>
+        </div>
       </div>
     )
   }
