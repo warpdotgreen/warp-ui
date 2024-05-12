@@ -25,13 +25,13 @@ export function MultiStepForm({
       <div className="rounded-lg flex flex-col gap-4 p-6 ">
         {steps.map((step, index) => {
           return (
-            <>
+            <div key={index}>
               {index === 0 && activeStep === 1 && (
                 <p className="bg-accent rounded-sm p-6 font-light border text-center">
                   {sourceChain.type == NetworkType.EVM ? '' : 'milli'}Ether automatically converts to {destinationChain.type == NetworkType.EVM ? 'ETH' : 'milliETH'} at a {sourceChain.type == NetworkType.EVM ? '1:1000' : '1000:1'} ratio.
                 </p>
               )}
-              <div key={index} className={`w-full rounded-lg p-2 transition-all border bg-accent ${activeStep - 1 == index ? '' : 'opacity-50'}`}>
+              <div className={`w-full rounded-lg p-2 transition-all border bg-accent ${activeStep - 1 == index ? '' : 'opacity-50'}`}>
                 <div className="flex flex-col-reverse sm:flex-row gap-2 items-start justify-between sm:items-center p-4">
                   <p className="text-2xl">{index + 1}. {step.text}</p>
                   <p className="px-2 rounded-full bg-theme-purple font-light">{step.iconText}</p>
@@ -50,7 +50,7 @@ export function MultiStepForm({
                   )}
                 </div>
               </div>
-            </>
+            </div>
           )
         })}
       </div>
