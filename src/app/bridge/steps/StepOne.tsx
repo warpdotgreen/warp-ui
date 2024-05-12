@@ -83,14 +83,20 @@ export default function StepOne({
       case "Ethereum":
         sourceChainIcon = <ETHIcon />
         break
+      default:
+        break
     }
-
     switch (destinationChain.displayName) {
       case "Base":
         destinationChainIcon = <BaseIcon />
         break
       case "Chia":
         destinationChainIcon = <Image className="w-6 h-auto" src={"/icons/chia-icon.svg"} alt="Chia icon" width={30} height={30} priority />
+        break
+      case "Ethereum":
+        destinationChainIcon = <ETHIcon />
+        break
+      default:
         break
     }
     return {
