@@ -20,6 +20,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { Loader } from "lucide-react"
 
 export default function StepOne({
   sourceChain,
@@ -241,7 +242,7 @@ function EthereumButton({
 
   if (waitingForTx) {
     return (
-      <LoadingButton text="Waiting for transaction approval" />
+      <LoadingButton text="Waiting For Transaction Approval" />
     )
   }
 
@@ -453,13 +454,13 @@ function LoadingButton({
   text: string
 }) {
   return (
-    <button
-      className="rounded-full text-zinc-100 bg-zinc-800 max-w-xs w-full px-4 py-2 font-medium mx-auto"
-      onClick={() => { }}
+    <Button
+      className="relative flex items-center gap-2 w-full h-16 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-2xl"
       disabled={true}
     >
-      {text}
-    </button>
+      <Loader className='animate-spin w-4 h-auto absolute top-3 left-3' />
+      <p className="animate-pulse whitespace-normal">{text}</p>
+    </Button>
   )
 }
 
