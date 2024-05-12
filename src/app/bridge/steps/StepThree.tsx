@@ -1,25 +1,24 @@
-"use client";
+"use client"
 
-import { useRouter, useSearchParams } from "next/navigation";
-import {  Network, NetworkType, TOKENS, XCH_TOKEN } from "../config";
-import {  useState } from "react";
-import { initializeBLS } from "clvm";
-import { WindToy } from "react-svg-spinners";
-import Link from "next/link";
-import { getStepThreeURL } from "./urls";
-import { useQuery } from "@tanstack/react-query";
-import { useWriteContract } from "wagmi";
-import { decodeSignature, getSigsAndSelectors, RawMessage } from "../drivers/portal";
-import { stringToHex } from "../drivers/util";
-import { PortalABI } from "../drivers/abis";
-import { getCoinRecordByName, pushTx, sbToJSON } from "../drivers/rpc";
-import { mintCATs } from "../drivers/erc20bridge";
-import { unlockCATs } from "../drivers/catbridge";
+import { useRouter, useSearchParams } from "next/navigation"
+import { Network, NetworkType, TOKENS } from "../config"
+import { useState } from "react"
+import { WindToy } from "react-svg-spinners"
+import Link from "next/link"
+import { getStepThreeURL } from "./urls"
+import { useQuery } from "@tanstack/react-query"
+import { useWriteContract } from "wagmi"
+import { decodeSignature, getSigsAndSelectors, RawMessage } from "../drivers/portal"
+import { stringToHex } from "../drivers/util"
+import { PortalABI } from "../drivers/abis"
+import { getCoinRecordByName, pushTx, sbToJSON } from "../drivers/rpc"
+import { mintCATs } from "../drivers/erc20bridge"
+import { unlockCATs } from "../drivers/catbridge"
 
 export default function StepThree({
   sourceChain,
   destinationChain,
-} : {
+}: {
   sourceChain: Network,
   destinationChain: Network,
 }) {
@@ -43,47 +42,47 @@ function StepThreeEVMDestination({
   sourceChain: Network,
   destinationChain: Network,
 }) {
-  const searchParams = useSearchParams();
-  const nonce = searchParams.get("nonce")!;
-  const source = searchParams.get("source")!;
-  const destination = searchParams.get("destination")! as `0x${string}`;
-  const contents = JSON.parse(searchParams.get("contents")!).map((c: string) => `0x${c}`) as `0x${string}`[];
-  const [waitingForTx, setWaitingForTx] = useState(false);
-  const { data: hash, writeContract } = useWriteContract();
+  const searchParams = useSearchParams()
+  const nonce = searchParams.get("nonce")!
+  const source = searchParams.get("source")!
+  const destination = searchParams.get("destination")! as `0x${string}`
+  const contents = JSON.parse(searchParams.get("contents")!).map((c: string) => `0x${c}`) as `0x${string}`[]
+  const [waitingForTx, setWaitingForTx] = useState(false)
+  const { data: hash, writeContract } = useWriteContract()
 
-  const [sigs, setSigs] = useState<string[]>([]);
+  const [sigs, setSigs] = useState<string[]>([])
   useQuery({
     queryKey: ['StepThree_fetchSigsAndSelectors', nonce],
     queryFn: () => getSigsAndSelectors(
       stringToHex(sourceChain.id), stringToHex(destinationChain.id), nonce, null
     ).then((sigsAndSelectors) => {
-      setSigs(sigsAndSelectors[0]);
-      return 1;
+      setSigs(sigsAndSelectors[0])
+      return 1
     }),
     enabled: hash !== undefined || sigs.length < destinationChain.signatureThreshold,
     refetchInterval: 5000,
-  });
+  })
 
-  if(hash) {
+  if (hash) {
     return (
       <FinalEVMTxConfirmer destinationChain={destinationChain} txId={hash} />
-    );
+    )
   }
 
-  if(sigs.length < destinationChain.signatureThreshold) {
+  if (sigs.length < destinationChain.signatureThreshold) {
     return (
       <div className="text-zinc-300 flex font-medium text-md items-center justify-center">
         <div className="flex items-center">
           <WindToy color="rgb(212 212 216)" />
           <p className="pl-2"> {
-             `Collecting signatures (${sigs?.length ?? 0}/${destinationChain.signatureThreshold})`
+            `Collecting signatures (${sigs?.length ?? 0}/${destinationChain.signatureThreshold})`
           } </p>
         </div>
       </div>)
   }
 
   const generateTxPls = async () => {
-    setWaitingForTx(true);
+    setWaitingForTx(true)
 
     writeContract({
       address: destinationChain.portalAddress! as `0x${string}`,
@@ -98,35 +97,35 @@ function StepThreeEVMDestination({
         "0x" + sigs.map(sig => decodeSignature(sig)[4]).join("") as `0x${string}`
       ],
       chainId: destinationChain.chainId
-    });
+    })
   }
 
   return (
-    <div className="text-zinc-300"> 
+    <div className="text-zinc-300">
       <p className="pb-6">
         Please use the button below to generate an offer that will be used to receive your assets on {destinationChain.displayName}.
-        Note that using a low fee will result in longer confirmation times.  
+        Note that using a low fee will result in longer confirmation times.
       </p>
       <div className="flex">
         {!waitingForTx ? (
-            <button
-              className="rounded-full text-zinc-100 bg-green-500 hover:bg-green-700 max-w-xs w-full px-4 py-2 font-semibold mx-auto"
-              onClick={generateTxPls}  
-            >
-              Generate Transaction
-            </button>
-          ) : (
-            <button
-              className="rounded-full text-zinc-100 bg-zinc-800 max-w-xs w-full px-4 py-2 font-medium mx-auto"
-              onClick={() => {}}
-              disabled={true}  
-            >
-              Waiting for transaction approval
-            </button>
-          )}
-        </div>
+          <button
+            className="rounded-full text-zinc-100 bg-green-500 hover:bg-green-700 max-w-xs w-full px-4 py-2 font-semibold mx-auto"
+            onClick={generateTxPls}
+          >
+            Generate Transaction
+          </button>
+        ) : (
+          <button
+            className="rounded-full text-zinc-100 bg-zinc-800 max-w-xs w-full px-4 py-2 font-medium mx-auto"
+            onClick={() => { }}
+            disabled={true}
+          >
+            Waiting for transaction approval
+          </button>
+        )}
+      </div>
     </div>
-  );
+  )
 }
 
 
@@ -137,21 +136,21 @@ function StepThreeCoinsetDestination({
   sourceChain: Network,
   destinationChain: Network,
 }) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  
-  const offer: string | null = searchParams.get("offer");
+  const router = useRouter()
+  const searchParams = useSearchParams()
 
-  const [status, setStatus] = useState("Loading...");
+  const offer: string | null = searchParams.get("offer")
 
-  const nonce: `0x${string}` = (searchParams.get("nonce") ?? "0x") as `0x${string}`;
-  const source = searchParams.get("source") ?? "";
-  const destination = searchParams.get("destination") ?? "";
-  const contents = JSON.parse(searchParams.get("contents") ?? "[]");
+  const [status, setStatus] = useState("Loading...")
 
-  const isNativeCAT = contents.length == 2;
+  const nonce: `0x${string}` = (searchParams.get("nonce") ?? "0x") as `0x${string}`
+  const source = searchParams.get("source") ?? ""
+  const destination = searchParams.get("destination") ?? ""
+  const contents = JSON.parse(searchParams.get("contents") ?? "[]")
 
-  const destTxId = searchParams.get("tx");
+  const isNativeCAT = contents.length == 2
+
+  const destTxId = searchParams.get("tx")
   useQuery({
     queryKey: ['StepThree_buildAndSubmitTx'],
     queryFn: async () => {
@@ -162,32 +161,32 @@ function StepThreeCoinsetDestination({
         sourceHex: source.replace("0x", ""),
         sourceChainHex: stringToHex(sourceChain.id),
         contents: contents.map((c: string) => c.replace("0x", "")),
-      };
+      }
 
-      var sb, txId;
-      if(!isNativeCAT) { // wrapped ERC20s
+      var sb, txId
+      if (!isNativeCAT) { // wrapped ERC20s
         try {
           [sb, txId] = await mintCATs(
             offer!,
             rawMessage,
             destinationChain,
             setStatus
-          );
-        } catch(_) {
-          console.error(_);
-          alert("Failed to mint wrapped ERC-20 CATs.");
+          )
+        } catch (_) {
+          console.error(_)
+          alert("Failed to mint wrapped ERC-20 CATs.")
         }
       } else {
         // native CATs being unwrapped
         // find asset id via bruteforce
-        var assetId: string = "00".repeat(32);
+        var assetId: string = "00".repeat(32)
         TOKENS.forEach((token) => {
           token.supported.forEach((tokenInfo) => {
-            if(tokenInfo.contractAddress === source) {
-              assetId = tokenInfo.assetId;
+            if (tokenInfo.contractAddress === source) {
+              assetId = tokenInfo.assetId
             }
-          });
-        });
+          })
+        })
 
         try {
           [sb, txId] = await unlockCATs(
@@ -197,38 +196,38 @@ function StepThreeCoinsetDestination({
             sourceChain,
             destinationChain,
             setStatus
-          );
-        } catch(_) {
-          console.error(_);
-          alert("Failed to unlock CATs.");
+          )
+        } catch (_) {
+          console.error(_)
+          alert("Failed to unlock CATs.")
         }
       }
 
-      const pushTxResp = await pushTx(destinationChain.rpcUrl, sb);
-      if(!pushTxResp.success) {
-        const sbJson = sbToJSON(sb);
-        await navigator.clipboard.writeText(JSON.stringify(sbJson, null, 2));
-        alert("Failed to push transaction - please check console for more details.");
-        console.error(pushTxResp);
+      const pushTxResp = await pushTx(destinationChain.rpcUrl, sb)
+      if (!pushTxResp.success) {
+        const sbJson = sbToJSON(sb)
+        await navigator.clipboard.writeText(JSON.stringify(sbJson, null, 2))
+        alert("Failed to push transaction - please check console for more details.")
+        console.error(pushTxResp)
       } else {
         router.push(getStepThreeURL({
           sourceNetworkId: sourceChain.id,
           destinationNetworkId: destinationChain.id,
           destTransactionId: txId
-        }));
+        }))
       }
 
-      return 1;
+      return 1
     },
     enabled: offer !== null && destTxId === null,
-  });
+  })
 
-  if(!offer && !destTxId) {
-    const nonce: `0x${string}` = searchParams.get("nonce")! as `0x${string}`;
-    const source = searchParams.get("source")!;
-    const destination = searchParams.get("destination")!;
-    const contents = JSON.parse(searchParams.get("contents")!);
-    const amount = parseInt(contents[2], 16);
+  if (!offer && !destTxId) {
+    const nonce: `0x${string}` = searchParams.get("nonce")! as `0x${string}`
+    const source = searchParams.get("source")!
+    const destination = searchParams.get("destination")!
+    const contents = JSON.parse(searchParams.get("contents")!)
+    const amount = parseInt(contents[2], 16)
 
     return (
       <GenerateOfferPrompt
@@ -243,13 +242,13 @@ function StepThreeCoinsetDestination({
             destination,
             contents,
             offer,
-          }));
+          }))
         }}
       />
-    );
+    )
   }
 
-  if(!destTxId) {
+  if (!destTxId) {
     return (
       <div className="text-zinc-300 flex font-medium text-md items-center justify-center">
         <div className="flex items-center">
@@ -257,12 +256,12 @@ function StepThreeCoinsetDestination({
           <p className="pl-2"> {status} </p>
         </div>
       </div>
-    );
+    )
   }
 
   return (
     <FinalCoinsetTxConfirmer destinationChain={destinationChain} txId={destTxId!} />
-  );
+  )
 }
 
 function GenerateOfferPrompt({
@@ -274,10 +273,10 @@ function GenerateOfferPrompt({
   amount: number,
   onOfferGenerated: (offer: string) => void
 }) {
-  const [waitingForTx, setWaitingForTx] = useState(false);
+  const [waitingForTx, setWaitingForTx] = useState(false)
 
   const generateOfferPls = async () => {
-    setWaitingForTx(true);
+    setWaitingForTx(true)
     try {
       const params = {
         offerAssets: [
@@ -290,40 +289,40 @@ function GenerateOfferPrompt({
       }
       const response = await (window as any).chia.request({ method: 'createOffer', params })
       if (response.offer) {
-        onOfferGenerated(response.offer);
+        onOfferGenerated(response.offer)
       }
-    } catch(e) {
-      console.error(e);
+    } catch (e) {
+      console.error(e)
     }
-    setWaitingForTx(false);
+    setWaitingForTx(false)
   }
 
   return (
-    <div className="text-zinc-300"> 
+    <div className="text-zinc-300">
       <p className="pb-6">
         Please use the button below to generate an offer that will be used to mint the wrapped assets on {destinationChain.displayName}.
-        Note that using a low fee will result in longer confirmation times.  
+        Note that using a low fee will result in longer confirmation times.
       </p>
       <div className="flex">
         {!waitingForTx ? (
-            <button
-              className="rounded-full text-zinc-100 bg-green-500 hover:bg-green-700 max-w-xs w-full px-4 py-2 font-semibold mx-auto"
-              onClick={generateOfferPls}  
-            >
-              Generate Offer
-            </button>
-          ) : (
-            <button
-              className="rounded-full text-zinc-100 bg-zinc-800 max-w-xs w-full px-4 py-2 font-medium mx-auto"
-              onClick={() => {}}
-              disabled={true}  
-            >
-              Waiting for transaction approval
-            </button>
-          )}
-        </div>
+          <button
+            className="rounded-full text-zinc-100 bg-green-500 hover:bg-green-700 max-w-xs w-full px-4 py-2 font-semibold mx-auto"
+            onClick={generateOfferPls}
+          >
+            Generate Offer
+          </button>
+        ) : (
+          <button
+            className="rounded-full text-zinc-100 bg-zinc-800 max-w-xs w-full px-4 py-2 font-medium mx-auto"
+            onClick={() => { }}
+            disabled={true}
+          >
+            Waiting for transaction approval
+          </button>
+        )}
+      </div>
     </div>
-  );
+  )
 }
 
 function FinalCoinsetTxConfirmer({
@@ -333,18 +332,18 @@ function FinalCoinsetTxConfirmer({
   destinationChain: Network,
   txId: string
 }) {
-  const [coinRecord, setCoinRecord] = useState<any>(null);
-  const includedInBlock = coinRecord?.spent === true;
+  const [coinRecord, setCoinRecord] = useState<any>(null)
+  const includedInBlock = coinRecord?.spent === true
 
   const { data } = useQuery({
     queryKey: ['StepThree_getCoinRecordByName', txId],
     queryFn: () => getCoinRecordByName(destinationChain.rpcUrl, txId).then((res) => {
-      setCoinRecord(res);
-      return 1;
+      setCoinRecord(res)
+      return 1
     }),
     enabled: !includedInBlock,
     refetchInterval: 5000,
-  });
+  })
 
   return <>
     Transaction id: {txId}
