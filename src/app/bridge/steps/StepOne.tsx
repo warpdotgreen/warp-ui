@@ -19,7 +19,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { Loader } from "lucide-react"
 import { toast } from "sonner"
 import { useWallet } from "../ChiaWalletManager/WalletContext"
 
@@ -462,7 +461,6 @@ function LoadingButton({
       className="relative flex items-center gap-2 w-full h-16 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-2xl"
       disabled={true}
     >
-      <Loader className='animate-spin w-4 h-auto absolute top-3 left-3' />
       <p className="animate-pulse whitespace-normal">{text}</p>
     </Button>
   )
