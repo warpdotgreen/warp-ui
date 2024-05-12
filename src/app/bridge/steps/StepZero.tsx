@@ -101,7 +101,6 @@ export default function StepZero() {
   useEffect(() => {
     const sourceNetwork = NETWORKS.find(network => network.id === sourceNetworkId)
     const selectedToken = TOKENS.find(token => token.symbol === tokenSymbol)
-    console.log(sourceNetwork?.type, selectedToken?.sourceNetworkType)
     if (sourceNetwork && selectedToken && sourceNetwork?.type !== selectedToken?.sourceNetworkType) {
       const firstCompatibleToken = TOKENS.find(token => token.sourceNetworkType === sourceNetwork.type)
       if (!firstCompatibleToken) return
