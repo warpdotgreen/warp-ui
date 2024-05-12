@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/tooltip"
 import { Loader } from "lucide-react"
 import { toast } from "sonner"
+import { useWallet } from "../ChiaWalletManager/WalletContext"
 
 export default function StepOne({
   sourceChain,
@@ -348,6 +349,7 @@ function ChiaButton({
 }) {
   const router = useRouter()
   const [status, setStatus] = useState("")
+  const { walletConnected, createOffer } = useWallet()
 
   const initiateBridgingFromChiaToEVM = async () => {
     const tokenInfo = token.supported.find((supported) => supported.coinsetNetworkId === sourceChain.id && supported.evmNetworkId === destinationChain.id)!
@@ -380,16 +382,12 @@ function ChiaButton({
         offerAssets: offerAssets,
         requestAssets: []
       }
-      const response = await (window as any).chia.request({ method: 'createOffer', params })
-      if (response.offer) {
-        offer = response.offer
-      }
+      offer = await createOffer(params)
     } catch (e) {
       console.error(e)
     }
 
     if (!offer) {
-      toast.error("Failed to generate offer", { duration: 20000, id: "Failed to generate offer" })
       setStatus("")
       return
     }

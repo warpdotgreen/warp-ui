@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react'
 import { walletConfigs } from './wallets'
 import { toast } from "sonner"
+import { createOfferParams } from './wallets/types'
 
 
 interface WalletContextType {
@@ -11,6 +12,7 @@ interface WalletContextType {
   connectWallet: (walletId: string, isPersistenceConnect?: boolean) => Promise<void>
   disconnectWallet: () => Promise<void>
   setWalletConnectUri: (uri: string | null) => void
+  createOffer: (params: createOfferParams) => Promise<string | undefined>
 }
 
 const defaultContext: WalletContextType = {
@@ -19,7 +21,8 @@ const defaultContext: WalletContextType = {
   walletConnectUri: null,
   connectWallet: async () => { console.warn("connectWallet function called without a WalletProvider") },
   disconnectWallet: async () => { console.warn("disconnectWallet function called without a WalletProvider") },
-  setWalletConnectUri: () => { console.warn("setWalletConnectUri function called without a WalletConnectProvider") }
+  setWalletConnectUri: () => { console.warn("setWalletConnectUri function called without a WalletConnectProvider") },
+  createOffer: async () => { console.warn("createOffer function called without a WalletConnectProvider"); return Promise.resolve('') }
 }
 
 const WalletContext = createContext<WalletContextType>(defaultContext)
@@ -46,7 +49,6 @@ export const ChiaWalletProvider: React.FC<{ children: ReactNode }> = ({ children
   }, [])
 
   const disconnectWallet = useCallback(async () => {
-    console.log('disconnecting wallet')
     const wallet = walletConfigs.find(w => w.id === walletConnected)
     if (wallet) {
       try {
@@ -58,6 +60,20 @@ export const ChiaWalletProvider: React.FC<{ children: ReactNode }> = ({ children
         toast.success('Disconnected Wallet', { id: "disconnect-wallet" })
       } catch (error) {
         toast.error('Action Failed', { id: "action-failed" })
+      }
+    }
+  }, [walletConnected])
+
+  const createOffer = useCallback(async (params: createOfferParams) => {
+    const wallet = walletConfigs.find(w => w.id === walletConnected)
+    if (wallet) {
+      try {
+        const offer = await wallet.createOffer(params)
+        toast.success('Created Offer', { id: "created-offer" })
+        return offer
+      } catch (error) {
+        toast.error('Failed to create offer', { duration: 20000, id: "failed-to-create-offer" })
+        throw new Error('Failed to create offer')
       }
     }
   }, [walletConnected])
@@ -81,7 +97,7 @@ export const ChiaWalletProvider: React.FC<{ children: ReactNode }> = ({ children
   }, [connectWallet])
 
   return (
-    <WalletContext.Provider value={{ address, connectWallet, disconnectWallet, walletConnected, walletConnectUri, setWalletConnectUri }}>
+    <WalletContext.Provider value={{ address, connectWallet, disconnectWallet, walletConnected, walletConnectUri, setWalletConnectUri, createOffer }}>
       {children}
     </WalletContext.Provider>
   )
