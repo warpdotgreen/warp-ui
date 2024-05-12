@@ -26,7 +26,7 @@ export const walletConfigs: WalletConfig[] = [
     icon: '/icons/Walletconnect-icon-gradient.png',
     connect: (isPersistenceConnect, setWalletConnectUri) => ChiaWalletConnect.connect(isPersistenceConnect, setWalletConnectUri),
     disconnect: ChiaWalletConnect.disconnect,
-    createOffer: (params) => { throw new Error("NOT IMPLEMENTED YET") }
+    createOffer: (params) => ChiaWalletConnect.createOffer(params)
   },
   // Add new wallets here as they are implemented
 ]
