@@ -3,7 +3,6 @@
 import { useRouter, useSearchParams } from "next/navigation"
 import { Network, NetworkType, TOKENS } from "../config"
 import { useEffect, useState } from "react"
-import { WindToy } from "react-svg-spinners"
 import Link from "next/link"
 import { getStepThreeURL } from "./urls"
 import { useQuery } from "@tanstack/react-query"
@@ -15,7 +14,8 @@ import { getCoinRecordByName, pushTx, sbToJSON } from "../drivers/rpc"
 import { mintCATs } from "../drivers/erc20bridge"
 import { unlockCATs } from "../drivers/catbridge"
 import { Button } from "@/components/ui/button"
-import { Loader } from "lucide-react"
+import { ArrowUpRight, Loader } from "lucide-react"
+import { toast } from "sonner"
 
 export default function StepThree({
   sourceChain,
@@ -180,7 +180,7 @@ function StepThreeCoinsetDestination({
           )
         } catch (_) {
           console.error(_)
-          alert("Failed to mint wrapped ERC-20 CATs.")
+          toast.error("Failed to mint wrapped ERC-20 CATs.", { duration: 20000, id: "failed-to-mint-erc20" })
         }
       } else {
         // native CATs being unwrapped
@@ -205,7 +205,7 @@ function StepThreeCoinsetDestination({
           )
         } catch (_) {
           console.error(_)
-          alert("Failed to unlock CATs.")
+          toast.error("Failed to unlock CATs.", { duration: 20000, id: "failed-to-unlock-cats" })
         }
       }
 
@@ -213,7 +213,7 @@ function StepThreeCoinsetDestination({
       if (!pushTxResp.success) {
         const sbJson = sbToJSON(sb)
         await navigator.clipboard.writeText(JSON.stringify(sbJson, null, 2))
-        alert("Failed to push transaction - please check console for more details.")
+        toast.error("Failed to push transaction - please check console for more details.", { duration: 20000, id: "failed-to-push-transaction" })
         console.error(pushTxResp)
       } else {
         router.push(getStepThreeURL({
@@ -304,7 +304,7 @@ function GenerateOfferPrompt({
   }
 
   return (
-    <div>
+    <div className="p-6 mt-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-in fade-in slide-in-from-bottom-2 duration-500">
       <p className="px-4">
         Click the button below to create an offer for minting wrapped assets on {destinationChain.displayName}.
         Note that lower fees mean slower confirmations.
@@ -351,14 +351,19 @@ function FinalCoinsetTxConfirmer({
     refetchInterval: 5000,
   })
 
-  return <>
-    Transaction id: {txId}
-    <div className="flex gap-2 items-center bg-background h-16 w-full px-6 rounded-md font-light">
+  return <div className="flex flex-col">
+    <div className="p-6 my-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-in fade-in slide-in-from-bottom-2 duration-500">
+      <p className="font-extralight opacity-80 mb-4">Transaction ID</p>
+      <p className="text-2xl font-light">{txId}</p>
+    </div>
+    <div className="p-6 bg-background flex gap-2 font-light rounded-md animate-[delayed-fade-in_0.7s_ease_forwards]">
       {
         includedInBlock ? (
-          <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-            <p>Transaction sent.</p>
-            <Link href={`${destinationChain.explorerUrl}/coin/0x${txId}`} target="_blank" className="pl-2 underline text-green-500 hover:text-green-300">Verify on SpaceScan.</Link>
+          <div className="flex flex-col w-full gap-2 animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <p className="font-extralight opacity-80 mb-4">Transaction Sent</p>
+            <Button className="w-full h-16 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-2xl" asChild>
+              <Link href={`${destinationChain.explorerUrl}/coin/0x${txId}`} target="_blank">Verify on SpaceScan <ArrowUpRight className="w-5 mb-3 h-auto" /></Link>
+            </Button>
           </div>
         ) : (
           <>
@@ -370,7 +375,7 @@ function FinalCoinsetTxConfirmer({
         )
       }
     </div>
-  </>
+  </div>
 }
 
 function FinalEVMTxConfirmer({
@@ -380,13 +385,20 @@ function FinalEVMTxConfirmer({
   destinationChain: Network,
   txId: string
 }) {
-  return <>
-    Transaction id: {txId}
-    <div className="pt-8 text-zinc-300 flex font-medium text-md items-center justify-center">
-      <div className="flex items-center">
-        <p>Transaction confirmed.</p>
-        <Link href={`${destinationChain.explorerUrl}/tx/${txId}`} target="_blank" className="pl-2 underline text-green-500 hover:text-green-300">View on explorer.</Link>
+  return (
+    <div className="flex flex-col">
+      <div className="p-6 my-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <p className="font-extralight opacity-80 mb-4">Transaction ID</p>
+        <p className="text-2xl font-light">{txId}</p>
+      </div>
+      <div className="p-6 bg-background flex gap-2 font-light rounded-md animate-[delayed-fade-in_0.7s_ease_forwards]">
+        <div className="flex flex-col w-full gap-2 animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <p className="font-extralight opacity-80 mb-4">Transaction Confirmed</p>
+          <Button className="w-full h-16 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-2xl" asChild>
+            <Link href={`${destinationChain.explorerUrl}/tx/${txId}`} target="_blank">View on Explorer <ArrowUpRight className="w-5 mb-3 ml-0.5 h-auto" /></Link>
+          </Button>
+        </div>
       </div>
     </div>
-  </>
+  )
 }
