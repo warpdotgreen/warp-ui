@@ -23,6 +23,7 @@ export default function UILayout({
       <body className={inter.className}>
         {children}
         <Toaster
+          expand
           toastOptions={{
             classNames: {
               toast: 'border-input bg-accent',
