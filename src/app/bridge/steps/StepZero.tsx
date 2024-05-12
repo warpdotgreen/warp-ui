@@ -95,19 +95,21 @@ export default function StepZero() {
     setDestinationNetworkId(temp)
 
     updateDestinationAddress(temp)
+  }
 
-    // If new selected token network doesn't match source network, fix it
-    const newSourceNetwork = NETWORKS.find(network => network.id === destinationNetworkId)
+  // If new selected token network doesn't match source network, fix it
+  useEffect(() => {
+    const sourceNetwork = NETWORKS.find(network => network.id === sourceNetworkId)
     const selectedToken = TOKENS.find(token => token.symbol === tokenSymbol)
-
-    if (newSourceNetwork && selectedToken && newSourceNetwork?.type !== selectedToken?.sourceNetworkType) {
-      const firstCompatibleToken = TOKENS.find(token => token.sourceNetworkType === newSourceNetwork.type)
+    console.log(sourceNetwork?.type, selectedToken?.sourceNetworkType)
+    if (sourceNetwork && selectedToken && sourceNetwork?.type !== selectedToken?.sourceNetworkType) {
+      const firstCompatibleToken = TOKENS.find(token => token.sourceNetworkType === sourceNetwork.type)
       if (!firstCompatibleToken) return
       setTokenSymbol(firstCompatibleToken.symbol)
     }
+  }, [tokenSymbol, sourceNetworkId])
 
 
-  }
 
   useEffect(() => {
     if (!address) {
