@@ -102,27 +102,26 @@ function StepThreeEVMDestination({
   }
 
   return (
-    <div className="text-zinc-300">
-      <p className="pb-6">
-        Please use the button below to generate an offer that will be used to receive your assets on {destinationChain.displayName}.
-        Note that using a low fee will result in longer confirmation times.
+    <div className="p-6 mt-2 bg-background flex flex-col gap-2 font-light rounded-md transition-none animate-in fade-in slide-in-from-bottom-2 duration-500">
+      <p className="px-4">
+        Click the button below to create an offer for receiving your assets on {destinationChain.displayName}.
+        Note that lower fees mean slower confirmations.
       </p>
-      <div className="flex">
+      <div className="flex mt-6">
         {!waitingForTx ? (
-          <button
-            className="rounded-full text-zinc-100 bg-green-500 hover:bg-green-700 max-w-xs w-full px-4 py-2 font-semibold mx-auto"
+          <Button
+            className="w-full h-16 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-2xl"
             onClick={generateTxPls}
           >
             Generate Transaction
-          </button>
+          </Button>
         ) : (
-          <button
-            className="rounded-full text-zinc-100 bg-zinc-800 max-w-xs w-full px-4 py-2 font-medium mx-auto"
-            onClick={() => { }}
+          <Button
+            className="relative flex items-center gap-2 w-full h-16 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-2xl"
             disabled={true}
           >
-            Waiting for transaction approval
-          </button>
+            <p className="animate-pulse whitespace-normal">Waiting for transaction approval</p>
+          </Button>
         )}
       </div>
     </div>
@@ -322,7 +321,6 @@ function GenerateOfferPrompt({
             className="relative flex items-center gap-2 w-full h-16 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-2xl"
             disabled={true}
           >
-            <Loader className='animate-spin w-4 h-auto absolute top-3 left-3' />
             <p className="animate-pulse whitespace-normal">Waiting for transaction approval</p>
           </Button>
         )}
