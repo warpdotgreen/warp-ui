@@ -112,10 +112,10 @@ export default function StepOne({
       <div className="p-6 mt-6 bg-background flex flex-col gap-2 font-light rounded-md relative animate-in fade-in slide-in-from-bottom-2 duration-500">
         <p className="mb-4 font-extralight opacity-80">Sending</p>
         <ArrowRight />
-
         <div className="flex gap-4">
           {chainIcons.sourceChainIcon}
-          <p className="text-2xl">{amount} {token.symbol === "ETH" && sourceChain.type == NetworkType.COINSET ? "milliETH" : token.symbol}</p>
+          {/* Pls check whether warped text shows in correct places here */}
+          <p className="text-2xl">{amount} {sourceChain.type !== token.sourceNetworkType && "Warped"} {token.symbol === "ETH" && sourceChain.type == NetworkType.COINSET ? "milliETH" : token.symbol}</p>
         </div>
 
         <div className="flex gap-4">
@@ -139,7 +139,7 @@ export default function StepOne({
             token.symbol == "XCH" ? (
               <p className="text-2xl">{ethers.formatUnits(amountMojoAfterFee, 12)} XCH</p>
             ) : (
-              <p className="text-2xl">{ethers.formatUnits(amountMojoAfterFee, 3)} {token.symbol === "ETH" ? "milliETH" : token.symbol}</p>
+              <p className="text-2xl">{ethers.formatUnits(amountMojoAfterFee, 3)} {token.symbol === "ETH" ? "Warped milliETH" : token.symbol}</p> // Pls check whether warped text shows in correct places here
             )
           )
           }
