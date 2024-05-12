@@ -97,18 +97,6 @@ export default function StepZero() {
     updateDestinationAddress(temp)
   }
 
-  // If new selected token network doesn't match source network, fix it
-  useEffect(() => {
-    const sourceNetwork = NETWORKS.find(network => network.id === sourceNetworkId)
-    const selectedToken = TOKENS.find(token => token.symbol === tokenSymbol)
-    if (sourceNetwork && selectedToken && sourceNetwork?.type !== selectedToken?.sourceNetworkType) {
-      const firstCompatibleToken = TOKENS.find(token => token.sourceNetworkType === sourceNetwork.type)
-      if (!firstCompatibleToken) return
-      setTokenSymbol(firstCompatibleToken.symbol)
-    }
-  }, [tokenSymbol, sourceNetworkId])
-
-
 
   useEffect(() => {
     if (!address) {
@@ -167,7 +155,7 @@ export default function StepZero() {
               <div className="bg-accent border border-input rounded-lg p-2 flex items-center justify-between animate-in fade-in slide-in-from-bottom-2 duration-500">
                 <BlockchainDropdown
                   label="From"
-                  options={sourceNetworks}
+                  options={networks.filter(i => i.id !== destinationNetworkId)}
                   selectedValue={sourceNetworkId}
                   updateSelectedValue={setSourceNetworkId}
                 />
@@ -183,7 +171,7 @@ export default function StepZero() {
                 </Button>
                 <BlockchainDropdown
                   label="To"
-                  options={destinationNetworks}
+                  options={networks.filter(i => i.id !== sourceNetworkId)}
                   selectedValue={destinationNetworkId}
                   updateSelectedValue={setDestinationNetworkId}
                 />
