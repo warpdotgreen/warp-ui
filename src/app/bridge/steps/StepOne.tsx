@@ -3,11 +3,10 @@
 import { useRouter, useSearchParams } from "next/navigation"
 import { Network, NetworkType, Token, TOKENS } from "../config"
 import { ethers } from "ethers"
-import { useAccount, useReadContract, useTransactionConfirmations, useWaitForTransactionReceipt, useWriteContract } from "wagmi"
+import { useAccount, useReadContract, useTransactionConfirmations, useWriteContract } from "wagmi"
 import * as GreenWeb from 'greenwebjs'
 import { useEffect, useState } from "react"
 import { getStepTwoURL } from "./urls"
-import { initializeBLS } from "clvm"
 import { erc20ABI, ERC20BridgeABI, WrappedCATABI } from "../drivers/abis"
 import { burnCATs } from "../drivers/erc20bridge"
 import { lockCATs } from "../drivers/catbridge"
@@ -21,6 +20,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { Loader } from "lucide-react"
+import { toast } from "sonner"
 
 export default function StepOne({
   sourceChain,
@@ -49,8 +49,8 @@ export default function StepOne({
   try {
     amountMojo = ethers.parseUnits(amount, decimals)
   } catch (_) {
-    alert("Invalid amount - 3 decimal places allowed for any token, except for ETH (6 decimal places) and XCH (12 decimal places)")
-    router.back()
+    toast.error("Invalid amount", { description: "3 decimal places allowed for any token, except for ETH (6 decimal places) and XCH (12 decimal places)", duration: 20000, id: "invalid-amount" })
+    router.push("/bridge")
     return <></>
   }
 
@@ -383,7 +383,7 @@ function ChiaButton({
     }
 
     if (!offer) {
-      alert("Failed to generate offer")
+      toast.error("Failed to generate offer", { duration: 20000, id: "Failed to generate offer" })
       setStatus("")
       return
     }
@@ -409,8 +409,8 @@ function ChiaButton({
     if (!pushTxResp.success) {
       const sbJson = sbToJSON(sb)
       await navigator.clipboard.writeText(JSON.stringify(sbJson, null, 2))
-      alert("Failed to push transaction - please check console for more details.")
       console.error(pushTxResp)
+      toast.error("Failed to push transaction", { description: "Please check console for more details.", duration: 20000, id: "Failed to push transaction" })
       setStatus("")
       return
     } else {
