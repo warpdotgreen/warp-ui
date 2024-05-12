@@ -73,7 +73,7 @@ function StepThreeEVMDestination({
 
   if (sigs.length < destinationChain.signatureThreshold) {
     return (
-      <div className="flex gap-2 items-center bg-background h-16 w-full px-6 rounded-md font-light ">
+      <div className="flex gap-2 items-center bg-background h-14 w-full px-6 rounded-md font-light ">
         <Loader className="w-4 shrink-0 h-auto animate-spin" />
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
           <p className="animate-pulse"> {`Collecting signatures (${sigs?.length ?? 0}/${destinationChain.signatureThreshold})`}</p>
@@ -110,14 +110,14 @@ function StepThreeEVMDestination({
       <div className="flex mt-6">
         {!waitingForTx ? (
           <Button
-            className="w-full h-16 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-2xl"
+            className="w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl"
             onClick={generateTxPls}
           >
             Generate Transaction
           </Button>
         ) : (
           <Button
-            className="relative flex items-center gap-2 w-full h-16 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-2xl"
+            className="relative flex items-center gap-2 w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl"
             disabled={true}
           >
             <p className="animate-pulse whitespace-normal">Waiting for transaction approval</p>
@@ -255,7 +255,7 @@ function StepThreeCoinsetDestination({
 
   if (!destTxId) {
     return (
-      <div className="flex gap-2 items-center bg-background h-16 w-full px-6 rounded-md font-light">
+      <div className="flex gap-2 items-center bg-background h-14 w-full px-6 rounded-md font-light">
         <Loader className="w-4 shrink-0 h-auto animate-spin" />
         <div key={key} className="animate-in fade-in slide-in-from-bottom-2 duration-500">
           <p className="animate-pulse">{status}</p>
@@ -311,14 +311,14 @@ function GenerateOfferPrompt({
       <div className="flex mt-6">
         {!waitingForTx ? (
           <Button
-            className="w-full h-16 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-2xl"
+            className="w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl"
             onClick={generateOfferPls}
           >
             Generate Offer
           </Button>
         ) : (
           <Button
-            className="relative flex items-center gap-2 w-full h-16 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-2xl"
+            className="relative flex items-center gap-2 w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl"
             disabled={true}
           >
             <p className="animate-pulse whitespace-normal">Waiting for transaction approval</p>
@@ -352,14 +352,14 @@ function FinalCoinsetTxConfirmer({
   return <div className="flex flex-col">
     <div className="p-6 my-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-in fade-in slide-in-from-bottom-2 duration-500">
       <p className="font-extralight opacity-80 mb-4">Transaction ID</p>
-      <p className="text-2xl font-light">{txId}</p>
+      <p className="text-xl font-light">{txId}</p>
     </div>
     <div className="p-6 bg-background flex gap-2 font-light rounded-md animate-[delayed-fade-in_0.7s_ease_forwards]">
       {
         includedInBlock ? (
           <div className="flex flex-col w-full gap-2 animate-in fade-in slide-in-from-bottom-2 duration-500">
             <p className="font-extralight opacity-80 mb-4">Transaction Sent</p>
-            <Button className="w-full h-16 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-2xl" asChild>
+            <Button className="w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl" asChild>
               <Link href={`${destinationChain.explorerUrl}/coin/0x${txId}`} target="_blank">Verify on SpaceScan <ArrowUpRight className="w-5 mb-3 h-auto" /></Link>
             </Button>
           </div>
@@ -387,12 +387,12 @@ function FinalEVMTxConfirmer({
     <div className="flex flex-col">
       <div className="p-6 my-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-in fade-in slide-in-from-bottom-2 duration-500">
         <p className="font-extralight opacity-80 mb-4">Transaction ID</p>
-        <p className="text-2xl font-light">{txId}</p>
+        <p className="text-xl font-light">{txId}</p>
       </div>
       <div className="p-6 bg-background flex gap-2 font-light rounded-md animate-[delayed-fade-in_0.7s_ease_forwards]">
         <div className="flex flex-col w-full gap-2 animate-in fade-in slide-in-from-bottom-2 duration-500">
           <p className="font-extralight opacity-80 mb-4">Transaction Confirmed</p>
-          <Button className="w-full h-16 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-2xl" asChild>
+          <Button className="w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl" asChild>
             <Link href={`${destinationChain.explorerUrl}/tx/${txId}`} target="_blank">View on Explorer <ArrowUpRight className="w-5 mb-3 ml-0.5 h-auto" /></Link>
           </Button>
         </div>

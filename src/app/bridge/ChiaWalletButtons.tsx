@@ -47,7 +47,7 @@ const ChiaWalletButtons: React.FC = () => {
   return (
     <div className='grid gap-2 animate-in fade-in slide-in-from-bottom-2 duration-500'>
       {walletConfigs.map(wallet => (
-        <div key={wallet.id} className='relative flex flex-col h-28 max-h-28 w-full'>
+        <div key={wallet.id} className='relative flex flex-col h-24 w-full'>
           <Button
             variant="outline"
             disabled={wallet.id === walletConnected || loadingWalletId === wallet.id}
@@ -55,10 +55,10 @@ const ChiaWalletButtons: React.FC = () => {
             onClick={() => connectWithLoading(wallet.id)}
           >
             <div className='p-4 flex flex-col justify-center items-start'>
-              <p className='text-2xl sm:text-2xl font-extralight'>{wallet.name}</p>
+              <p className='text-xl font-extralight'>{wallet.name}</p>
               <p className={cn('text-sm font-mono font-extralight text-theme-green-foreground hidden', wallet.id === walletConnected && 'flex')}>Connected</p>
             </div>
-            <Image className='group-hover:opacity-80 h-16 grayscale shadow-sm shadow-green-300 border rounded-full aspect-square bg-accent p-2 object-contain w-auto' src={wallet.icon} width={400} height={400} alt={`${wallet.name} wallet icon`} priority />
+            <Image className='group-hover:opacity-80 h-14 grayscale shadow-sm shadow-green-300 border rounded-full aspect-square bg-accent p-2 object-contain w-auto' src={wallet.icon} width={400} height={400} alt={`${wallet.name} wallet icon`} priority />
           </Button>
           <Loader className={cn('animate-spin absolute top-[18px] left-[14px] hidden w-4 h-4', loadingWalletId === wallet.id && 'block')} />
         </div>

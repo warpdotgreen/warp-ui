@@ -23,7 +23,7 @@ export default function StepTwo({
 
   return (
     <div className="flex items-center justify-center">
-      <div className="flex gap-2 items-center bg-background h-16 w-full px-6 rounded-md font-light">
+      <div className="flex gap-2 items-center bg-background h-14 w-full px-6 rounded-md font-light">
         <Loader className="w-4 shrink-0 h-auto animate-spin" />
         <div className="animate-pulse">
           {sourceChain.type === NetworkType.EVM ? (

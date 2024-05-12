@@ -28,7 +28,7 @@ export function MultiStepForm({
             <div key={index}>
               <div className={`w-full rounded-lg p-2 transition-all border bg-accent ${activeStep - 1 == index ? '' : 'opacity-50'}`}>
                 <div className="flex flex-col-reverse sm:flex-row gap-2 items-start justify-between sm:items-center p-4">
-                  <p className="text-2xl">{index + 1}. {step.text}</p>
+                  <p className="text-xl font-light">{index + 1}. {step.text}</p>
                   <p className="px-2 rounded-full bg-theme-purple font-light">{step.iconText}</p>
                   {index === 0 && activeStep === 1 && (
                     <Button variant="outline" className="w-full sm:w-fit" asChild>

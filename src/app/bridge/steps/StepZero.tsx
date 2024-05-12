@@ -136,20 +136,46 @@ export default function StepZero() {
 
               {/* <div className="flex justify-right items-center">
                 <div className="flex items-center h-[74px] bg-accent border rounded-lg w-full p-1 pl-4">
-                  <label htmlFor="tokenSelector" className="text-2xl pr-4 mr-auto">Token</label>
+                  <label htmlFor="tokenSelector" className="text-xl pr-4 mr-auto">Token</label>
                   <Select defaultValue={tokenSymbol} onValueChange={onTokenChange}>
-                    <SelectTrigger id="tokenSelector" className="text-2xl w-[130px] h-full pr-4 border-0 bg-theme-purple hover:opacity-80 rounded-sm">
+                    <SelectTrigger id="tokenSelector" className="text-xl w-[130px] h-full pr-4 border-0 bg-theme-purple hover:opacity-80 rounded-sm">
                       <SelectValue placeholder="Select..." />
                     </SelectTrigger>
                     <SelectContent>
                       {TOKENS.map((t: Token) => (
-                        <SelectItem key={t.symbol} value={t.symbol} className="text-2xl">{t.symbol}</SelectItem>
+                        <SelectItem key={t.symbol} value={t.symbol} className="text-xl">{t.symbol}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
               </div> */}
 
+
+              {/* Amount Input & Token Selector */}
+              <div className="flex flex-col gap-4 bg-accent border rounded-lg p-2 animate-[delayed-fade-in_0.7s_ease_forwards]">
+
+                <div className="flex items-center h-14 w-full gap-2">
+                  <label htmlFor="tokenSelector" className="text-xl pr-4 mr-auto sr-only">Token amount</label>
+                  <Input
+                    type="text"
+                    placeholder="Amount"
+                    className="text-xl h-full border-0"
+                    pattern="^\d*(\.\d{0,8})?$"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                  />
+                  <Select defaultValue={tokenSymbol} value={tokenSymbol} onValueChange={onTokenChange}>
+                    <SelectTrigger id="tokenSelector" className="text-xl w-[180px] h-full pr-4 border-0 bg-theme-purple hover:opacity-80 rounded-sm">
+                      <SelectValue placeholder="Select..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {TOKENS.map((t: Token) => (
+                        <SelectItem key={t.symbol} value={t.symbol} className="text-xl">{t.symbol}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
 
               {/* Chain Selector/Switcher */}
               <div className="bg-accent border border-input rounded-lg p-2 flex items-center justify-between animate-in fade-in slide-in-from-bottom-2 duration-500">
@@ -176,59 +202,29 @@ export default function StepZero() {
               </div>
 
 
-
-
-              {/* Amount Input & Token Selector */}
-              <div className="flex flex-col gap-4 bg-accent border rounded-lg p-2 animate-[delayed-fade-in_0.7s_ease_forwards]">
-
-                <div className="flex items-center h-16 w-full gap-2">
-                  <label htmlFor="tokenSelector" className="text-2xl pr-4 mr-auto sr-only">Token amount</label>
-                  <Input
-                    type="text"
-                    placeholder="Amount"
-                    className="text-2xl h-full border-0"
-                    pattern="^\d*(\.\d{0,8})?$"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                  />
-                  <Select defaultValue={tokenSymbol} value={tokenSymbol} onValueChange={onTokenChange}>
-                    <SelectTrigger id="tokenSelector" className="text-2xl w-[180px] h-full pr-4 border-0 bg-theme-purple hover:opacity-80 rounded-sm">
-                      <SelectValue placeholder="Select..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {TOKENS.map((t: Token) => (
-                        <SelectItem key={t.symbol} value={t.symbol} className="text-2xl">{t.symbol}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className={cn("flex justify-center", !walletConnected || account?.address == undefined || !Boolean(amount) && 'cursor-not-allowed')}>
-                  {
-                    <Button
-                      type="submit"
-                      className="w-full h-16 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-2xl"
-                      onClick={goToFirstStep}
-                      disabled={Boolean(!amount) || !walletConnected || account?.address == undefined}
-                    >
-                      {
-                        (!walletConnected || account?.address == undefined) ? "Connect Wallets First"
-                          :
-                          Boolean(amount) ? "Bridge" : "Enter an Amount"
-                      }
-                    </Button>
-                  }
-                </div>
-
-
+              <div className={cn("flex justify-center", !walletConnected || account?.address == undefined || !Boolean(amount) && 'cursor-not-allowed')}>
+                {
+                  <Button
+                    type="submit"
+                    className="w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl"
+                    onClick={goToFirstStep}
+                    disabled={Boolean(!amount) || !walletConnected || account?.address == undefined}
+                  >
+                    {
+                      (!walletConnected || account?.address == undefined) ? "Connect Wallets First"
+                        :
+                        Boolean(amount) ? "Bridge" : "Enter an Amount"
+                    }
+                  </Button>
+                }
               </div>
 
 
-              {/* <div className="flex relative h-16">
+              {/* <div className="flex relative h-14">
                 <Input
                   type="text"
                   placeholder="Amount"
-                  className="text-2xl h-full"
+                  className="text-xl h-full"
                   pattern="^\d*(\.\d{0,8})?$"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
@@ -265,12 +261,12 @@ function BlockchainDropdown({ label, options, selectedValue, updateSelectedValue
     <div className="w-full flex flex-col gap-1">
       <p className="px-2 opacity-80">{label}</p>
       <Select onValueChange={updateSelectedValue} value={selectedValue} defaultValue={selectedValue}>
-        <SelectTrigger className="text-2xl border-0 rounded-sm hover:opacity-80 h-16">
+        <SelectTrigger className="text-xl border-0 rounded-sm hover:opacity-80 h-14">
           <SelectValue placeholder="" />
         </SelectTrigger>
         <SelectContent>
           {options.map((n) => (
-            <SelectItem className="text-2xl" key={n.id} value={n.id}>{n.displayName}</SelectItem>
+            <SelectItem className="text-xl" key={n.id} value={n.id}>{n.displayName}</SelectItem>
           ))}
         </SelectContent>
       </Select>
