@@ -4,7 +4,7 @@ import { useWallet } from "../../ChiaWalletManager/WalletContext"
 import { type addCATParams } from "../../ChiaWalletManager/wallets/types"
 import { cn } from "@/lib/utils"
 
-function AddCATButton({ params }: { params: addCATParams }) {
+function AddCATButton({ params, className }: { params: addCATParams, className?: string }) {
   const { walletConnected, addCAT } = useWallet()
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
@@ -20,7 +20,7 @@ function AddCATButton({ params }: { params: addCATParams }) {
   if (!walletConnected) return <></>
 
   return (
-    <Button disabled={isLoading} onClick={handleClick} variant="ghost" className='ml-auto hidden sm:block'><span className={cn(isLoading && 'animate-pulse')}>{isLoading ? 'Confirm in Wallet' : '+ Add to Wallet'}</span></Button>
+    <Button disabled={isLoading} onClick={handleClick} variant="ghost" className={cn('ml-auto hidden sm:block', className)}><span className={cn(isLoading && 'animate-pulse')}>{isLoading ? 'Confirm in Wallet' : '+ Add to Wallet'}</span></Button>
   )
 }
 

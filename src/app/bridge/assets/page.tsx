@@ -59,7 +59,7 @@ function TokenItem({ token, tokenInfo, highlightedAssets }: { token: any, tokenI
   }
 
   return (
-    <div className={cn('bg-accent border p-2 rounded-md flex flex-col gap-2', highlightedAssets.includes(destChainTokenAddr) && 'border-theme-purple')}>
+    <div className='bg-accent border p-2 rounded-md flex flex-col gap-2'>
       <div className='flex flex-col p-4 bg-accent rounded-md'>
         <div className='flex gap-4 items-center w-full'>
           {withToolTip(sourceChainIcon, `${sourceChainName} Chain`)}
@@ -70,14 +70,14 @@ function TokenItem({ token, tokenInfo, highlightedAssets }: { token: any, tokenI
 
       <DownArrowIcon />
 
-      <div className='flex flex-col p-4 bg-background rounded-md'>
-        <div className='flex gap-4 items-center w-full'>
+      <div className={cn('flex flex-col p-4 bg-background border-background border-2 rounded-md', highlightedAssets.includes(destChainTokenAddr) && 'border-theme-purple')}>
+        <div className='flex gap-4 items-center w-full -ml-[3px]'>
           {withToolTip(destChainIcon, `${destChainName} Chain`)}
           <p className='text-xl font-light'>{sourceChainName} Warped {formattedTokenSymbol}</p>
-          {sourceChain.type !== "coinset" && <AddCATButton params={addCATParams} />}
+          {sourceChain.type !== "coinset" && <AddCATButton params={addCATParams} className={cn(highlightedAssets.includes(destChainTokenAddr) && 'bg-theme-purple hover:bg-theme-purple hover:opacity-80 font-light hover:border-theme-purple')} />}
         </div>
         <CopyableLongHexString hexString={destChainTokenAddr} />
-        {highlightedAssets.includes(destChainTokenAddr) && <div className='p-2 bg-theme-purple mt-4 rounded-[8px] px-4 font-light flex gap-2'><CircleAlertIcon className='w-4 h-auto shrink-0' />This asset has been flagged for you to add</div>}
+        {/* {highlightedAssets.includes(destChainTokenAddr) && <div className='p-2 bg-theme-purple mt-4 rounded-[8px] px-4 font-light flex gap-2'><CircleAlertIcon className='w-4 h-auto shrink-0' />This asset has been flagged for you to add</div>} */}
       </div>
     </div>
   )
@@ -111,9 +111,9 @@ export default function AssetList() {
   const coinsetTokens = useFilteredTokens(NetworkType.COINSET)
 
   return (
-    <div className='max-w-5xl mt-12 mx-auto w-full p-4 xl:p-0'>
+    <div className='max-w-6xl mt-12 mx-auto w-full p-4 xl:p-0'>
       <h2 className="mb-4 text-xl font-light">Supported ERC-20 Assets</h2>
-      {!!highlightedAssets.length && <p className='border rounded-md px-6 py-4 mb-4'>We have flagged assets you need to add to your wallet to continue the bridging process</p>}
+      {!!highlightedAssets.length && <p className='border rounded-md px-6 py-4 mb-4'>We have flagged assets (with purple) you need to add to your wallet to continue the bridging process</p>}
       <div className='grid xl:grid-cols-2 gap-4'>
         {erc20Assets.map(token => token.supported.map(tokenInfo => (
           <TokenItem key={`${token.symbol}-${tokenInfo.assetId}`} token={token} tokenInfo={tokenInfo} highlightedAssets={highlightedAssets} />
