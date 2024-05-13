@@ -11,21 +11,7 @@ import {
 import { addCATParams } from '../ChiaWalletManager/wallets/types'
 import AddCATButton from './components/AddCATButton'
 import { useSearchParams } from 'next/navigation'
-import { Circle, CircleAlertIcon, Flag } from 'lucide-react'
-import { cn } from '@/lib/utils'
-
-const withToolTip = (triggerText: any, toolTopContent: string) => {
-  return (
-    <TooltipProvider delayDuration={0}>
-      <Tooltip>
-        <TooltipTrigger className="rounded-full transition-colors focus-visible:outline-none ring-offset-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">{triggerText}</TooltipTrigger>
-        <TooltipContent>
-          <p>{toolTopContent}</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  )
-}
+import { cn, withToolTip } from '@/lib/utils'
 
 function useFilteredTokens(networkType: NetworkType) {
   return TOKENS.filter((token) => token.sourceNetworkType === networkType)
