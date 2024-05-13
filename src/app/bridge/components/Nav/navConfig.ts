@@ -6,7 +6,7 @@ interface NavConfig {
 
 export const navConfig: NavConfig[] = [
   {
-    name: 'Bridge Interface',
+    name: 'Bridge',
     link: '/bridge'
   },
   {
@@ -21,6 +21,11 @@ export const navConfig: NavConfig[] = [
   {
     name: 'FAQ',
     link: 'https://docs.warp.green',
+    isExternalLink: true
+  },
+  {
+    name: 'Status',
+    link: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
     isExternalLink: true
   }
 ]
