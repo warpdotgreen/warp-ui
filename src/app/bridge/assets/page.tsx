@@ -32,8 +32,9 @@ function getNetworkDisplayName(networkId: string): string {
   return network?.displayName ?? ''
 }
 
-function TokenRow({ token, tokenInfo }: { token: any, tokenInfo: any }) {
-  const isSourceChainCoinset = token.sourceNetworkType === "coinset" ? true : false
+function TokenItem({ token, tokenInfo }: { token: any, tokenInfo: any }) {
+  console.log(token)
+  const isSourceChainCoinset = token.sourceNetworkType === NetworkType.COINSET
 
   const sourceChainName = getNetworkDisplayName(isSourceChainCoinset ? tokenInfo.coinsetNetworkId : tokenInfo.evmNetworkId)
   const sourceChainIcon = getChainIcon(sourceChainName)
@@ -43,17 +44,17 @@ function TokenRow({ token, tokenInfo }: { token: any, tokenInfo: any }) {
   const destChainIcon = getChainIcon(destChainName)
   const destChainTokenAddr = isSourceChainCoinset ? tokenInfo.contractAddress : tokenInfo.assetId
 
-  const tokenSymbol = token.symbol === 'ETH' ? 'milliETH' : token.symbol
+  const tokenSymbol = token.symbol
 
   return (
     <div className='bg-accent border p-2 rounded-md flex flex-col gap-2'>
-      <div className='flex flex-col p-4 pb-0 bg-accent rounded-md'>
+      <div className='flex flex-col p-4 bg-accent rounded-md'>
         <div className='flex gap-4 items-center w-full'>
           {withToolTip(sourceChainIcon, `${sourceChainName} Chain`)}
           <p className='text-xl font-light'>{tokenSymbol}</p>
-          <Button variant="ghost" className='ml-auto'>+ Add to Wallet</Button>
+          {/* <Button variant="ghost" className='ml-auto'>+ Add to Wallet</Button> */}
         </div>
-        <p className='opacity-80 ml-10 bg-accent border w-fit px-2 py-0.5 text-sm rounded text-primary/80'>{`${sourceChainTokenAddr.slice(0, 6)}...${sourceChainTokenAddr.slice(-4)}`}</p>
+        {/* <p className='opacity-80 ml-10 bg-accent border w-fit px-2 py-0.5 text-sm rounded text-primary/80'>{`${sourceChainTokenAddr.slice(0, 6)}...${sourceChainTokenAddr.slice(-4)}`}</p> */}
       </div>
 
 
@@ -65,7 +66,7 @@ function TokenRow({ token, tokenInfo }: { token: any, tokenInfo: any }) {
           <p className='text-xl font-light'>{sourceChainName} Warped milliETH</p>
           <Button variant="ghost" className='ml-auto'>+ Add to Wallet</Button>
         </div>
-        <p className='opacity-80 ml-10 bg-accent w-fit px-2 py-0.5 text-sm rounded text-primary/80'>{`${destChainTokenAddr.slice(0, 6)}...${destChainTokenAddr.slice(-4)}`}</p>
+        <CopyableLongHexString hexString={destChainTokenAddr} />
       </div>
     </div>
   )
@@ -96,7 +97,7 @@ export default function AssetList() {
       <h2 className="mb-4 text-xl font-light">Supported ERC-20 Assets</h2>
       <div className='grid grid-cols-2 gap-4'>
         {erc20Assets.map(token => token.supported.map(tokenInfo => (
-          <TokenRow key={`${token.symbol}-${tokenInfo.assetId}`} token={token} tokenInfo={tokenInfo} />
+          <TokenItem key={`${token.symbol}-${tokenInfo.assetId}`} token={token} tokenInfo={tokenInfo} />
         )))}
       </div>
 
@@ -104,7 +105,7 @@ export default function AssetList() {
       <div className='grid grid-cols-2 gap-4'>
         {coinsetTokens.map(token => token.supported.map(tokenInfo => {
           if (tokenInfo.evmNetworkId === "bse") return // Skip bse as eth tokens are native
-          return <TokenRow key={`${token.symbol}-${tokenInfo.assetId}`} token={token} tokenInfo={tokenInfo} />
+          return <TokenItem key={`${token.symbol}-${tokenInfo.assetId}`} token={token} tokenInfo={tokenInfo} />
         }))}
       </div>
 
@@ -128,34 +129,24 @@ function CopyableLongHexString({ hexString }: { hexString: string }) {
     setTimeout(() => setIsCopied(false), 3000) // Resets the icon after 3 seconds
   }
 
-  return (
-    <div
-      className={`flex items-center gap-2 ${isCopied ? '' : 'cursor-pointer'}`}
-      onClick={isCopied ? () => { } : handleCopy}
-      title={isCopied ? "Copied!" : "Copy to clipboard"}
-    >
-      {displayText}
-      {isCopied ? <CopySuccessIcon /> : <ClipboardIcon />}
-    </div>
+  const copyElement = (
+    <p className={`opacity-80 select-none hover:opacity-60 ml-10 bg-accent w-fit px-2 py-0.5 text-sm rounded text-primary/80 ${isCopied ? 'opacity-60' : 'cursor-pointer'}`} onClick={isCopied ? () => { } : handleCopy}>
+      {isCopied ? 'Copied' : displayText}
+    </p>
   )
-}
+  if (isCopied) return copyElement
 
-// https://heroicons.com/
-function ClipboardIcon() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-auto">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184" />
-    </svg>
-  )
-}
-
-
-// https://heroicons.com/
-function CopySuccessIcon() {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-auto">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5A3.375 3.375 0 0 0 6.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0 0 15 2.25h-1.5a2.251 2.251 0 0 0-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 0 0-9-9Z" />
-    </svg>
+    <TooltipProvider delayDuration={0}>
+      <Tooltip>
+        <TooltipTrigger asChild className="transition-colors focus-visible:outline-none ring-offset-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+          {copyElement}
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Copy</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider >
   )
 }
 
