@@ -54,13 +54,13 @@ const ChiaWalletButtons: React.FC = () => {
             className='group w-full h-full disabled:opacity-80 disabled:bg-accent flex justify-between select-none'
             onClick={() => connectWithLoading(wallet.id)}
           >
-            <div className='p-4 flex flex-col justify-center items-start'>
+            <div className='p-4 pl-2 flex flex-col justify-center items-start'>
               <p className='text-xl font-extralight'>{wallet.name}</p>
               <p className={cn('text-sm font-mono font-extralight text-theme-green-foreground hidden', wallet.id === walletConnected && 'flex')}>Connected</p>
             </div>
             <Image className='group-hover:opacity-80 h-14 grayscale shadow-sm shadow-green-300 border rounded-full aspect-square bg-accent p-2 object-contain w-auto' src={wallet.icon} width={400} height={400} alt={`${wallet.name} wallet icon`} priority />
           </Button>
-          <Loader className={cn('animate-spin absolute top-[18px] left-[14px] hidden w-4 h-4', loadingWalletId === wallet.id && 'block')} />
+          <Loader className={cn('animate-spin absolute top-2 left-2 w-3.5 h-auto hidden', loadingWalletId === wallet.id && 'block')} />
         </div>
       ))}
       {walletConnected && <Button variant="ghost" className='w-fit ml-auto flex gap-2' onClick={disconnectWallet} disabled={!walletConnected}>Disconnect <LogOut className='w-4 h-auto' /></Button>}
