@@ -12,15 +12,10 @@ import { burnCATs } from "../drivers/erc20bridge"
 import { lockCATs } from "../drivers/catbridge"
 import { pushTx, sbToJSON } from "../drivers/rpc"
 import { Button } from "@/components/ui/button"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
 import { toast } from "sonner"
 import { useWallet } from "../ChiaWalletManager/WalletContext"
 import { BaseIcon, ChiaIcon, ETHIcon } from "../components/Icons/ChainIcons"
+import { withToolTip } from "@/lib/utils"
 
 export default function StepOne({
   sourceChain,
@@ -55,19 +50,6 @@ export default function StepOne({
   }
 
   const amountMojoAfterFee = amountMojo - amountMojo * BigInt(30) / BigInt(10000)
-
-  const withToolTip = (triggerText: any, toolTopContent: string) => {
-    return (
-      <TooltipProvider delayDuration={0}>
-        <Tooltip>
-          <TooltipTrigger className="rounded-full transition-colors focus-visible:outline-none ring-offset-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">{triggerText}</TooltipTrigger>
-          <TooltipContent>
-            <p>{toolTopContent}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    )
-  }
 
   const chainIcons = (() => {
     let sourceChainIcon = <></>
