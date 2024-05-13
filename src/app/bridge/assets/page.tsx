@@ -1,6 +1,6 @@
 "use client"
 import { useState } from 'react'
-import { NETWORKS, NetworkType, TOKENS } from '../config'
+import { NETWORKS, Network, NetworkType, TOKENS } from '../config'
 import { BaseIcon, ChiaIcon, ETHIcon } from '../components/Icons/ChainIcons'
 import {
   Tooltip,
@@ -8,7 +8,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { Button } from '@/components/ui/button'
+import { addCATParams } from '../ChiaWalletManager/wallets/types'
+import AddCATButton from './components/AddCATButton'
 
 const withToolTip = (triggerText: any, toolTopContent: string) => {
   return (
@@ -27,31 +28,39 @@ function useFilteredTokens(networkType: NetworkType) {
   return TOKENS.filter((token) => token.sourceNetworkType === networkType)
 }
 
-function getNetworkDisplayName(networkId: string): string {
+function getNetwork(networkId: string): Network | undefined {
   const network = NETWORKS.find((network) => network.id === networkId)
-  return network?.displayName ?? ''
+  return network
 }
 
 function TokenItem({ token, tokenInfo }: { token: any, tokenInfo: any }) {
-  console.log(token)
   const isSourceChainCoinset = token.sourceNetworkType === NetworkType.COINSET
 
-  const sourceChainName = getNetworkDisplayName(isSourceChainCoinset ? tokenInfo.coinsetNetworkId : tokenInfo.evmNetworkId)
+  const sourceChain = getNetwork(isSourceChainCoinset ? tokenInfo.coinsetNetworkId : tokenInfo.evmNetworkId)
+  if (!sourceChain) throw new Error('Source chain not found')
+  const sourceChainName = sourceChain?.displayName || ''
   const sourceChainIcon = getChainIcon(sourceChainName)
   const sourceChainTokenAddr = isSourceChainCoinset ? tokenInfo.assetId : tokenInfo.contractAddress
 
-  const destChainName = getNetworkDisplayName(isSourceChainCoinset ? tokenInfo.evmNetworkId : tokenInfo.coinsetNetworkId)
+  const destChainName = getNetwork(isSourceChainCoinset ? tokenInfo.evmNetworkId : tokenInfo.coinsetNetworkId)?.displayName || ''
   const destChainIcon = getChainIcon(destChainName)
   const destChainTokenAddr = isSourceChainCoinset ? tokenInfo.contractAddress : tokenInfo.assetId
 
-  const tokenSymbol = token.symbol
+  const formattedTokenSymbol = token.symbol === "ETH" ? "milliETH" : token.symbol
+
+  // If source chain type is erc
+  const addCATParams: addCATParams = {
+    assetId: destChainTokenAddr,
+    symbol: `${sourceChain.id}w${formattedTokenSymbol}`,
+    logoUrl: 'https://warp.green/warp-green-icon.png'
+  }
 
   return (
     <div className='bg-accent border p-2 rounded-md flex flex-col gap-2'>
       <div className='flex flex-col p-4 bg-accent rounded-md'>
         <div className='flex gap-4 items-center w-full'>
           {withToolTip(sourceChainIcon, `${sourceChainName} Chain`)}
-          <p className='text-xl font-light'>{tokenSymbol}</p>
+          <p className='text-xl font-light'>{token.symbol}</p>
         </div>
       </div>
 
@@ -61,8 +70,8 @@ function TokenItem({ token, tokenInfo }: { token: any, tokenInfo: any }) {
       <div className='flex flex-col p-4 bg-background rounded-md'>
         <div className='flex gap-4 items-center w-full'>
           {withToolTip(destChainIcon, `${destChainName} Chain`)}
-          <p className='text-xl font-light'>{sourceChainName} Warped milliETH</p>
-          <Button variant="ghost" className='ml-auto hidden sm:block'>+ Add to Wallet</Button>
+          <p className='text-xl font-light'>{sourceChainName} Warped {formattedTokenSymbol}</p>
+          {sourceChain.type !== "coinset" && <AddCATButton params={addCATParams} />}
         </div>
         <CopyableLongHexString hexString={destChainTokenAddr} />
       </div>
