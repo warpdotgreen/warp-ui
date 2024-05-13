@@ -17,7 +17,7 @@ export default function BridgeUILayout({
         </Button>
         <Header />
         <Suspense>
-          <main id="main-content" className="flex flex-col items-center h-full grow mx-auto transition-colors focus-visible:outline-none ring-offset-accent rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+          <main id="main-content" className="flex flex-col w-full items-center h-full grow mx-auto transition-colors focus-visible:outline-none ring-offset-accent rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
             {children}
           </main>
         </Suspense>
