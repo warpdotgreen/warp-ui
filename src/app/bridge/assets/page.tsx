@@ -52,9 +52,7 @@ function TokenItem({ token, tokenInfo }: { token: any, tokenInfo: any }) {
         <div className='flex gap-4 items-center w-full'>
           {withToolTip(sourceChainIcon, `${sourceChainName} Chain`)}
           <p className='text-xl font-light'>{tokenSymbol}</p>
-          {/* <Button variant="ghost" className='ml-auto'>+ Add to Wallet</Button> */}
         </div>
-        {/* <p className='opacity-80 ml-10 bg-accent border w-fit px-2 py-0.5 text-sm rounded text-primary/80'>{`${sourceChainTokenAddr.slice(0, 6)}...${sourceChainTokenAddr.slice(-4)}`}</p> */}
       </div>
 
 
@@ -64,7 +62,7 @@ function TokenItem({ token, tokenInfo }: { token: any, tokenInfo: any }) {
         <div className='flex gap-4 items-center w-full'>
           {withToolTip(destChainIcon, `${destChainName} Chain`)}
           <p className='text-xl font-light'>{sourceChainName} Warped milliETH</p>
-          <Button variant="ghost" className='ml-auto'>+ Add to Wallet</Button>
+          <Button variant="ghost" className='ml-auto hidden sm:block'>+ Add to Wallet</Button>
         </div>
         <CopyableLongHexString hexString={destChainTokenAddr} />
       </div>
@@ -93,16 +91,16 @@ export default function AssetList() {
   const coinsetTokens = useFilteredTokens(NetworkType.COINSET)
 
   return (
-    <div className='max-w-5xl mt-12 mx-auto w-full '>
+    <div className='max-w-5xl mt-12 mx-auto w-full p-4 sm:p-0'>
       <h2 className="mb-4 text-xl font-light">Supported ERC-20 Assets</h2>
-      <div className='grid grid-cols-2 gap-4'>
+      <div className='grid xl:grid-cols-2 gap-4'>
         {erc20Assets.map(token => token.supported.map(tokenInfo => (
           <TokenItem key={`${token.symbol}-${tokenInfo.assetId}`} token={token} tokenInfo={tokenInfo} />
         )))}
       </div>
 
       <h2 className="mb-4 mt-12 text-xl font-light">Supported CAT Assets</h2>
-      <div className='grid grid-cols-2 gap-4'>
+      <div className='grid xl:grid-cols-2 gap-4'>
         {coinsetTokens.map(token => token.supported.map(tokenInfo => {
           if (tokenInfo.evmNetworkId === "bse") return // Skip bse as eth tokens are native
           return <TokenItem key={`${token.symbol}-${tokenInfo.assetId}`} token={token} tokenInfo={tokenInfo} />
