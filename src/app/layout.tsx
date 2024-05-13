@@ -26,7 +26,7 @@ export default function UILayout({
           expand
           toastOptions={{
             classNames: {
-              toast: 'border-input bg-accent',
+              toast: 'border-input bg-accent text-primary',
               title: 'font-extralight text-base'
             }
           }}
