@@ -12,7 +12,7 @@ export async function connect(): Promise<string> {
 
 export async function disconnect(): Promise<void> {
   // Currently not possible to disconnect from Goby wallet
-  return new Promise(() => { })
+  return Promise.resolve()
 }
 
 export async function createOffer(params: createOfferParams): Promise<string> {
