@@ -1,7 +1,7 @@
 import { TOKENS, WALLETCONNECT_PROJECT_ID, WcMetadata } from '../../config'
 import SignClient from '@walletconnect/sign-client'
 import { SessionTypes } from '@walletconnect/types'
-import { createOfferParams } from './types'
+import { addCATParams, createOfferParams } from './types'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
@@ -24,6 +24,10 @@ export async function disconnect(): Promise<void> {
 export async function createOffer(params: createOfferParams): Promise<string> {
   await createOfferWC(params)
   throw new Error('')
+}
+
+export async function addCAT(params: addCATParams): Promise<void> {
+  await addAssetWC(params)
 }
 
 /*
@@ -141,7 +145,6 @@ async function disconnectWC() {
 }
 
 async function createOfferWC(params: createOfferParams) {
-  console.log(params)
   const signClient = await getClient()
   const session = await getSession()
   if (!signClient || !session) throw new Error('Failed to create offer with WC')
@@ -237,20 +240,22 @@ async function createOfferWC(params: createOfferParams) {
 
 }
 
-async function addCATToken(assetId: string, displayName: string, signClient: SignClient, session: SessionTypes.Struct) {
+async function addAssetWC(params: addCATParams) {
+  const signClient = await getClient()
+  const session = await getSession()
+  if (!signClient || !session) throw new Error('Failed to create offer with WC')
   const fingerprint = getFingerprint(session)
-  const request = signClient.request({
+
+  await signClient.request({
     topic: session.topic,
     chainId: chain,
     request: {
       method: "chia_addCATToken",
       params: {
         fingerprint,
-        name: displayName,
-        assetId
+        name: params.symbol,
+        assetId: params.assetId
       },
     },
   })
-  const response = await request
-  return response
 }

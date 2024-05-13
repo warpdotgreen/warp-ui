@@ -1,6 +1,6 @@
 import * as GreenWeb from 'greenwebjs'
 import { CHIA_NETWORK } from '../../config'
-import { createOfferParams } from './types'
+import { addCATParams, createOfferParams } from './types'
 
 // Wallet 1 specific logic
 export async function connect(): Promise<string> {
@@ -21,4 +21,17 @@ export async function createOffer(params: createOfferParams): Promise<string> {
     return response.offer
   }
   else throw new Error('Failed to create offer')
+}
+
+export async function addCAT(params: addCATParams): Promise<void> {
+  const gobyParams = {
+    type: 'cat',
+    options: {
+      assetId: params.assetId,
+      symbol: params.symbol,
+      logo: params.logoUrl
+    }
+  }
+  console.log(params)
+  const res = await window.chia.request({ method: 'walletWatchAsset', params: gobyParams })
 }

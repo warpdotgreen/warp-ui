@@ -1,5 +1,5 @@
 import * as goby from './goby'
-import { createOfferParams } from './types'
+import { addCATParams, createOfferParams } from './types'
 import * as ChiaWalletConnect from './walletconnect'
 
 export interface WalletConfig {
@@ -9,6 +9,7 @@ export interface WalletConfig {
   connect: (isPersistenceConnect: boolean, setWalletConnectUri: (uri: string) => void) => Promise<string>
   disconnect: () => Promise<void>
   createOffer: (params: createOfferParams) => Promise<string>
+  addCAT: (params: addCATParams) => Promise<void>
 }
 
 export const walletConfigs: WalletConfig[] = [
@@ -18,7 +19,8 @@ export const walletConfigs: WalletConfig[] = [
     icon: '/icons/Goby-symbol.svg',
     connect: goby.connect,
     disconnect: goby.disconnect,
-    createOffer: (params) => goby.createOffer(params)
+    createOffer: (params) => goby.createOffer(params),
+    addCAT: (params) => goby.addCAT(params)
   },
   {
     id: 'chiawalletconnect',
@@ -26,7 +28,8 @@ export const walletConfigs: WalletConfig[] = [
     icon: '/icons/Walletconnect-icon-gradient.png',
     connect: (isPersistenceConnect, setWalletConnectUri) => ChiaWalletConnect.connect(isPersistenceConnect, setWalletConnectUri),
     disconnect: ChiaWalletConnect.disconnect,
-    createOffer: (params) => ChiaWalletConnect.createOffer(params)
+    createOffer: (params) => ChiaWalletConnect.createOffer(params),
+    addCAT: (params) => ChiaWalletConnect.addCAT(params)
   },
   // Add new wallets here as they are implemented
 ]

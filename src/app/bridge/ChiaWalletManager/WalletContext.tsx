@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react'
 import { walletConfigs } from './wallets'
 import { toast } from "sonner"
-import { createOfferParams } from './wallets/types'
+import { addCATParams, createOfferParams } from './wallets/types'
 
 
 interface WalletContextType {
@@ -13,6 +13,7 @@ interface WalletContextType {
   disconnectWallet: () => Promise<void>
   setWalletConnectUri: (uri: string | null) => void
   createOffer: (params: createOfferParams) => Promise<string | undefined>
+  addCAT: (params: addCATParams) => Promise<void>
 }
 
 const defaultContext: WalletContextType = {
@@ -22,7 +23,8 @@ const defaultContext: WalletContextType = {
   connectWallet: async () => { console.warn("connectWallet function called without a WalletProvider") },
   disconnectWallet: async () => { console.warn("disconnectWallet function called without a WalletProvider") },
   setWalletConnectUri: () => { console.warn("setWalletConnectUri function called without a WalletConnectProvider") },
-  createOffer: async () => { console.warn("createOffer function called without a WalletConnectProvider"); return Promise.resolve('') }
+  createOffer: async () => { console.warn("createOffer function called without a WalletConnectProvider"); return Promise.resolve('') },
+  addCAT: async () => { console.warn("addCAT function called without a WalletConnectProvider") },
 }
 
 const WalletContext = createContext<WalletContextType>(defaultContext)
@@ -78,6 +80,18 @@ export const ChiaWalletProvider: React.FC<{ children: ReactNode }> = ({ children
     }
   }, [walletConnected])
 
+  const addCAT = useCallback(async (params: addCATParams) => {
+    const wallet = walletConfigs.find(w => w.id === walletConnected)
+    if (wallet) {
+      try {
+        await wallet.addCAT(params)
+        toast.success(`Successfully added ${params.symbol} to your wallet`, { id: "added-cat-success" })
+      } catch (error) {
+        toast.error(`Failed to add ${params.symbol} to your wallet`, { id: "failed-to-add-cat" })
+      }
+    }
+  }, [walletConnected])
+
   // Attempt to reconnect to the wallet on initialization
   useEffect(() => {
     const savedWalletId = localStorage.getItem('walletConnected')
@@ -97,7 +111,7 @@ export const ChiaWalletProvider: React.FC<{ children: ReactNode }> = ({ children
   }, [connectWallet])
 
   return (
-    <WalletContext.Provider value={{ address, connectWallet, disconnectWallet, walletConnected, walletConnectUri, setWalletConnectUri, createOffer }}>
+    <WalletContext.Provider value={{ address, connectWallet, disconnectWallet, walletConnected, walletConnectUri, setWalletConnectUri, createOffer, addCAT }}>
       {children}
     </WalletContext.Provider>
   )
