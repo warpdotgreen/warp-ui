@@ -10,6 +10,9 @@ import {
 } from "@/components/ui/tooltip"
 import { addCATParams } from '../ChiaWalletManager/wallets/types'
 import AddCATButton from './components/AddCATButton'
+import { useSearchParams } from 'next/navigation'
+import { Circle, CircleAlertIcon, Flag } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 const withToolTip = (triggerText: any, toolTopContent: string) => {
   return (
@@ -33,7 +36,7 @@ function getNetwork(networkId: string): Network | undefined {
   return network
 }
 
-function TokenItem({ token, tokenInfo }: { token: any, tokenInfo: any }) {
+function TokenItem({ token, tokenInfo, highlightedAssets }: { token: any, tokenInfo: any, highlightedAssets: string[] }) {
   const isSourceChainCoinset = token.sourceNetworkType === NetworkType.COINSET
 
   const sourceChain = getNetwork(isSourceChainCoinset ? tokenInfo.coinsetNetworkId : tokenInfo.evmNetworkId)
@@ -56,7 +59,7 @@ function TokenItem({ token, tokenInfo }: { token: any, tokenInfo: any }) {
   }
 
   return (
-    <div className='bg-accent border p-2 rounded-md flex flex-col gap-2'>
+    <div className={cn('bg-accent border p-2 rounded-md flex flex-col gap-2', highlightedAssets.includes(destChainTokenAddr) && 'border-theme-purple')}>
       <div className='flex flex-col p-4 bg-accent rounded-md'>
         <div className='flex gap-4 items-center w-full'>
           {withToolTip(sourceChainIcon, `${sourceChainName} Chain`)}
@@ -74,6 +77,7 @@ function TokenItem({ token, tokenInfo }: { token: any, tokenInfo: any }) {
           {sourceChain.type !== "coinset" && <AddCATButton params={addCATParams} />}
         </div>
         <CopyableLongHexString hexString={destChainTokenAddr} />
+        {highlightedAssets.includes(destChainTokenAddr) && <div className='p-2 bg-theme-purple mt-4 rounded-[8px] px-4 font-light flex gap-2'><CircleAlertIcon className='w-4 h-auto shrink-0' />This asset has been flagged for you to add</div>}
       </div>
     </div>
   )
@@ -96,15 +100,23 @@ function getChainIcon(chainDisplayName: string) {
 
 
 export default function AssetList() {
+  const searchParams = useSearchParams()
+  const addAssetsParam = searchParams.get('addAssets')
+  let highlightedAssets: string[] = []
+  if (addAssetsParam) {
+    highlightedAssets = addAssetsParam.split(',')
+  }
+
   const erc20Assets = useFilteredTokens(NetworkType.EVM)
   const coinsetTokens = useFilteredTokens(NetworkType.COINSET)
 
   return (
-    <div className='max-w-5xl mt-12 mx-auto w-full p-4 sm:p-0'>
+    <div className='max-w-5xl mt-12 mx-auto w-full p-4 xl:p-0'>
       <h2 className="mb-4 text-xl font-light">Supported ERC-20 Assets</h2>
+      {!!highlightedAssets.length && <p className='border rounded-md px-6 py-4 mb-4'>We have flagged assets you need to add to your wallet to continue the bridging process</p>}
       <div className='grid xl:grid-cols-2 gap-4'>
         {erc20Assets.map(token => token.supported.map(tokenInfo => (
-          <TokenItem key={`${token.symbol}-${tokenInfo.assetId}`} token={token} tokenInfo={tokenInfo} />
+          <TokenItem key={`${token.symbol}-${tokenInfo.assetId}`} token={token} tokenInfo={tokenInfo} highlightedAssets={highlightedAssets} />
         )))}
       </div>
 
@@ -112,7 +124,7 @@ export default function AssetList() {
       <div className='grid xl:grid-cols-2 gap-4'>
         {coinsetTokens.map(token => token.supported.map(tokenInfo => {
           if (tokenInfo.evmNetworkId === "bse") return // Skip bse as eth tokens are native
-          return <TokenItem key={`${token.symbol}-${tokenInfo.assetId}`} token={token} tokenInfo={tokenInfo} />
+          return <TokenItem key={`${token.symbol}-${tokenInfo.assetId}`} token={token} tokenInfo={tokenInfo} highlightedAssets={highlightedAssets} />
         }))}
       </div>
 
