@@ -18,7 +18,6 @@ import { ArrowUpRight, Loader, TriangleAlert } from "lucide-react"
 import { toast } from "sonner"
 import { useWallet } from "../ChiaWalletManager/WalletContext"
 import AddERCTokenButton from "../assets/components/AddERCTokenButton"
-import AddCATButton from "../assets/components/AddCATButton"
 
 export default function StepThree({
   sourceChain,
