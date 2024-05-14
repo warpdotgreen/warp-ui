@@ -1,9 +1,9 @@
 "use client"
 
 import { useRouter, useSearchParams } from "next/navigation"
-import { Network, NetworkType, Token, TOKENS } from "../config"
+import { Network, NetworkType, Token, TOKENS, wagmiConfig } from "../config"
 import { ethers } from "ethers"
-import { useAccount, useReadContract, useTransactionConfirmations, useWriteContract } from "wagmi"
+import { useAccount, useReadContract, useTransactionConfirmations, useWriteContract, useChainId, useConfig, useSwitchChain, useBalance } from "wagmi"
 import * as GreenWeb from 'greenwebjs'
 import { useEffect, useState } from "react"
 import { getStepTwoURL } from "./urls"
@@ -15,7 +15,9 @@ import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { useWallet } from "../ChiaWalletManager/WalletContext"
 import { BaseIcon, ChiaIcon, ETHIcon } from "../components/Icons/ChainIcons"
-import { withToolTip } from "@/lib/utils"
+import { cn, withToolTip } from "@/lib/utils"
+import { useWalletInfo, useWeb3Modal, useWeb3ModalState } from "@web3modal/wagmi/react"
+import { CircleAlertIcon } from "lucide-react"
 
 export default function StepOne({
   sourceChain,
@@ -309,6 +311,9 @@ function EthereumButton({
     <ActionButton
       onClick={initiateBridgingFromEVMToChia}
       text="Initiate Bridging"
+      sourceChainId={sourceChain.chainId}
+      amount={amount}
+      toll={ethers.formatUnits(sourceChain.messageToll, sourceChain.type == NetworkType.EVM ? 18 : 12)}
     />
   )
 }
@@ -422,11 +427,59 @@ function ChiaButton({
 
 function ActionButton({
   text,
-  onClick
+  onClick,
+  sourceChainId,
+  amount,
+  toll = 0
 }: {
   text: string,
   onClick: () => Promise<void>
+  sourceChainId?: number
+  amount?: string
+  toll?: string
 }) {
+
+  const wagmiChainId = useChainId()
+  const { switchChain, status } = useSwitchChain({ config: wagmiConfig })
+  const { walletInfo } = useWalletInfo()
+  const { address } = useAccount()
+  const { data: balanceData } = useBalance({
+    address,
+  })
+  const { open } = useWeb3Modal()
+
+  if (sourceChainId && amount) {
+    const switchToCorrectChain = async () => switchChain({ chainId: sourceChainId })
+    const isOnRightChain = sourceChainId === wagmiChainId
+
+    if (!walletInfo) {
+      return (
+        <Button className="w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl" onClick={() => open()}>
+          Connect Wallet
+        </Button>
+      )
+    }
+
+    if (!isOnRightChain) {
+      return (
+        <Button disabled={status === "pending"} className="w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl" onClick={switchToCorrectChain}>
+          <span className={cn(status === "pending" && 'animate-pulse')}>Switch Chain</span>
+        </Button>
+      )
+    }
+
+    if (walletInfo?.name === "MetaMask" && amount && balanceData) {
+      const balance = Number(balanceData.value) / 10 ** balanceData.decimals
+      if (balance < (parseFloat(amount) + parseFloat(toll))) {
+        return (
+          <Button disabled className="w-full h-14 bg-destructive text-primary hover:opacity-80 text-xl">
+            Insufficient Balance
+          </Button>
+        )
+      }
+    }
+  }
+
   return (
     <Button className="w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl" onClick={onClick}>{text}</Button>
   )
