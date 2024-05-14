@@ -32,7 +32,9 @@ function TokenItem({ token, tokenInfo, highlightedAssets }: { token: any, tokenI
   const sourceChainIcon = getChainIcon(sourceChainName)
   const sourceChainTokenAddr = isSourceChainCoinset ? tokenInfo.assetId : tokenInfo.contractAddress
 
-  const destChainName = getNetwork(isSourceChainCoinset ? tokenInfo.evmNetworkId : tokenInfo.coinsetNetworkId)?.displayName || ''
+  const destChain = getNetwork(isSourceChainCoinset ? tokenInfo.evmNetworkId : tokenInfo.coinsetNetworkId)
+  if (!destChain) throw new Error('Destination chain not found')
+  const destChainName = destChain.displayName
   const destChainIcon = getChainIcon(destChainName)
   const destChainTokenAddr = isSourceChainCoinset ? tokenInfo.contractAddress : tokenInfo.assetId
 
@@ -64,7 +66,7 @@ function TokenItem({ token, tokenInfo, highlightedAssets }: { token: any, tokenI
           {sourceChain.type !== "coinset" ?
             <AddCATButton params={addCATParams} className={cn(highlightedAssets.includes(destChainTokenAddr) && 'bg-theme-purple hover:bg-theme-purple hover:opacity-80 font-light hover:border-theme-purple')} />
             :
-            <AddERCTokenButton tokenAddress={destChainTokenAddr} className={cn(highlightedAssets.includes(destChainTokenAddr) && 'bg-theme-purple hover:bg-theme-purple hover:opacity-80 font-light hover:border-theme-purple')} />
+            <AddERCTokenButton tokenAddress={destChainTokenAddr} tokenChainId={destChain.chainId} className={cn(highlightedAssets.includes(destChainTokenAddr) && 'bg-theme-purple hover:bg-theme-purple hover:opacity-80 font-light hover:border-theme-purple')} />
           }
         </div>
         <CopyableLongHexString hexString={destChainTokenAddr} />

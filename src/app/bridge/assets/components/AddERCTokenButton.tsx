@@ -3,21 +3,33 @@ import { useState } from "react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import { useWalletInfo } from "@web3modal/wagmi/react"
+import { useAccount, useSwitchChain } from "wagmi"
+import { wagmiConfig } from "../../config"
 
-function AddERCTokenButton({ tokenAddress, className }: { tokenAddress: string, className?: string }) {
+function AddERCTokenButton({ tokenAddress, tokenChainId, className }: { tokenAddress: string, tokenChainId: number | undefined, className?: string }) {
   const { walletInfo } = useWalletInfo()
+  const { chainId: currentUserChain } = useAccount()
+  const { switchChainAsync } = useSwitchChain({ config: wagmiConfig })
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
+  const switchToCorrectChain = async (tokenChainId: number) => {
+    await switchChainAsync({ chainId: tokenChainId })
+  }
 
   const addToken = async () => {
     try {
+
+      if (tokenChainId && currentUserChain !== tokenChainId) {
+        await switchToCorrectChain(tokenChainId)
+      }
+
       const wasAdded = await window.ethereum
         .request({
           method: "wallet_watchAsset",
           params: {
             type: "ERC20",
             options: {
-              address: "0x092bA3a8CbF8126255E83f3D548085F9FB87F5C8",
+              address: tokenAddress,
             },
           },
         })
