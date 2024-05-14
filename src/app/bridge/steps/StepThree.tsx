@@ -282,7 +282,8 @@ function GenerateOfferPrompt({
   onOfferGenerated: (offer: string) => void
 }) {
   const [waitingForTx, setWaitingForTx] = useState(false)
-  const { createOffer } = useWallet()
+  const { createOffer, address } = useWallet()
+  const isConnectedToChiaWallet = Boolean(address)
 
   const generateOfferPls = async () => {
     setWaitingForTx(true)
@@ -316,10 +317,11 @@ function GenerateOfferPrompt({
       <div className="flex mt-6">
         {!waitingForTx ? (
           <Button
+            disabled={!isConnectedToChiaWallet}
             className="w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl"
-            onClick={generateOfferPls}
+            onClick={isConnectedToChiaWallet ? generateOfferPls : () => { }}
           >
-            Generate Offer
+            {isConnectedToChiaWallet ? 'Generate Offer' : 'Connect Chia Wallet'}
           </Button>
         ) : (
           <Button
@@ -344,9 +346,6 @@ function FinalCoinsetTxConfirmer({
   const [coinRecord, setCoinRecord] = useState<any>(null)
   const includedInBlock = coinRecord?.spent === true
 
-  const searchParams = useSearchParams()
-  const destinationAddr = searchParams.get('destination') as string
-
   const { data } = useQuery({
     queryKey: ['StepThree_getCoinRecordByName', txId],
     queryFn: () => getCoinRecordByName(destinationChain.rpcUrl, txId).then((res) => {
@@ -363,7 +362,7 @@ function FinalCoinsetTxConfirmer({
         <div className="flex items-center gap-2">
           <TriangleAlert className="opacity-80 w-4 h-auto" />
           <p className="opacity-80">Don&apos;t see your bridged asset?</p>
-          <Button variant="ghost" className="ml-auto" asChild><Link href={`/bridge/assets?addAssets=${destinationAddr}`}>+ Add to Wallet</Link></Button>
+          <Button variant="outline" className="ml-auto" asChild><Link href="/bridge/assets">Add to Wallet</Link></Button>
         </div>
       </div>
       <div className="p-6 my-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-in fade-in slide-in-from-bottom-2 duration-500">
