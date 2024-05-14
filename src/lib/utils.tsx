@@ -6,12 +6,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import type { ReactNode } from "react"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function withToolTip(triggerText: any, toolTopContent: string) {
+export function withToolTip(triggerText: any, toolTopContent: string | ReactNode) {
   return (
     <TooltipProvider delayDuration={0}>
       <Tooltip>

@@ -39,7 +39,7 @@ export function MultiStepForm({
                       </Link>
                     </Button>
                   )}
-                  {(index === 2 || index === 0) && <div className="hidden sm:flex">{withToolTip(<div className="group-hover:opacity-80 h-5 justify-center items-center shadow-sm shadow-white/50 border rounded-full aspect-square bg-accent text-sm font-normal text-primary/80 w-auto">?</div>, 'This Step Includes a Transaction')}</div>}
+                  {(index === 2 || index === 0) && <div className="hidden sm:flex">{withToolTip(<div className="group-hover:opacity-80 h-5 justify-center items-center shadow-sm shadow-white/50 border rounded-full aspect-square bg-accent text-sm font-normal text-primary/80 w-auto">?</div>, <>This step involves creating a transaction and<br />paying associated transaction fees</>)}</div>}
                 </div>
                 <div>
                   {activeStep - 1 == index && (
