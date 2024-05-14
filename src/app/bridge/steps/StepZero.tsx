@@ -133,24 +133,6 @@ export default function StepZero() {
           <div className="space-y-6">
             <div className="space-y-2">
 
-
-              {/* <div className="flex justify-right items-center">
-                <div className="flex items-center h-[74px] bg-accent border rounded-lg w-full p-1 pl-4">
-                  <label htmlFor="tokenSelector" className="text-xl pr-4 mr-auto">Token</label>
-                  <Select defaultValue={tokenSymbol} onValueChange={onTokenChange}>
-                    <SelectTrigger id="tokenSelector" className="text-xl w-[130px] h-full pr-4 border-0 bg-theme-purple hover:opacity-80 rounded-sm">
-                      <SelectValue placeholder="Select..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {TOKENS.map((t: Token) => (
-                        <SelectItem key={t.symbol} value={t.symbol} className="text-xl">{t.symbol}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div> */}
-
-
               {/* Amount Input & Token Selector */}
               <div className="flex flex-col gap-4 bg-accent border rounded-lg p-2 animate-[delayed-fade-in_0.7s_ease_forwards]">
 
@@ -218,26 +200,6 @@ export default function StepZero() {
                   </Button>
                 }
               </div>
-
-
-              {/* <div className="flex relative h-14">
-                <Input
-                  type="text"
-                  placeholder="Amount"
-                  className="text-xl h-full"
-                  pattern="^\d*(\.\d{0,8})?$"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                />
-              </div> */}
-              {/* <Input
-                type="text"
-                disabled
-                placeholder="Receive Address"
-                className="w-full px-2 py-2 border border-zinc-700 rounded outline-none bg-zinc-800 text-zinc-300 placeholder-zinc-500 text-lg"
-                value={destinationAddress}
-                onChange={(e) => setDestinationAddress(e.target.value)}
-              /> */}
 
             </div>
 
