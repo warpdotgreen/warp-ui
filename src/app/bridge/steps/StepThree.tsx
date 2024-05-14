@@ -16,6 +16,7 @@ import { unlockCATs } from "../drivers/catbridge"
 import { Button } from "@/components/ui/button"
 import { ArrowUpRight, Loader } from "lucide-react"
 import { toast } from "sonner"
+import { useWallet } from "../ChiaWalletManager/WalletContext"
 
 export default function StepThree({
   sourceChain,
@@ -279,6 +280,7 @@ function GenerateOfferPrompt({
   onOfferGenerated: (offer: string) => void
 }) {
   const [waitingForTx, setWaitingForTx] = useState(false)
+  const { createOffer } = useWallet()
 
   const generateOfferPls = async () => {
     setWaitingForTx(true)
@@ -292,14 +294,15 @@ function GenerateOfferPrompt({
         ],
         requestAssets: []
       }
-      const response = await (window as any).chia.request({ method: 'createOffer', params })
-      if (response.offer) {
-        onOfferGenerated(response.offer)
+      const offer = await createOffer(params)
+      if (offer) {
+        onOfferGenerated(offer)
       }
     } catch (e) {
       console.error(e)
+    } finally {
+      setWaitingForTx(false)
     }
-    setWaitingForTx(false)
   }
 
   return (

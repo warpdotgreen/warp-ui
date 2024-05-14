@@ -22,8 +22,8 @@ export async function disconnect(): Promise<void> {
 }
 
 export async function createOffer(params: createOfferParams): Promise<string> {
-  await createOfferWC(params)
-  throw new Error('')
+  const offer = await createOfferWC(params)
+  return offer
 }
 
 export async function addCAT(params: addCATParams): Promise<void> {
@@ -238,6 +238,8 @@ async function createOfferWC(params: createOfferParams) {
     },
   })
 
+  if (resultOffer.data?.offer) return resultOffer.data?.offer
+  throw new Error('Failed to create offer')
 }
 
 async function addAssetWC(params: addCATParams) {
