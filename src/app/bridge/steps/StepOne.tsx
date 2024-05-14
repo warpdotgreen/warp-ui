@@ -430,7 +430,7 @@ function ActionButton({
   onClick,
   sourceChainId,
   amount,
-  toll = 0
+  toll = "0"
 }: {
   text: string,
   onClick: () => Promise<void>
