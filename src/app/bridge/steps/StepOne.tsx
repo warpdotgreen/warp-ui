@@ -449,7 +449,7 @@ function ActionButton({
 
 
   const wagmiChainId = useChainId()
-  const { switchChain, status } = useSwitchChain({ config: wagmiConfig })
+  const { switchChainAsync, status } = useSwitchChain({ config: wagmiConfig })
   const { address } = useAccount()
   const { open } = useWeb3Modal()
   const { walletInfo } = useWalletInfo()
@@ -498,7 +498,7 @@ function ActionButton({
 
 
   if (sourceChainId && amount && tokenAddress) {
-    const switchToCorrectChain = async () => switchChain({ chainId: sourceChainId })
+    const switchToCorrectChain = async () => await switchChainAsync({ chainId: sourceChainId })
     const isOnRightChain = sourceChainId === wagmiChainId
 
     if (!walletInfo) {
