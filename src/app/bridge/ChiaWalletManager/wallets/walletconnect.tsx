@@ -216,12 +216,12 @@ async function createOfferWC(params: createOfferParams) {
   let offer: { [key: string]: number } = {}
   params.offerAssets.forEach(a => {
     if (a.assetId === "") {
-      offer["1"] = -a.amount
+      offer["1"] = -Math.abs(a.amount)
       return
     }
     const matchedChiaWallet = data.find(wallet => wallet.meta.assetId === a.assetId)
     if (!matchedChiaWallet) throw new Error('Failed to create offer')
-    offer[matchedChiaWallet.id.toString()] = a.amount
+    offer[matchedChiaWallet.id.toString()] = -Math.abs(a.amount)
   })
 
   const resultOffer: resultOffer = await signClient.request({
