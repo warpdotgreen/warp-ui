@@ -314,6 +314,7 @@ function EthereumButton({
       sourceChainId={sourceChain.chainId}
       amount={amount}
       toll={ethers.formatUnits(sourceChain.messageToll, sourceChain.type == NetworkType.EVM ? 18 : 12)}
+      tokenAddress={tokenInfo.contractAddress}
     />
   )
 }
@@ -430,25 +431,26 @@ function ActionButton({
   onClick,
   sourceChainId,
   amount,
-  toll = "0"
+  toll = "0",
+  tokenAddress
 }: {
   text: string,
   onClick: () => Promise<void>
   sourceChainId?: number
   amount?: string
   toll?: string
+  tokenAddress?: string
 }) {
 
   const wagmiChainId = useChainId()
   const { switchChain, status } = useSwitchChain({ config: wagmiConfig })
   const { walletInfo } = useWalletInfo()
-  const { address } = useAccount()
   const { data: balanceData } = useBalance({
-    address,
+    address: tokenAddress as `0x${string}`,
   })
   const { open } = useWeb3Modal()
 
-  if (sourceChainId && amount) {
+  if (sourceChainId && amount && tokenAddress) {
     const switchToCorrectChain = async () => switchChain({ chainId: sourceChainId })
     const isOnRightChain = sourceChainId === wagmiChainId
 
