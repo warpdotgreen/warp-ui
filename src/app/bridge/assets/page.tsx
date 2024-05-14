@@ -109,7 +109,6 @@ export default function AssetList() {
       <h2 className="mb-4 mt-12 text-xl font-light">Supported CAT Assets</h2>
       <div className='grid xl:grid-cols-2 gap-4'>
         {coinsetTokens.map(token => token.supported.map(tokenInfo => {
-          if (tokenInfo.evmNetworkId === "bse") return // Skip bse as eth tokens are native
           return <TokenItem key={`${token.symbol}-${tokenInfo.assetId}`} token={token} tokenInfo={tokenInfo} highlightedAssets={highlightedAssets} />
         }))}
       </div>
