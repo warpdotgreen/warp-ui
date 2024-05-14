@@ -32,6 +32,5 @@ export async function addCAT(params: addCATParams): Promise<void> {
       logo: params.logoUrl
     }
   }
-  console.log(params)
-  const res = await window.chia.request({ method: 'walletWatchAsset', params: gobyParams })
+  await window.chia.request({ method: 'walletWatchAsset', params: gobyParams })
 }
