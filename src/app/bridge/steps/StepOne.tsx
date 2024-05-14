@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation"
 import { Network, NetworkType, Token, TOKENS, wagmiConfig } from "../config"
 import { ethers } from "ethers"
-import { useAccount, useReadContract, useTransactionConfirmations, useWriteContract, useChainId, useConfig, useSwitchChain, useBalance } from "wagmi"
+import { useAccount, useReadContract, useTransactionConfirmations, useWriteContract, useChainId, useConfig, useSwitchChain, useBalance, useReadContracts } from "wagmi"
 import * as GreenWeb from 'greenwebjs'
 import { useEffect, useState } from "react"
 import { getStepTwoURL } from "./urls"
@@ -18,6 +18,7 @@ import { BaseIcon, ChiaIcon, ETHIcon } from "../components/Icons/ChainIcons"
 import { cn, withToolTip } from "@/lib/utils"
 import { useWalletInfo, useWeb3Modal, useWeb3ModalState } from "@web3modal/wagmi/react"
 import { CircleAlertIcon } from "lucide-react"
+import { erc20Abi } from "viem"
 
 export default function StepOne({
   sourceChain,
@@ -303,6 +304,10 @@ function EthereumButton({
       <ActionButton
         onClick={approveTokenSpend}
         text="Approve token spend"
+        sourceChainId={sourceChain.chainId}
+        amount={amount}
+        toll={ethers.formatUnits(sourceChain.messageToll, sourceChain.type == NetworkType.EVM ? 18 : 12)}
+        tokenAddress={tokenInfo.contractAddress}
       />
     )
   }
@@ -442,13 +447,55 @@ function ActionButton({
   tokenAddress?: string
 }) {
 
+
   const wagmiChainId = useChainId()
   const { switchChain, status } = useSwitchChain({ config: wagmiConfig })
-  const { walletInfo } = useWalletInfo()
-  const { data: balanceData } = useBalance({
-    address: tokenAddress as `0x${string}`,
-  })
+  const { address } = useAccount()
   const { open } = useWeb3Modal()
+  const { walletInfo } = useWalletInfo()
+  const searchParams = useSearchParams()
+  const token = searchParams.get('token') as string
+  const from = searchParams.get('from') as string
+  const isNativeETH = token === "ETH" && (from === "bse" || from === "eth")
+  let balance
+
+  // Fetch native ETH balance if milliETH
+  const { data: userETHData } = useBalance({
+    address,
+    query: {
+      enabled: isNativeETH,
+      gcTime: 0
+    }
+  })
+  if (userETHData) {
+    balance = Number(userETHData?.value) / 10 ** userETHData?.decimals
+  }
+
+  // Fetch erc-20 token balance if not milliETH
+  const { data: tokenBalanceData } = useReadContracts({
+    allowFailure: false,
+    query: {
+      enabled: !isNativeETH,
+      gcTime: 0
+    },
+    contracts: [
+      {
+        address: tokenAddress as `0x${string}`,
+        abi: erc20Abi,
+        functionName: 'balanceOf',
+        args: [address as `0x${string}`],
+      },
+      {
+        address: tokenAddress as `0x${string}`,
+        abi: erc20Abi,
+        functionName: 'decimals',
+      },
+    ]
+  })
+  if (tokenBalanceData) {
+    balance = Number(tokenBalanceData[0]) / 10 ** tokenBalanceData[1]
+  }
+
 
   if (sourceChainId && amount && tokenAddress) {
     const switchToCorrectChain = async () => switchChain({ chainId: sourceChainId })
@@ -470,8 +517,8 @@ function ActionButton({
       )
     }
 
-    if (walletInfo?.name === "MetaMask" && amount && balanceData) {
-      const balance = Number(balanceData.value) / 10 ** balanceData.decimals
+    if (walletInfo?.name === "MetaMask" && amount && typeof balance === "number") {
+
       if (balance < (parseFloat(amount) + parseFloat(toll))) {
         return (
           <Button disabled className="w-full h-14 bg-destructive text-primary hover:opacity-80 text-xl">
