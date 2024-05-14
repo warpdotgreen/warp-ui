@@ -246,7 +246,7 @@ function EthereumValidationTextElement({
   ])
 
   return (
-    <span>Confirming transaction ({currentConfirmations.toString()}/{sourceChain.confirmationMinHeight})</span>
+    <span className="animate-in fade-in slide-in-from-bottom-2 duration-500">Confirming transaction ({currentConfirmations.toString()}/{sourceChain.confirmationMinHeight})</span>
   )
 }
 
@@ -289,6 +289,6 @@ function BaseValidationTextElement({
   ])
 
   return (
-    <span>Confirming transaction ({currentConfirmations.toString()}/{sourceChain.confirmationMinHeight})</span>
+    <span className="animate-in fade-in slide-in-from-bottom-2 duration-500">Confirming transaction ({currentConfirmations.toString()}/{sourceChain.confirmationMinHeight})</span>
   )
 }
