@@ -362,7 +362,7 @@ function FinalCoinsetTxConfirmer({
         <div className="flex items-center gap-2">
           <TriangleAlert className="opacity-80 w-4 h-auto" />
           <p className="opacity-80">Don&apos;t see your bridged asset?</p>
-          <Button variant="outline" className="ml-auto" asChild><Link href="/bridge/assets">Add to Wallet</Link></Button>
+          <Button variant="outline" className="ml-auto" asChild><Link href="/bridge/assets" target="_blank">Add to Wallet</Link></Button>
         </div>
       </div>
       <div className="p-6 my-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-in fade-in slide-in-from-bottom-2 duration-500">
@@ -409,7 +409,7 @@ function FinalEVMTxConfirmer({
         <div className="flex items-center gap-2">
           <TriangleAlert className="opacity-80 w-4 h-auto" />
           <p className="opacity-80">Don&apos;t see your bridged asset?</p>
-          {chainId ? <AddERCTokenButton tokenAddress={destinationAddr} tokenChainId={chainId} /> : <Button variant="ghost" className="ml-auto" asChild><Link href={`/bridge/assets?addAssets=${destinationAddr}`}>+ Add to Wallet</Link></Button>}
+          {chainId ? <AddERCTokenButton tokenAddress={destinationAddr} tokenChainId={chainId} /> : <Button variant="ghost" className="ml-auto" asChild><Link href={`/bridge/assets?addAssets=${destinationAddr}`} target="_blank">+ Add to Wallet</Link></Button>}
         </div>
       </div>
       <div className="p-6 my-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-in fade-in slide-in-from-bottom-2 duration-500">
