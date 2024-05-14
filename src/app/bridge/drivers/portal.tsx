@@ -292,7 +292,8 @@ export async function getSigsAndSelectors(
   sourceChainHex: string,
   destinationChainHex: string,
   nonce: string,
-  coinId: string | null
+  coinId: string | null,
+  sigLimit: number
 ): Promise<[string[], boolean[]]> {
   const routingDataBuff = Buffer.from(sourceChainHex + destinationChainHex + nonce.replace("0x", ""), "hex");
   const routingData = bech32m.encode("r", bech32m.toWords(routingDataBuff));
@@ -323,7 +324,7 @@ export async function getSigsAndSelectors(
     const destinationNetworkId = hexToString(destinationChainHex);
     const destinationNetwork = NETWORKS.filter((network) => network.id === destinationNetworkId)[0];
 
-    const sigStrings = events.sort((a, b) => {
+    let sigStrings = events.sort((a, b) => {
         const indexA = NOSTR_CONFIG.validatorKeys.findIndex(key => key === a.pubkey);
         const indexB = NOSTR_CONFIG.validatorKeys.findIndex(key => key === b.pubkey);
 
@@ -336,6 +337,10 @@ export async function getSigsAndSelectors(
         return intA < intB ? -1 : (intA > intB ? 1 : 0);
     }).map((event) => routingData + "-" + coinData + "-" + event.content);
 
+    if(sigStrings.length > sigLimit) {
+      sigStrings = sigStrings.slice(0, sigLimit);
+    }
+
     return [
       sigStrings,
       [] // selectors
@@ -344,7 +349,10 @@ export async function getSigsAndSelectors(
 
   // We're getting sigs for XCH
   // Order doesn't matter but we need to generate the 'selectors' array
-  const sigStrings = events.map((event) => routingData + "-" + coinData + "-" + event.content);
+  let sigStrings = events.map((event) => routingData + "-" + coinData + "-" + event.content);
+  if(sigStrings.length > sigLimit) {
+    sigStrings = sigStrings.slice(0, sigLimit);
+  }
 
   const pubkeys = events.map((event) => event.pubkey);
   const selectors = NOSTR_CONFIG.validatorKeys.map((validatorInfo) => pubkeys.includes(validatorInfo));
@@ -489,7 +497,8 @@ export async function receiveMessageAndSpendMessageCoin(
     message.sourceChainHex,
     message.destinationChainHex,
     message.nonce,
-    portalCoinId
+    portalCoinId,
+    network.signatureThreshold
   );
 
   while(sigStrings.length < network.signatureThreshold) {
@@ -498,7 +507,8 @@ export async function receiveMessageAndSpendMessageCoin(
       message.sourceChainHex,
       message.destinationChainHex,
       message.nonce,
-      portalCoinId
+      portalCoinId,
+      network.signatureThreshold
     );
     updateStatus(`Collecting signatures (${sigStrings.length}/${network.signatureThreshold})`);
   }
