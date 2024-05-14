@@ -12,6 +12,7 @@ import { addCATParams } from '../ChiaWalletManager/wallets/types'
 import AddCATButton from './components/AddCATButton'
 import { useSearchParams } from 'next/navigation'
 import { cn, withToolTip } from '@/lib/utils'
+import AddERCTokenButton from './components/AddERCTokenButton'
 
 function useFilteredTokens(networkType: NetworkType) {
   return TOKENS.filter((token) => token.sourceNetworkType === networkType)
@@ -60,7 +61,11 @@ function TokenItem({ token, tokenInfo, highlightedAssets }: { token: any, tokenI
         <div className='flex gap-4 items-center w-full -ml-[3px]'>
           {withToolTip(destChainIcon, `${destChainName} Chain`)}
           <p className='text-xl font-light'>{sourceChainName} Warped {formattedTokenSymbol}</p>
-          {sourceChain.type !== "coinset" && <AddCATButton params={addCATParams} className={cn(highlightedAssets.includes(destChainTokenAddr) && 'bg-theme-purple hover:bg-theme-purple hover:opacity-80 font-light hover:border-theme-purple')} />}
+          {sourceChain.type !== "coinset" ?
+            <AddCATButton params={addCATParams} className={cn(highlightedAssets.includes(destChainTokenAddr) && 'bg-theme-purple hover:bg-theme-purple hover:opacity-80 font-light hover:border-theme-purple')} />
+            :
+            <AddERCTokenButton tokenAddress={destChainTokenAddr} className={cn(highlightedAssets.includes(destChainTokenAddr) && 'bg-theme-purple hover:bg-theme-purple hover:opacity-80 font-light hover:border-theme-purple')} />
+          }
         </div>
         <CopyableLongHexString hexString={destChainTokenAddr} />
         {/* {highlightedAssets.includes(destChainTokenAddr) && <div className='p-2 bg-theme-purple mt-4 rounded-[8px] px-4 font-light flex gap-2'><CircleAlertIcon className='w-4 h-auto shrink-0' />This asset has been flagged for you to add</div>} */}
@@ -95,6 +100,11 @@ export default function AssetList() {
 
   const erc20Assets = useFilteredTokens(NetworkType.EVM)
   const coinsetTokens = useFilteredTokens(NetworkType.COINSET)
+
+
+
+
+
 
   return (
     <div className='max-w-6xl mt-12 mx-auto w-full p-4 xl:p-0'>
