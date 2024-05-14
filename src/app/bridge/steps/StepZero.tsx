@@ -111,6 +111,14 @@ export default function StepZero() {
     const newToken = TOKENS.find((t: Token) => t.symbol === newValue)!
     setTokenSymbol(newValue)
 
+    // if (newToken.symbol === "usdt") {
+    //   setSourceNetworks(prev => [...prev.filter(net => net.displayName !== "Base")])
+    //   setDestinationNetworks(prev => [...prev.filter(net => net.displayName !== "Base")])
+    // } else {
+    //   setSourceNetworks(prev => [...prev.filter(net => net.displayName !== "Base")])
+    //   setDestinationNetworks(prev => [...prev.filter(net => net.displayName !== "Base")])
+    // }
+
     if (newToken.sourceNetworkType !== sourceNetworks[0].type) {
       swapNetworks()
     }
@@ -163,7 +171,7 @@ export default function StepZero() {
               <div className="bg-accent border border-input rounded-lg p-2 flex items-center justify-between animate-in fade-in slide-in-from-bottom-2 duration-500">
                 <BlockchainDropdown
                   label="From"
-                  options={sourceNetworks}
+                  options={sourceNetworks.filter(n => tokenSymbol === "USDT" ? n.displayName !== "Base" : n)}
                   selectedValue={sourceNetworkId}
                   updateSelectedValue={setSourceNetworkId}
                 />
