@@ -1,12 +1,12 @@
 "use client"
 
 import { useRouter, useSearchParams } from "next/navigation"
-import { NETWORKS, Network, NetworkType, TOKENS } from "../config"
+import { NETWORKS, Network, NetworkType, TOKENS, wagmiConfig } from "../config"
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { getStepThreeURL } from "./urls"
 import { useQuery } from "@tanstack/react-query"
-import { useWriteContract } from "wagmi"
+import { useAccount, useChainId, useSwitchChain, useWriteContract } from "wagmi"
 import { decodeSignature, getSigsAndSelectors, RawMessage } from "../drivers/portal"
 import { stringToHex } from "../drivers/util"
 import { PortalABI } from "../drivers/abis"
@@ -18,6 +18,7 @@ import { ArrowUpRight, Loader, TriangleAlert } from "lucide-react"
 import { toast } from "sonner"
 import { useWallet } from "../ChiaWalletManager/WalletContext"
 import AddERCTokenButton from "../assets/components/AddERCTokenButton"
+import { cn } from "@/lib/utils"
 
 export default function StepThree({
   sourceChain,
@@ -46,6 +47,12 @@ function StepThreeEVMDestination({
   sourceChain: Network,
   destinationChain: Network,
 }) {
+
+  const wagmiChainId = useChainId()
+  const { address } = useAccount()
+  const isEthWalletConnected = Boolean(address)
+  const { switchChainAsync, status } = useSwitchChain({ config: wagmiConfig })
+
   const searchParams = useSearchParams()
   const nonce = searchParams.get("nonce")!
   const source = searchParams.get("source")!
@@ -103,6 +110,16 @@ function StepThreeEVMDestination({
     })
   }
 
+  const switchToCorrectChain = async () => await switchChainAsync({ chainId: destinationChain.chainId! })
+  const isOnRightChain = destinationChain.chainId! === wagmiChainId
+
+  const onClick = async () => {
+    if (!isOnRightChain) {
+      await switchToCorrectChain()
+    }
+    generateTxPls()
+  }
+
   return (
     <div className="p-6 mt-2 bg-background flex flex-col gap-2 font-light rounded-md transition-none animate-in fade-in slide-in-from-bottom-2 duration-500">
       <p className="px-4">
@@ -112,10 +129,11 @@ function StepThreeEVMDestination({
       <div className="flex mt-6">
         {!waitingForTx ? (
           <Button
-            className="w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl"
-            onClick={generateTxPls}
+            disabled={!isEthWalletConnected}
+            className={cn("w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl", status === "pending" && 'animate-pulse')}
+            onClick={onClick}
           >
-            Generate Transaction
+            {isEthWalletConnected ? 'Generate Transaction' : 'Connect Wallet'}
           </Button>
         ) : (
           <Button
