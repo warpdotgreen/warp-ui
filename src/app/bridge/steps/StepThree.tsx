@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter, useSearchParams } from "next/navigation"
-import { Network, NetworkType, TOKENS } from "../config"
+import { NETWORKS, Network, NetworkType, TOKENS } from "../config"
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { getStepThreeURL } from "./urls"
@@ -14,9 +14,11 @@ import { getCoinRecordByName, pushTx, sbToJSON } from "../drivers/rpc"
 import { mintCATs } from "../drivers/erc20bridge"
 import { unlockCATs } from "../drivers/catbridge"
 import { Button } from "@/components/ui/button"
-import { ArrowUpRight, Loader } from "lucide-react"
+import { ArrowUpRight, Loader, TriangleAlert } from "lucide-react"
 import { toast } from "sonner"
 import { useWallet } from "../ChiaWalletManager/WalletContext"
+import AddERCTokenButton from "../assets/components/AddERCTokenButton"
+import AddCATButton from "../assets/components/AddCATButton"
 
 export default function StepThree({
   sourceChain,
@@ -105,7 +107,7 @@ function StepThreeEVMDestination({
   return (
     <div className="p-6 mt-2 bg-background flex flex-col gap-2 font-light rounded-md transition-none animate-in fade-in slide-in-from-bottom-2 duration-500">
       <p className="px-4">
-        Click the button below to create an offer for receiving your assets on {destinationChain.displayName}.
+        Click the button below to receive your assets on {destinationChain.displayName}.
         Note that lower fees mean slower confirmations.
       </p>
       <div className="flex mt-6">
@@ -342,6 +344,9 @@ function FinalCoinsetTxConfirmer({
   const [coinRecord, setCoinRecord] = useState<any>(null)
   const includedInBlock = coinRecord?.spent === true
 
+  const searchParams = useSearchParams()
+  const destinationAddr = searchParams.get('destination') as string
+
   const { data } = useQuery({
     queryKey: ['StepThree_getCoinRecordByName', txId],
     queryFn: () => getCoinRecordByName(destinationChain.rpcUrl, txId).then((res) => {
@@ -352,31 +357,40 @@ function FinalCoinsetTxConfirmer({
     refetchInterval: 5000,
   })
 
-  return <div className="flex flex-col">
-    <div className="p-6 my-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-in fade-in slide-in-from-bottom-2 duration-500">
-      <p className="font-extralight opacity-80 mb-4">Transaction ID</p>
-      <p className="text-xl font-light">{txId}</p>
-    </div>
-    <div className="p-6 bg-background flex gap-2 font-light rounded-md animate-[delayed-fade-in_0.7s_ease_forwards]">
-      {
-        includedInBlock ? (
-          <div className="flex flex-col w-full gap-2 animate-in fade-in slide-in-from-bottom-2 duration-500">
-            <p className="font-extralight opacity-80 mb-4">Transaction Sent</p>
-            <Button className="w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl" asChild>
-              <Link href={`${destinationChain.explorerUrl}/coin/0x${txId}`} target="_blank">Verify on SpaceScan <ArrowUpRight className="w-5 mb-3 h-auto" /></Link>
-            </Button>
-          </div>
-        ) : (
-          <>
-            <Loader className="w-4 shrink-0 h-auto animate-spin" />
-            <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-              <p className="animate-pulse">Waiting for transaction to be included in a block...</p>
+  return (
+    <div className="flex flex-col">
+      <div className="p-6 py-4 mt-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <div className="flex items-center gap-2">
+          <TriangleAlert className="opacity-80 w-4 h-auto" />
+          <p className="opacity-80">Don&apos;t see your bridged asset?</p>
+          <Button variant="ghost" className="ml-auto" asChild><Link href={`/bridge/assets?addAssets=${destinationAddr}`}>+ Add to Wallet</Link></Button>
+        </div>
+      </div>
+      <div className="p-6 my-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <p className="font-extralight opacity-80 mb-4">Transaction ID</p>
+        <p className="text-xl font-light">{txId}</p>
+      </div>
+      <div className="p-6 bg-background flex gap-2 font-light rounded-md animate-[delayed-fade-in_0.7s_ease_forwards]">
+        {
+          includedInBlock ? (
+            <div className="flex flex-col w-full gap-2 animate-in fade-in slide-in-from-bottom-2 duration-500">
+              <p className="font-extralight opacity-80 mb-4">Transaction Sent</p>
+              <Button className="w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl" asChild>
+                <Link href={`${destinationChain.explorerUrl}/coin/0x${txId}`} target="_blank">Verify on SpaceScan <ArrowUpRight className="w-5 mb-3 h-auto" /></Link>
+              </Button>
             </div>
-          </>
-        )
-      }
+          ) : (
+            <>
+              <Loader className="w-4 shrink-0 h-auto animate-spin" />
+              <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+                <p className="animate-pulse">Waiting for transaction to be included in a block...</p>
+              </div>
+            </>
+          )
+        }
+      </div>
     </div>
-  </div>
+  )
 }
 
 function FinalEVMTxConfirmer({
@@ -386,8 +400,19 @@ function FinalEVMTxConfirmer({
   destinationChain: Network,
   txId: string
 }) {
+  const searchParams = useSearchParams()
+  const destinationAddr = searchParams.get('destination') as string
+  const toChainName = searchParams.get('to')
+  const chainId = NETWORKS.find(n => n.id === toChainName)?.chainId
   return (
     <div className="flex flex-col">
+      <div className="p-6 py-4 mt-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <div className="flex items-center gap-2">
+          <TriangleAlert className="opacity-80 w-4 h-auto" />
+          <p className="opacity-80">Don&apos;t see your bridged asset?</p>
+          {chainId ? <AddERCTokenButton tokenAddress={destinationAddr} tokenChainId={chainId} /> : <Button variant="ghost" className="ml-auto" asChild><Link href={`/bridge/assets?addAssets=${destinationAddr}`}>+ Add to Wallet</Link></Button>}
+        </div>
+      </div>
       <div className="p-6 my-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-in fade-in slide-in-from-bottom-2 duration-500">
         <p className="font-extralight opacity-80 mb-4">Transaction ID</p>
         <p className="text-xl font-light">{txId}</p>
