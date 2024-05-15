@@ -37,7 +37,7 @@ function MessagesDelivered() {
           <p className="opacity-80">{formatNumber(data.messages_from_chia)} from Chia</p>
         </div>
       </div>
-      <div className="absolute -bottom-3 sm:-bottom-6 right-2 px-4 flex items-end animate-in fade-in slide-in-from-bottom-2 duration-500">
+      <div className="absolute bottom-3 right-2 px-4 flex items-end animate-in fade-in slide-in-from-bottom-2 duration-500">
         <p className="text-7xl sm:text-9xl font-light">{formatNumber(data.total_messages)}</p>
       </div>
     </div>

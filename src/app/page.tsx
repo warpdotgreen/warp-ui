@@ -45,10 +45,10 @@ export default function LandingPage() {
 
               <div className="flex flex-col gap-4 justify-center bg-accent border rounded-md p-6 z-10 overflow-hidden">
                 <p className="text-xl">Supported Chains</p>
-                <div className="flex w-full justify-end translate-y-10 gap-4 animate-in fade-in slide-in-from-bottom-16 duration-500">
+                <div className="flex w-full justify-end gap-4 animate-in fade-in slide-in-from-bottom-16 duration-500">
                   {NETWORKS.map(n => (
                     <div key={n.id} className="relative">
-                      <p className="opacity-80 absolute -top-4 left-1/2 -translate-x-1/2 rounded-full border backdrop-blur-lg bg-theme-purple/50 px-4 py-1 z-20">{n.displayName}</p>
+                      <p className="absolute -bottom-4 left-1/2 -translate-x-1/2 rounded-full border backdrop-blur-3xl bg-theme-purple px-4 py-1 z-10">{n.displayName}</p>
                       <div className="border rounded-full aspect-square p-4 shadow-white/50 shadow-sm h-full flex items-center justify-center bg-accent">{getChainIcon(n.displayName, "w-16 h-auto sm:h-20 sm:w-auto")}</div>
                     </div>
                   ))}
