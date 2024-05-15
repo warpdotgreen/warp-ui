@@ -1,4 +1,5 @@
 "use client"
+import { Skeleton } from "@/components/ui/skeleton"
 import { useQuery } from "@tanstack/react-query"
 import { Lock } from "lucide-react"
 
@@ -76,7 +77,7 @@ function LiveApps() {
   })
 
 
-  if (isLoading || !data) return <></>
+  if (isLoading || !data) return <>{liveAppsConfig.map((_, i) => <Skeleton key={i} className="h-[170px] bg-background" />)}</>
 
 
   const getTokenTableRow = (token: typeof liveAppsConfig[0]["tokens"][0]) => {
