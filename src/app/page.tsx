@@ -32,7 +32,7 @@ export default function LandingPage() {
         speedFactor={starSpeed}
         backgroundColor="black"
       />
-      <main id="scrollContainer" className="relative px-4 sm:px-8 py-4 pb-44">
+      <main id="scrollContainer" className="relative px-4 sm:px-8 py-4 pb-20">
         <section className="mx-auto min-h-[calc(100vh-144px)] flex justify-center">
 
           <div className="flex flex-col items-center gap-4">
