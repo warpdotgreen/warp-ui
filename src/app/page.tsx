@@ -9,6 +9,7 @@ import { getChainIcon } from "@/lib/utils"
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import LiveApps from "./landingPageComponents/LiveApps"
+import MessagesDelivered from "./landingPageComponents/MessagesDelivered"
 
 export default function LandingPage() {
 
@@ -37,7 +38,7 @@ export default function LandingPage() {
 
           <div className="flex flex-col items-center gap-4">
 
-            <div className="flex flex-col items-center justify-center h-full min-h-[min(100vh,30rem)]">
+            <div className="flex flex-col items-center justify-center h-full min-h-[min(100vh,25rem)] sm:min-h-[min(100vh,33rem)]">
               <h1 className="text-4xl sm:text-7xl text-balance text-center font-light">A Cross-Chain Messaging Protocol</h1>
               <h2 className="opacity-80 text-center mt-4 text-pretty">warp.green allows your app to communicate across blockchains</h2>
 
@@ -52,24 +53,13 @@ export default function LandingPage() {
             </div>
 
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 w-full">
 
-              <div className="z-10 bg-accent border rounded-md flex gap-4 p-2 justify-between overflow-hidden">
-                <div className="px-4 flex flex-col my-4 w-full">
-                  <p className="text-xl">Messages Delivered</p>
-                  <div className="mt-auto text-xs sm:text-base">
-                    <p className="opacity-80">32 to Chia</p>
-                    <p className="opacity-80">24 from Chia</p>
-                  </div>
-                </div>
-                <div className="translate-y-8 px-4 flex items-end">
-                  <p className="text-9xl font-light">61</p>
-                </div>
-              </div>
+              <MessagesDelivered />
 
               <div className="flex flex-col gap-4 justify-center bg-accent border rounded-md p-6 z-10 overflow-hidden">
                 <p className="text-xl">Supported Chains</p>
-                <div className="flex w-full justify-end translate-y-10 gap-4">
+                <div className="flex w-full justify-end translate-y-10 gap-4 animate-in fade-in slide-in-from-bottom-16 duration-500">
                   {NETWORKS.map(n => (
                     <div key={n.id} className="relative">
                       <p className="opacity-80 absolute -top-4 left-1/2 -translate-x-1/2 rounded-full border backdrop-blur-lg bg-theme-purple/50 px-4 py-1 z-20">{n.displayName}</p>
@@ -79,7 +69,7 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              <div className="z-10 bg-accent border rounded-md flex flex-col md:col-span-2 gap-4 p-2 justify-between overflow-hidden">
+              <div className="z-10 bg-accent border rounded-md flex flex-col xl:col-span-2 gap-4 p-2 justify-between overflow-hidden">
                 <div className="px-4 flex flex-col my-4 w-full">
                   <p className="text-xl">Live Apps</p>
                   <p className="opacity-80">Apps that use warp.green as an oracle</p>
