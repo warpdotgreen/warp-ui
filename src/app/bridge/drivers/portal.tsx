@@ -358,7 +358,11 @@ export async function getSigsAndSelectors(
     sigStrings = sigStrings.slice(0, sigLimit);
   }
 
-  const pubkeys = events.map((event) => event.pubkey);
+  let pubkeys = events.map((event) => event.pubkey);
+  if(pubkeys.length > sigLimit) {
+    pubkeys = pubkeys.slice(0, sigLimit);
+  }
+  
   const selectors = NOSTR_CONFIG.validatorKeys.map((validatorInfo) => pubkeys.includes(validatorInfo));
 
   return [
