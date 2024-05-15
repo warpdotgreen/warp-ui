@@ -1,7 +1,7 @@
 // https://www.npmjs.com/package/react-starfield (With larger stars)
 'use client'
 
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 
 interface Props {
   speedFactor?: number
@@ -12,6 +12,25 @@ interface Props {
 
 export default function Starfield(props: Props) {
   const { speedFactor = 0.05, backgroundColor = 'black', starColor = [255, 255, 255], starCount = 5000 } = props
+
+  // Disable star animation speed if user prefers reduced-motion
+  const [isReducedMotion, setIsReducedMotion] = useState<boolean>(false)
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    if (mediaQuery.matches) {
+      setIsReducedMotion(true)
+    }
+
+    const handleChange = (event: MediaQueryListEvent) => {
+      setIsReducedMotion(event.matches)
+    }
+
+    mediaQuery.addEventListener('change', handleChange)
+
+    return () => {
+      mediaQuery.removeEventListener('change', handleChange)
+    }
+  }, [])
 
   useEffect(() => {
     const canvas = document.getElementById('starfield') as HTMLCanvasElement
@@ -82,7 +101,7 @@ export default function Starfield(props: Props) {
           let elapsed = time - prevTime
           prevTime = time
 
-          moveStars(elapsed * speedFactor)
+          moveStars(elapsed * (isReducedMotion ? 0 : speedFactor))
 
           clear()
 
@@ -127,7 +146,7 @@ export default function Starfield(props: Props) {
     return () => {
       window.onresize = null
     }
-  }, [starColor, backgroundColor, speedFactor, starCount])
+  }, [starColor, backgroundColor, speedFactor, starCount, isReducedMotion])
 
   return (
     <canvas
