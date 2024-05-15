@@ -7,6 +7,8 @@ import Starfield from "./landingPageComponents/Starfield"
 import { NETWORKS } from "./bridge/config"
 import { getChainIcon } from "@/lib/utils"
 import { useEffect, useState } from "react"
+import Image from "next/image"
+import LiveApps from "./landingPageComponents/LiveApps"
 
 export default function LandingPage() {
 
@@ -30,10 +32,10 @@ export default function LandingPage() {
         speedFactor={starSpeed}
         backgroundColor="black"
       />
-      <main id="scrollContainer" className="relative px-4 sm:px-8 py-4">
+      <main id="scrollContainer" className="relative px-4 sm:px-8 py-4 pb-44">
         <section className="mx-auto min-h-[calc(100vh-144px)] flex justify-center">
 
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center gap-4">
 
             <div className="flex flex-col items-center justify-center h-full min-h-[min(100vh,30rem)]">
               <h1 className="text-4xl sm:text-7xl text-balance text-center font-light">A Cross-Chain Messaging Protocol</h1>
@@ -45,25 +47,45 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* <h3 className="text-xl mb-4 font-light opacity-80 mt-24">Messages</h3> */}
             <div className="bg-accent border rounded-lg p-2 w-full mt-auto animate-in fade-in duration-500 grid grid-cols-1 md:grid-cols-2 gap-2">
               <Messages />
             </div>
 
-            <div className="flex flex-wrap gap-4 justify-center my-12">
-              {NETWORKS.map(n => (
-                <div key={n.id} className="border rounded-full p-4 shadow-white shadow-sm flex items-center justify-center bg-accent">{getChainIcon(n.displayName, "w-12")}</div>
-              ))}
-            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 w-full">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
 
               <div className="z-10 bg-accent border rounded-md flex gap-4 p-2 justify-between overflow-hidden">
-                <div className="text-xl self-center px-4">
-                  Messages Delivered
+                <div className="px-4 flex flex-col my-4 w-full">
+                  <p className="text-xl">Messages Delivered</p>
+                  <div className="mt-auto text-xs sm:text-base">
+                    <p className="opacity-80">32 to Chia</p>
+                    <p className="opacity-80">24 from Chia</p>
+                  </div>
                 </div>
-                <div className="translate-y-8 px-4">
+                <div className="translate-y-8 px-4 flex items-end">
                   <p className="text-9xl font-light">61</p>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-4 justify-center bg-accent border rounded-md p-6 z-10 overflow-hidden">
+                <p className="text-xl">Supported Chains</p>
+                <div className="flex w-full justify-end translate-y-10 gap-4">
+                  {NETWORKS.map(n => (
+                    <div key={n.id} className="relative">
+                      <p className="opacity-80 absolute -top-4 left-1/2 -translate-x-1/2 rounded-full border backdrop-blur-lg bg-theme-purple/50 px-4 py-1 z-20">{n.displayName}</p>
+                      <div className="border rounded-full aspect-square p-4 shadow-white/50 shadow-sm h-full flex items-center justify-center bg-accent">{getChainIcon(n.displayName, "w-16 h-auto sm:h-20 sm:w-auto")}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="z-10 bg-accent border rounded-md flex flex-col md:col-span-2 gap-4 p-2 justify-between overflow-hidden">
+                <div className="px-4 flex flex-col my-4 w-full">
+                  <p className="text-xl">Live Apps</p>
+                  <p className="opacity-80">Apps that use warp.green as an oracle</p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <LiveApps />
                 </div>
               </div>
 
@@ -72,6 +94,11 @@ export default function LandingPage() {
           </div>
         </section>
       </main>
+      <footer className="relative mt-auto flex items-center justify-center w-full pb-4 pt-12 z-10">
+        <Link href="/" className="text-theme-green-foreground hover:opacity-80 hover:text-green-300 font-medium hover:underline transition-colors focus-visible:outline-none ring-offset-accent rounded-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+          <Image src="/warp-green-logo.png" className="h-3.5 aspect-auto w-auto" alt="warp.green logo" width={837} height={281} />
+        </Link>
+      </footer>
     </>
   )
 }
