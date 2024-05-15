@@ -1,12 +1,9 @@
 "use client"
 import { WagmiProvider } from "wagmi"
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { wagmiConfig, WALLETCONNECT_PROJECT_ID } from "./config"
 import { createWeb3Modal } from "@web3modal/wagmi/react"
 import { useEffect } from "react"
 import { ChiaWalletProvider } from "./ChiaWalletManager/WalletContext"
-
-const queryClient = new QueryClient()
 
 createWeb3Modal({
   wagmiConfig: wagmiConfig,
@@ -33,11 +30,9 @@ export function ClientProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <WagmiProvider config={wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
-        <ChiaWalletProvider>
-          {children}
-        </ChiaWalletProvider>
-      </QueryClientProvider>
+      <ChiaWalletProvider>
+        {children}
+      </ChiaWalletProvider>
     </WagmiProvider>
   )
 }
