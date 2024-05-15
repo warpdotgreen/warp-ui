@@ -1,49 +1,61 @@
-"use client";
+"use client"
 
-import { useAccount, useAccountEffect } from "wagmi";
-import { Network, NETWORKS, NetworkType, TOKENS } from "./../config";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Token } from "../config";
-import { getStepOneURL } from "./urls";
-import { ChiaWalletContext } from "../ChiaWalletContext";
+import { useAccount, useAccountEffect } from "wagmi"
+import { Network, NETWORKS, NetworkType, TOKENS } from "./../config"
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { Token } from "../config"
+import { getStepOneURL } from "./urls"
+import { useWallet } from "../ChiaWalletManager/WalletContext"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { ArrowRight, ArrowRightLeft, ChevronRight } from "lucide-react"
+import { cn } from "@/lib/utils"
+
 
 export default function StepZero() {
-  const router = useRouter();
+  const router = useRouter()
   const [
     tokenSymbol, setTokenSymbol
-  ] = useState(TOKENS[0].symbol);
+  ] = useState(TOKENS[0].symbol)
 
-  const token = TOKENS.find((t: Token) => t.symbol === tokenSymbol)!;
+  const token = TOKENS.find((t: Token) => t.symbol === tokenSymbol)!
   const networks: Network[] = Array.from(new Set(
     token.supported.flatMap(info => [info.evmNetworkId, info.coinsetNetworkId])
-  )).map((id: string) => NETWORKS.find((n: Network) => n.id === id)!);
+  )).map((id: string) => NETWORKS.find((n: Network) => n.id === id)!)
 
   const [
     sourceNetworkId, setSourceNetworkId
   ] = useState(
     token.sourceNetworkType !== NetworkType.EVM ? token.supported[0].coinsetNetworkId : token.supported[0].evmNetworkId
-  );
+  )
   const [
     destinationNetworkId, setDestinationNetworkId
   ] = useState(
     token.sourceNetworkType === NetworkType.EVM ? token.supported[0].coinsetNetworkId : token.supported[0].evmNetworkId
-  );
+  )
   const [
     amount, setAmount
-  ] = useState("");
+  ] = useState("")
   const [
     destinationAddress, setDestinationAddress
-  ] = useState("");
-  const account = useAccount();
+  ] = useState("")
+  const account = useAccount()
 
   useAccountEffect({
     onConnect: (account) => {
-      if(account?.address !== undefined && NETWORKS.find((n: Network) => n.id === destinationNetworkId)?.type === NetworkType.EVM) {
-        setDestinationAddress(account!.address);
+      if (account?.address !== undefined && NETWORKS.find((n: Network) => n.id === destinationNetworkId)?.type === NetworkType.EVM) {
+        setDestinationAddress(account!.address)
       }
     }
-  });
+  })
 
   const goToFirstStep = async () => {
     router.push(getStepOneURL({
@@ -52,158 +64,184 @@ export default function StepZero() {
       tokenSymbol,
       recipient: destinationAddress,
       amount
-    }));
+    }))
+  }
+
+  const { walletConnected, address } = useWallet()
+
+  const updateDestinationAddress = (destNetworkId: string) => {
+    if (account?.address !== undefined && NETWORKS.find((n: Network) => n.id === destNetworkId)?.type === NetworkType.EVM) {
+      setDestinationAddress(account!.address)
+    } else {
+      if (walletConnected && address && NETWORKS.find((n: Network) => n.id === destNetworkId)?.type === NetworkType.COINSET) {
+        setDestinationAddress(address)
+      } else {
+        setDestinationAddress("")
+      }
+    }
+  }
+
+  const [sourceNetworks, setSourceNetworks] = useState(networks.filter(opt => opt.displayName !== "Chia"))
+  const [destinationNetworks, setDestinationNetworks] = useState(networks.filter(opt => opt.displayName === "Chia"))
+
+  const swapNetworks = () => {
+    const newSourceNetworks = [...destinationNetworks]
+    const newDestinationNetworks = [...sourceNetworks]
+    setSourceNetworks(newSourceNetworks)
+    setDestinationNetworks(newDestinationNetworks)
+
+    const temp = sourceNetworkId
+    setSourceNetworkId(destinationNetworkId)
+    setDestinationNetworkId(temp)
+
+    updateDestinationAddress(temp)
+  }
+
+
+  useEffect(() => {
+    if (!address) {
+      setDestinationAddress("")
+    }
+    if (walletConnected && address && NETWORKS.find((n: Network) => n.id === destinationNetworkId)?.type === NetworkType.COINSET) {
+      setDestinationAddress(address)
+    }
+  }, [walletConnected, address, destinationNetworkId])
+
+  const onTokenChange = (newValue: string) => {
+    const newToken = TOKENS.find((t: Token) => t.symbol === newValue)!
+    setTokenSymbol(newValue)
+
+    // if (newToken.symbol === "usdt") {
+    //   setSourceNetworks(prev => [...prev.filter(net => net.displayName !== "Base")])
+    //   setDestinationNetworks(prev => [...prev.filter(net => net.displayName !== "Base")])
+    // } else {
+    //   setSourceNetworks(prev => [...prev.filter(net => net.displayName !== "Base")])
+    //   setDestinationNetworks(prev => [...prev.filter(net => net.displayName !== "Base")])
+    // }
+
+    if (newToken.sourceNetworkType !== sourceNetworks[0].type) {
+      swapNetworks()
+    }
+
+    setSourceNetworkId(
+      newToken.sourceNetworkType !== NetworkType.EVM ?
+        newToken.supported[0].coinsetNetworkId : newToken.supported[0].evmNetworkId
+    )
+
+    const destNetworkId = newToken.sourceNetworkType === NetworkType.EVM ?
+      newToken.supported[0].coinsetNetworkId : newToken.supported[0].evmNetworkId
+    setDestinationNetworkId(destNetworkId)
+    updateDestinationAddress(destNetworkId)
   }
 
   return (
-    <ChiaWalletContext.Consumer>
-      {(chiaWalletContext: any) => {
-        if(chiaWalletContext.connected && NETWORKS.find((n: Network) => n.id === destinationNetworkId)?.type === NetworkType.COINSET) {
-            setDestinationAddress(chiaWalletContext.address);
-          }
+    <>
+      <div className="max-w-md mx-auto w-full grow flex flex-col justify-center py-8">
+        <div className="p-6">
+          <div className="space-y-6">
+            <div className="space-y-2">
 
+              {/* Amount Input & Token Selector */}
+              <div className="flex flex-col gap-4 bg-accent border rounded-lg p-2 animate-[delayed-fade-in_0.7s_ease_forwards]">
 
-        const updateDestinationAddress = (destNetworkId: string) => {
-          if(account?.address !== undefined && NETWORKS.find((n: Network) => n.id === destNetworkId)?.type === NetworkType.EVM) {
-            setDestinationAddress(account!.address);
-          } else {
-            if(chiaWalletContext.connected && NETWORKS.find((n: Network) => n.id === destNetworkId)?.type === NetworkType.COINSET) {
-              setDestinationAddress(chiaWalletContext.address);
-            } else {
-              setDestinationAddress("");
-            }
-          }
-        };
-
-        const swapNetworks = () => {
-          const temp = sourceNetworkId;
-          setSourceNetworkId(destinationNetworkId);
-          setDestinationNetworkId(temp);
-          
-          updateDestinationAddress(temp);
-        };
-
-        return (
-          <div className="max-w-md mx-auto py-8">
-            <div className="mx-auto border-zinc-700 rounded-lg border p-6 bg-zinc-900">
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <div className="flex justify-right items-center">
-                    <label className="text-zinc-300 text-xl font-medium pr-4">Token</label>
-                    {/* todo: https://headlessui.com/react/listbox */}
-                    <select
-                      className="px-2 py-2 border border-zinc-700 rounded bg-zinc-800 text-zinc-100 outline-none"
-                      value={tokenSymbol}
-                      onChange={(e) => {
-                          setTokenSymbol(e.target.value);
-
-                          const newToken = TOKENS.find((t: Token) => t.symbol === e.target.value)!;
-                          setSourceNetworkId(
-                            newToken.sourceNetworkType !== NetworkType.EVM ?
-                              newToken.supported[0].coinsetNetworkId : newToken.supported[0].evmNetworkId
-                          );
-
-                          const destNetworkId = newToken.sourceNetworkType === NetworkType.EVM ?
-                              newToken.supported[0].coinsetNetworkId : newToken.supported[0].evmNetworkId;
-                          setDestinationNetworkId(destNetworkId);
-                          updateDestinationAddress(destNetworkId);
-                      }}
-                    >
-                      {TOKENS.map((t: Token) => (
-                        <option key={t.symbol} value={t.symbol}>{t.symbol}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <BlockchainDropdown
-                      label="From"
-                      options={networks}
-                      selectedValue={sourceNetworkId}
-                      updateSelectedValue={setSourceNetworkId}
-                    />
-                    <button
-                      type="button"
-                      className="mx-2 p-2 text-zinc-300 hover:bg-zinc-700 rounded-xl"
-                      onClick={swapNetworks}
-                    >
-                      <ChangeArrow />
-                    </button>
-                    <BlockchainDropdown
-                      label="To"
-                      options={networks}
-                      selectedValue={destinationNetworkId}
-                      updateSelectedValue={setDestinationNetworkId}
-                    />
-                  </div>
-                  <input
+                <div className="flex items-center h-14 w-full gap-2">
+                  <label htmlFor="tokenSelector" className="text-xl pr-4 mr-auto sr-only">Token amount</label>
+                  <Input
                     type="text"
                     placeholder="Amount"
-                    className="w-full px-2 py-2 border border-zinc-700 rounded outline-none bg-zinc-800 text-zinc-300 placeholder-zinc-500 text-lg"
+                    className="text-xl h-full border-0"
                     pattern="^\d*(\.\d{0,8})?$"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                   />
-                  <input
-                    type="text"
-                    placeholder="Receive Address"
-                    className="w-full px-2 py-2 border border-zinc-700 rounded outline-none bg-zinc-800 text-zinc-300 placeholder-zinc-500 text-lg"
-                    value={destinationAddress}
-                    onChange={(e) => setDestinationAddress(e.target.value)}
-                  />
-                </div>
-
-                <div className="flex justify-center">
-                  {
-                    chiaWalletContext.connected && account?.address !== undefined ? (
-                       <button
-                          type="submit"
-                          className="w-64 px-2 py-3 text-zinc-100 rounded-3xl bg-green-500 text-bg hover:bg-green-700 font-semibold transition-colors duration-300"
-                          onClick={goToFirstStep}
-                        >
-                          Bridge
-                        </button>
-                    ) : (
-                      <button
-                          type="submit"
-                          className="w-64 px-2 py-3 text-zinc-300 rounded-3xl bg-green-900 font-semibold"
-                          disabled={true}
-                        >
-                          Connect wallets first
-                        </button>
-                    )
-                  }
+                  <Select defaultValue={tokenSymbol} value={tokenSymbol} onValueChange={onTokenChange}>
+                    <SelectTrigger id="tokenSelector" className="text-xl w-[180px] h-full pr-4 border-0 bg-theme-purple hover:opacity-80 rounded-sm">
+                      <SelectValue placeholder="Select..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {TOKENS.map((t: Token) => (
+                        <SelectItem key={t.symbol} value={t.symbol} className="text-xl">{t.symbol}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
+
+              {/* Chain Selector/Switcher */}
+              <div className="bg-accent border border-input rounded-lg p-2 flex items-center justify-between animate-in fade-in slide-in-from-bottom-2 duration-500">
+                <BlockchainDropdown
+                  label="From"
+                  options={sourceNetworks.filter(n => tokenSymbol === "USDT" ? n.displayName !== "Base" : n)}
+                  selectedValue={sourceNetworkId}
+                  updateSelectedValue={setSourceNetworkId}
+                />
+                <Button
+                  variant="ghost"
+                  type="button"
+                  className="mx-2 mt-7 p-2 border-0 text-neutral-500 hover:opacity-80 rounded-xl"
+                  onClick={swapNetworks}
+                >
+                  <ArrowRightLeft />
+                </Button>
+                <BlockchainDropdown
+                  label="To"
+                  options={destinationNetworks}
+                  selectedValue={destinationNetworkId}
+                  updateSelectedValue={setDestinationNetworkId}
+                />
+              </div>
+
+
+              <div className={cn("flex justify-center", !walletConnected || account?.address == undefined || !Boolean(amount) && 'cursor-not-allowed')}>
+                {
+                  <Button
+                    type="submit"
+                    className="w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl"
+                    onClick={goToFirstStep}
+                    disabled={Boolean(!amount) || !walletConnected || account?.address == undefined}
+                  >
+                    {
+                      (!walletConnected || account?.address == undefined) ? "Connect Wallets First"
+                        :
+                        Boolean(amount) ? "Bridge" : "Enter an Amount"
+                    }
+                  </Button>
+                }
+              </div>
+
             </div>
+
+
           </div>
-        );
-      }}
-    </ChiaWalletContext.Consumer>
-  );
+        </div>
+      </div>
+    </>
+  )
 }
 
 
 type BlockchainDropdownProps = {
-  label: string;
-  options: Network[];
-  selectedValue: string;
-  updateSelectedValue: (value: string) => void;
-};
+  label: string
+  options: Network[]
+  selectedValue: string
+  updateSelectedValue: (value: string) => void
+}
 function BlockchainDropdown({ label, options, selectedValue, updateSelectedValue }: BlockchainDropdownProps) {
   return (
-    <div className="px-2 py-2 relative flex w-full flex-col border border-zinc-700 rounded bg-zinc-800">
-      <label className="text-zinc-500 text-sm mb-1">{label}</label>
-      <select
-        value={selectedValue}
-        onChange={(e) => updateSelectedValue(e.target.value)}
-        className="flex-1 bg-zinc-800 text-zinc-300 outline-none appearance-none"
-      >
-        {options.map((n) => (
-          <option key={n.id} value={n.id}>{n.displayName}</option>
-        ))}
-      </select>
+    <div className="w-full flex flex-col gap-1">
+      <p className="px-2 opacity-80">{label}</p>
+      <Select onValueChange={updateSelectedValue} value={selectedValue} defaultValue={selectedValue}>
+        <SelectTrigger className="text-xl border-0 rounded-sm hover:opacity-80 h-14">
+          <SelectValue placeholder="" />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((n) => (
+            <SelectItem className="text-xl" key={n.id} value={n.id}>{n.displayName}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
-  );
+  )
 }
 
 
@@ -213,5 +251,5 @@ function ChangeArrow() {
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
       <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
     </svg>
-  );
+  )
 }

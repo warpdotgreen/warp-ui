@@ -1,10 +1,10 @@
-import { defaultWagmiConfig } from "@web3modal/wagmi";
-import { ethers } from "ethers";
+import { defaultWagmiConfig } from "@web3modal/wagmi"
+import { ethers } from "ethers"
 import { http, createConfig } from 'wagmi'
 import { sepolia, baseSepolia } from 'wagmi/chains'
-import { getWrappedERC20AssetID } from "./drivers/erc20bridge";
+import { getWrappedERC20AssetID } from "./drivers/erc20bridge"
 
-export const TESTNET = true;
+export const TESTNET = true
 
 export enum NetworkType {
   COINSET = 'coinset',
@@ -74,7 +74,7 @@ export const CHIA_NETWORK: Network = {
   prefix: "txch",
   portalLauncherId: "ed3ae61bacb1479b2ab8a771b758bc551ec8ba5c930bce002f30ae8a34a06abe",
   aggSigData: "37a90eb5185a9c4439a91ddc98bbadce7b4feba060d50116a067de66bf236615",
-};
+}
 
 export const ETHEREUM_NETWORK: Network = {
   displayName: 'Ethereum',
@@ -86,16 +86,16 @@ export const ETHEREUM_NETWORK: Network = {
   messageToll: ethers.parseEther("0.00001"),
   signatureThreshold: 3,
   validatorInfos: [
-      "0x113f132a978B7679Aa72c02B0234a32569507043",
-      "0xC1cF931aE32e7592fa25f5a0978B7663f20aafBd",
-      "0xE42277e12F577810e73f70b42e184dd5BcD30ce6",
-      "0x5110FB4762021ad3954Bdf2caBF4510C0ACd6d2f",
-      "0x716f7ff65adcbBc68cb5bF34178C87aBC2B08ab6",
-      "0x7d325C4783F9F572Fde31Ae358e28Cc3d120Cd8A",
-      "0x92c02A599E056B2706f74421f4250951E1f736ab",
-      "0xcF46Dd34bB1B1a4c5dCC9aEed02E494180C637f1",
-      "0x144eE8FaB13Eed04b5A8F339105076B8BC51cAF2",
-      "0xfB347BbC9C21CD71B0D86ffa99d2667372DBCa8B"
+    "0x113f132a978B7679Aa72c02B0234a32569507043",
+    "0xC1cF931aE32e7592fa25f5a0978B7663f20aafBd",
+    "0xE42277e12F577810e73f70b42e184dd5BcD30ce6",
+    "0x5110FB4762021ad3954Bdf2caBF4510C0ACd6d2f",
+    "0x716f7ff65adcbBc68cb5bF34178C87aBC2B08ab6",
+    "0x7d325C4783F9F572Fde31Ae358e28Cc3d120Cd8A",
+    "0x92c02A599E056B2706f74421f4250951E1f736ab",
+    "0xcF46Dd34bB1B1a4c5dCC9aEed02E494180C637f1",
+    "0x144eE8FaB13Eed04b5A8F339105076B8BC51cAF2",
+    "0xfB347BbC9C21CD71B0D86ffa99d2667372DBCa8B"
   ],
   confirmationMinHeight: 64,
   portalAddress: "0xB5651bA4DeaF815f5929243d6ACF99D2d7C113eb",
@@ -133,20 +133,20 @@ export const NETWORKS = [
   CHIA_NETWORK,
   BASE_NETWORK,
   ETHEREUM_NETWORK
-];
+]
 
 export type TokenInfo = {
   evmNetworkId: string,
   coinsetNetworkId: string,
   assetId: string,
   contractAddress: `0x${string}`
-};
+}
 
 export type Token = {
   symbol: string,
   sourceNetworkType: NetworkType,
   supported: TokenInfo[]
-};
+}
 
 const MILLIETH_ADDRESS_ETHEREUM: `0x${string}` = '0xFA2839748535B0eeAaCbbC932da6676DbFF45156';
 const MILLIETH_ADDRESS_BASE: `0x${string}` = '0xE063EefEca08c1Ef7C42a90D39bA50A660a505C1';
@@ -168,9 +168,9 @@ export const ETH_TOKEN: Token = {
       contractAddress: MILLIETH_ADDRESS_ETHEREUM
     }
   ],
-};
+}
 
-const USDT_ADDRESS_ETHEREUM: `0x${string}` = '0xaa8e23fb1079ea71e0a56f48a2aa51851d8433d0';
+const USDT_ADDRESS_ETHEREUM: `0x${string}` = '0xaa8e23fb1079ea71e0a56f48a2aa51851d8433d0'
 const USDT_TOKEN: Token = {
   symbol: 'USDT',
   sourceNetworkType: NetworkType.EVM,
@@ -182,7 +182,7 @@ const USDT_TOKEN: Token = {
       contractAddress: USDT_ADDRESS_ETHEREUM
     },
   ]
-};
+}
 
 const XCH_ASSET_ID = "00".repeat(32);
 const WXCH_ADDRESS_ETHERUM : `0x${string}` = '0xEC6a48BD01E7B031050FB1d1F4246abfd31114FA';
@@ -204,7 +204,7 @@ export const XCH_TOKEN: Token = {
       contractAddress: WXCH_ADDRESS_BASE
     },
   ]
-};
+}
 
 const DBX_ASSET_ID = "d82dd03f8a9ad2f84353cd953c4de6b21dbaaf7de3ba3f4ddd9abe31ecba80ad";
 const WDBX_ADDRESS_ETHERUM : `0x${string}` = '0x5C5d6FA07c570DF689A34C9334B1DC9fe6E9dF1C';
@@ -226,7 +226,7 @@ export const DBX_TOKEN: Token = {
       contractAddress: WDBX_ADDRESS_BASE
     },
   ]
-};
+}
 
 
 export const TOKENS = [
@@ -236,31 +236,31 @@ export const TOKENS = [
   DBX_TOKEN
 ]
 
-declare module 'wagmi' { 
-  interface Register { 
-    config: typeof wagmiConfig 
-  } 
+declare module 'wagmi' {
+  interface Register {
+    config: typeof wagmiConfig
+  }
 }
 
-export const WALLETCONNECT_PROJECT_ID = 'e47a64f2fc7214f6c9f71b8b71e5e786';
+export const WALLETCONNECT_PROJECT_ID = 'e47a64f2fc7214f6c9f71b8b71e5e786'
 
-const metadata = {
+export const WcMetadata = {
   name: 'warp.green Bridge Interface',
   description: 'Bridging powered by the warp.green cross-chain messaging protocol',
   url: 'https://warp.green',
-  icons: []
+  icons: ['https://testnet.warp.green/warp-green-logo.png']
 }
 
 export const wagmiConfig = defaultWagmiConfig({
   chains: [sepolia, baseSepolia],
   projectId: WALLETCONNECT_PROJECT_ID,
   ssr: true,
-  metadata,
+  metadata: WcMetadata,
   transports: {
     [sepolia.id]: http(ETHEREUM_NETWORK.rpcUrl),
     [baseSepolia.id]: http(BASE_NETWORK.rpcUrl),
   },
-});
+})
 
 export const NOSTR_CONFIG = {
   relays: [

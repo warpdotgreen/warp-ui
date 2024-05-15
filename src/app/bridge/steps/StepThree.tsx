@@ -1,25 +1,29 @@
-"use client";
+"use client"
 
-import { useRouter, useSearchParams } from "next/navigation";
-import {  Network, NetworkType, TOKENS } from "../config";
-import {  useState } from "react";
-import { initializeBLS } from "clvm";
-import { WindToy } from "react-svg-spinners";
-import Link from "next/link";
-import { getStepThreeURL } from "./urls";
-import { useQuery } from "@tanstack/react-query";
-import { useWriteContract } from "wagmi";
-import { decodeSignature, getSigsAndSelectors, RawMessage } from "../drivers/portal";
-import { stringToHex } from "../drivers/util";
-import { PortalABI } from "../drivers/abis";
-import { getCoinRecordByName, pushTx, sbToJSON } from "../drivers/rpc";
-import { mintCATs } from "../drivers/erc20bridge";
-import { unlockCATs } from "../drivers/catbridge";
+import { useRouter, useSearchParams } from "next/navigation"
+import { NETWORKS, Network, NetworkType, TOKENS, wagmiConfig } from "../config"
+import { useEffect, useState } from "react"
+import Link from "next/link"
+import { getStepThreeURL } from "./urls"
+import { useQuery } from "@tanstack/react-query"
+import { useAccount, useChainId, useSwitchChain, useWriteContract } from "wagmi"
+import { decodeSignature, getSigsAndSelectors, RawMessage } from "../drivers/portal"
+import { stringToHex } from "../drivers/util"
+import { PortalABI } from "../drivers/abis"
+import { getCoinRecordByName, pushTx, sbToJSON } from "../drivers/rpc"
+import { mintCATs } from "../drivers/erc20bridge"
+import { unlockCATs } from "../drivers/catbridge"
+import { Button } from "@/components/ui/button"
+import { ArrowUpRight, Loader, TriangleAlert } from "lucide-react"
+import { toast } from "sonner"
+import { useWallet } from "../ChiaWalletManager/WalletContext"
+import AddERCTokenButton from "../assets/components/AddERCTokenButton"
+import { cn } from "@/lib/utils"
 
 export default function StepThree({
   sourceChain,
   destinationChain,
-} : {
+}: {
   sourceChain: Network,
   destinationChain: Network,
 }) {
@@ -43,47 +47,52 @@ function StepThreeEVMDestination({
   sourceChain: Network,
   destinationChain: Network,
 }) {
-  const searchParams = useSearchParams();
-  const nonce = searchParams.get("nonce")!;
-  const source = searchParams.get("source")!;
-  const destination = searchParams.get("destination")! as `0x${string}`;
-  const contents = JSON.parse(searchParams.get("contents")!).map((c: string) => `0x${c}`) as `0x${string}`[];
-  const [waitingForTx, setWaitingForTx] = useState(false);
-  const { data: hash, writeContract } = useWriteContract();
 
-  const [sigs, setSigs] = useState<string[]>([]);
+  const wagmiChainId = useChainId()
+  const { address } = useAccount()
+  const isEthWalletConnected = Boolean(address)
+  const { switchChainAsync, status } = useSwitchChain({ config: wagmiConfig })
+
+  const searchParams = useSearchParams()
+  const nonce = searchParams.get("nonce")!
+  const source = searchParams.get("source")!
+  const destination = searchParams.get("destination")! as `0x${string}`
+  const contents = JSON.parse(searchParams.get("contents")!).map((c: string) => `0x${c}`) as `0x${string}`[]
+  const [waitingForTx, setWaitingForTx] = useState(false)
+  const { data: hash, writeContract } = useWriteContract()
+
+  const [sigs, setSigs] = useState<string[]>([])
   useQuery({
     queryKey: ['StepThree_fetchSigsAndSelectors', nonce],
     queryFn: () => getSigsAndSelectors(
-      stringToHex(sourceChain.id), stringToHex(destinationChain.id), nonce, null
+      stringToHex(sourceChain.id), stringToHex(destinationChain.id), nonce, null, destinationChain.signatureThreshold
     ).then((sigsAndSelectors) => {
-      setSigs(sigsAndSelectors[0]);
-      return 1;
+      setSigs(sigsAndSelectors[0])
+      return 1
     }),
     enabled: hash !== undefined || sigs.length < destinationChain.signatureThreshold,
     refetchInterval: 5000,
-  });
+  })
 
-  if(hash) {
+  if (hash) {
     return (
       <FinalEVMTxConfirmer destinationChain={destinationChain} txId={hash} />
-    );
+    )
   }
 
-  if(sigs.length < destinationChain.signatureThreshold) {
+  if (sigs.length < destinationChain.signatureThreshold) {
     return (
-      <div className="text-zinc-300 flex font-medium text-md items-center justify-center">
-        <div className="flex items-center">
-          <WindToy color="rgb(212 212 216)" />
-          <p className="pl-2"> {
-             `Collecting signatures (${sigs?.length ?? 0}/${destinationChain.signatureThreshold})`
-          } </p>
+      <div className="flex gap-2 items-center bg-background h-14 w-full px-6 rounded-md font-light ">
+        <Loader className="w-4 shrink-0 h-auto animate-spin" />
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <p className="animate-pulse"> {`Collecting signatures (${sigs?.length ?? 0}/${destinationChain.signatureThreshold})`}</p>
         </div>
-      </div>)
+      </div>
+    )
   }
 
   const generateTxPls = async () => {
-    setWaitingForTx(true);
+    setWaitingForTx(true)
 
     writeContract({
       address: destinationChain.portalAddress! as `0x${string}`,
@@ -98,35 +107,45 @@ function StepThreeEVMDestination({
         "0x" + sigs.map(sig => decodeSignature(sig)[4]).join("") as `0x${string}`
       ],
       chainId: destinationChain.chainId
-    });
+    })
+  }
+
+  const switchToCorrectChain = async () => await switchChainAsync({ chainId: destinationChain.chainId! })
+  const isOnRightChain = destinationChain.chainId! === wagmiChainId
+
+  const onClick = async () => {
+    if (!isOnRightChain) {
+      await switchToCorrectChain()
+    }
+    generateTxPls()
   }
 
   return (
-    <div className="text-zinc-300"> 
-      <p className="pb-6">
-        Please use the button below to generate an offer that will be used to receive your assets on {destinationChain.displayName}.
-        Note that using a low fee will result in longer confirmation times.  
+    <div className="p-6 mt-2 bg-background flex flex-col gap-2 font-light rounded-md transition-none animate-in fade-in slide-in-from-bottom-2 duration-500">
+      <p className="px-4">
+        Click the button below to receive your assets on {destinationChain.displayName}.
+        Note that lower fees mean slower confirmations.
       </p>
-      <div className="flex">
+      <div className="flex mt-6">
         {!waitingForTx ? (
-            <button
-              className="rounded-full text-zinc-100 bg-green-500 hover:bg-green-700 max-w-xs w-full px-4 py-2 font-semibold mx-auto"
-              onClick={generateTxPls}  
-            >
-              Generate Transaction
-            </button>
-          ) : (
-            <button
-              className="rounded-full text-zinc-100 bg-zinc-800 max-w-xs w-full px-4 py-2 font-medium mx-auto"
-              onClick={() => {}}
-              disabled={true}  
-            >
-              Waiting for transaction approval
-            </button>
-          )}
-        </div>
+          <Button
+            disabled={!isEthWalletConnected}
+            className={cn("w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl", status === "pending" && 'animate-pulse')}
+            onClick={onClick}
+          >
+            {isEthWalletConnected ? 'Generate Transaction' : 'Connect Wallet'}
+          </Button>
+        ) : (
+          <Button
+            className="relative flex items-center gap-2 w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl"
+            disabled={true}
+          >
+            <p className="animate-pulse whitespace-normal">Waiting for transaction approval</p>
+          </Button>
+        )}
+      </div>
     </div>
-  );
+  )
 }
 
 
@@ -137,21 +156,26 @@ function StepThreeCoinsetDestination({
   sourceChain: Network,
   destinationChain: Network,
 }) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  
-  const offer: string | null = searchParams.get("offer");
+  const router = useRouter()
+  const searchParams = useSearchParams()
 
-  const [status, setStatus] = useState("Loading...");
+  const offer: string | null = searchParams.get("offer")
 
-  const nonce: `0x${string}` = (searchParams.get("nonce") ?? "0x") as `0x${string}`;
-  const source = searchParams.get("source") ?? "";
-  const destination = searchParams.get("destination") ?? "";
-  const contents = JSON.parse(searchParams.get("contents") ?? "[]");
+  const [status, setStatus] = useState("Loading...")
+  const [key, setKey] = useState(0)
+  useEffect(() => {
+    // Update status key to re-trigger fade-in animation
+    setKey(prevKey => prevKey + 1)
+  }, [status])
 
-  const isNativeCAT = contents.length == 2;
+  const nonce: `0x${string}` = (searchParams.get("nonce") ?? "0x") as `0x${string}`
+  const source = searchParams.get("source") ?? ""
+  const destination = searchParams.get("destination") ?? ""
+  const contents = JSON.parse(searchParams.get("contents") ?? "[]")
 
-  const destTxId = searchParams.get("tx");
+  const isNativeCAT = contents.length == 2
+
+  const destTxId = searchParams.get("tx")
   useQuery({
     queryKey: ['StepThree_buildAndSubmitTx'],
     queryFn: async () => {
@@ -162,32 +186,32 @@ function StepThreeCoinsetDestination({
         sourceHex: source.replace("0x", ""),
         sourceChainHex: stringToHex(sourceChain.id),
         contents: contents.map((c: string) => c.replace("0x", "")),
-      };
+      }
 
-      var sb, txId;
-      if(!isNativeCAT) { // wrapped ERC20s
+      var sb, txId
+      if (!isNativeCAT) { // wrapped ERC20s
         try {
           [sb, txId] = await mintCATs(
             offer!,
             rawMessage,
             destinationChain,
             setStatus
-          );
-        } catch(_) {
-          console.error(_);
-          alert("Failed to mint wrapped ERC-20 CATs.");
+          )
+        } catch (_) {
+          console.error(_)
+          toast.error("Failed to mint wrapped ERC-20 CATs.", { duration: 20000, id: "failed-to-mint-erc20" })
         }
       } else {
         // native CATs being unwrapped
         // find asset id via bruteforce
-        var assetId: string = "00".repeat(32);
+        var assetId: string = "00".repeat(32)
         TOKENS.forEach((token) => {
           token.supported.forEach((tokenInfo) => {
-            if(tokenInfo.contractAddress === source) {
-              assetId = tokenInfo.assetId;
+            if (tokenInfo.contractAddress === source) {
+              assetId = tokenInfo.assetId
             }
-          });
-        });
+          })
+        })
 
         try {
           [sb, txId] = await unlockCATs(
@@ -197,38 +221,38 @@ function StepThreeCoinsetDestination({
             sourceChain,
             destinationChain,
             setStatus
-          );
-        } catch(_) {
-          console.error(_);
-          alert("Failed to unlock CATs.");
+          )
+        } catch (_) {
+          console.error(_)
+          toast.error("Failed to unlock CATs.", { duration: 20000, id: "failed-to-unlock-cats" })
         }
       }
 
-      const pushTxResp = await pushTx(destinationChain.rpcUrl, sb);
-      if(!pushTxResp.success) {
-        const sbJson = sbToJSON(sb);
-        await navigator.clipboard.writeText(JSON.stringify(sbJson, null, 2));
-        alert("Failed to push transaction - please check console for more details.");
-        console.error(pushTxResp);
+      const pushTxResp = await pushTx(destinationChain.rpcUrl, sb)
+      if (!pushTxResp.success) {
+        const sbJson = sbToJSON(sb)
+        await navigator.clipboard.writeText(JSON.stringify(sbJson, null, 2))
+        toast.error("Failed to push transaction - please check console for more details.", { duration: 20000, id: "failed-to-push-transaction" })
+        console.error(pushTxResp)
       } else {
         router.push(getStepThreeURL({
           sourceNetworkId: sourceChain.id,
           destinationNetworkId: destinationChain.id,
           destTransactionId: txId
-        }));
+        }))
       }
 
-      return 1;
+      return 1
     },
     enabled: offer !== null && destTxId === null,
-  });
+  })
 
-  if(!offer && !destTxId) {
-    const nonce: `0x${string}` = searchParams.get("nonce")! as `0x${string}`;
-    const source = searchParams.get("source")!;
-    const destination = searchParams.get("destination")!;
-    const contents = JSON.parse(searchParams.get("contents")!);
-    const amount = parseInt(contents[2], 16);
+  if (!offer && !destTxId) {
+    const nonce: `0x${string}` = searchParams.get("nonce")! as `0x${string}`
+    const source = searchParams.get("source")!
+    const destination = searchParams.get("destination")!
+    const contents = JSON.parse(searchParams.get("contents")!)
+    const amount = parseInt(contents[2], 16)
 
     return (
       <GenerateOfferPrompt
@@ -243,26 +267,26 @@ function StepThreeCoinsetDestination({
             destination,
             contents,
             offer,
-          }));
+          }))
         }}
       />
-    );
+    )
   }
 
-  if(!destTxId) {
+  if (!destTxId) {
     return (
-      <div className="text-zinc-300 flex font-medium text-md items-center justify-center">
-        <div className="flex items-center">
-          <WindToy color="rgb(212 212 216)" />
-          <p className="pl-2"> {status} </p>
+      <div className="flex gap-2 items-center bg-background h-14 w-full px-6 rounded-md font-light">
+        <Loader className="w-4 shrink-0 h-auto animate-spin" />
+        <div key={key} className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <p className="animate-pulse">{status}</p>
         </div>
       </div>
-    );
+    )
   }
 
   return (
     <FinalCoinsetTxConfirmer destinationChain={destinationChain} txId={destTxId!} />
-  );
+  )
 }
 
 function GenerateOfferPrompt({
@@ -274,10 +298,12 @@ function GenerateOfferPrompt({
   amount: number,
   onOfferGenerated: (offer: string) => void
 }) {
-  const [waitingForTx, setWaitingForTx] = useState(false);
+  const [waitingForTx, setWaitingForTx] = useState(false)
+  const { createOffer, address } = useWallet()
+  const isConnectedToChiaWallet = Boolean(address)
 
   const generateOfferPls = async () => {
-    setWaitingForTx(true);
+    setWaitingForTx(true)
     try {
       const params = {
         offerAssets: [
@@ -288,42 +314,43 @@ function GenerateOfferPrompt({
         ],
         requestAssets: []
       }
-      const response = await (window as any).chia.request({ method: 'createOffer', params })
-      if (response.offer) {
-        onOfferGenerated(response.offer);
+      const offer = await createOffer(params)
+      if (offer) {
+        onOfferGenerated(offer)
       }
-    } catch(e) {
-      console.error(e);
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setWaitingForTx(false)
     }
-    setWaitingForTx(false);
   }
 
   return (
-    <div className="text-zinc-300"> 
-      <p className="pb-6">
-        Please use the button below to generate an offer that will be used to mint the wrapped assets on {destinationChain.displayName}.
-        Note that using a low fee will result in longer confirmation times.  
+    <div className="p-6 mt-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-in fade-in slide-in-from-bottom-2 duration-500">
+      <p className="px-4">
+        Click the button below to create an offer for minting wrapped assets on {destinationChain.displayName}.
+        Note that lower fees mean slower confirmations.
       </p>
-      <div className="flex">
+      <div className="flex mt-6">
         {!waitingForTx ? (
-            <button
-              className="rounded-full text-zinc-100 bg-green-500 hover:bg-green-700 max-w-xs w-full px-4 py-2 font-semibold mx-auto"
-              onClick={generateOfferPls}  
-            >
-              Generate Offer
-            </button>
-          ) : (
-            <button
-              className="rounded-full text-zinc-100 bg-zinc-800 max-w-xs w-full px-4 py-2 font-medium mx-auto"
-              onClick={() => {}}
-              disabled={true}  
-            >
-              Waiting for transaction approval
-            </button>
-          )}
-        </div>
+          <Button
+            disabled={!isConnectedToChiaWallet}
+            className="w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl"
+            onClick={isConnectedToChiaWallet ? generateOfferPls : () => { }}
+          >
+            {isConnectedToChiaWallet ? 'Generate Offer' : 'Connect Chia Wallet'}
+          </Button>
+        ) : (
+          <Button
+            className="relative flex items-center gap-2 w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl"
+            disabled={true}
+          >
+            <p className="animate-pulse whitespace-normal">Waiting for transaction approval</p>
+          </Button>
+        )}
+      </div>
     </div>
-  );
+  )
 }
 
 function FinalCoinsetTxConfirmer({
@@ -333,41 +360,53 @@ function FinalCoinsetTxConfirmer({
   destinationChain: Network,
   txId: string
 }) {
-  const [coinRecord, setCoinRecord] = useState<any>(null);
-  const includedInBlock = coinRecord?.spent === true;
+  const [coinRecord, setCoinRecord] = useState<any>(null)
+  const includedInBlock = coinRecord?.spent === true
 
   const { data } = useQuery({
     queryKey: ['StepThree_getCoinRecordByName', txId],
     queryFn: () => getCoinRecordByName(destinationChain.rpcUrl, txId).then((res) => {
-      setCoinRecord(res);
-      return 1;
+      setCoinRecord(res)
+      return 1
     }),
     enabled: !includedInBlock,
     refetchInterval: 5000,
-  });
+  })
 
-  return <>
-    Transaction id: {txId}
-    <div className="pt-8 text-zinc-300 flex font-medium text-md items-center justify-center">
-      <div className="flex items-center">
+  return (
+    <div className="flex flex-col">
+      <div className="p-6 py-4 mt-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <div className="flex items-center gap-2">
+          <TriangleAlert className="opacity-80 w-4 h-auto" />
+          <p className="opacity-80">Don&apos;t see your bridged asset?</p>
+          <Button variant="outline" className="ml-auto" asChild><Link href="/bridge/assets" target="_blank">Add to Wallet</Link></Button>
+        </div>
+      </div>
+      <div className="p-6 my-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <p className="font-extralight opacity-80 mb-4">Transaction ID</p>
+        <p className="text-xl font-light">{txId}</p>
+      </div>
+      <div className="p-6 bg-background flex gap-2 font-light rounded-md animate-[delayed-fade-in_0.7s_ease_forwards]">
         {
           includedInBlock ? (
-            <>
-              <p>Transaction sent.</p>
-              <Link href={`${destinationChain.explorerUrl}/coin/0x${txId}`} target="_blank" className="pl-2 underline text-green-500 hover:text-green-300">Verify on SpaceScan.</Link>
-            </>
+            <div className="flex flex-col w-full gap-2 animate-in fade-in slide-in-from-bottom-2 duration-500">
+              <p className="font-extralight opacity-80 mb-4">Transaction Sent</p>
+              <Button className="w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl" asChild>
+                <Link href={`${destinationChain.explorerUrl}/coin/0x${txId}`} target="_blank">Verify on SpaceScan <ArrowUpRight className="w-5 mb-3 h-auto" /></Link>
+              </Button>
+            </div>
           ) : (
             <>
-              <WindToy color="rgb(212 212 216)" />
-              <p className="pl-2">
-                Waiting for transaction to be included in a block...
-              </p>
+              <Loader className="w-4 shrink-0 h-auto animate-spin" />
+              <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+                <p className="animate-pulse">Waiting for transaction to be included in a block...</p>
+              </div>
             </>
           )
         }
       </div>
     </div>
-  </>
+  )
 }
 
 function FinalEVMTxConfirmer({
@@ -377,13 +416,31 @@ function FinalEVMTxConfirmer({
   destinationChain: Network,
   txId: string
 }) {
-  return <>
-    Transaction id: {txId}
-    <div className="pt-8 text-zinc-300 flex font-medium text-md items-center justify-center">
-      <div className="flex items-center">
-        <p>Transaction confirmed.</p>
-        <Link href={`${destinationChain.explorerUrl}/tx/${txId}`} target="_blank" className="pl-2 underline text-green-500 hover:text-green-300">View on explorer.</Link>
+  const searchParams = useSearchParams()
+  const destinationAddr = searchParams.get('destination') as string
+  const toChainName = searchParams.get('to')
+  const chainId = NETWORKS.find(n => n.id === toChainName)?.chainId
+  return (
+    <div className="flex flex-col">
+      <div className="p-6 py-4 mt-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <div className="flex items-center gap-2">
+          <TriangleAlert className="opacity-80 w-4 h-auto" />
+          <p className="opacity-80">Don&apos;t see your bridged asset?</p>
+          {chainId ? <AddERCTokenButton tokenAddress={destinationAddr} tokenChainId={chainId} /> : <Button variant="ghost" className="ml-auto" asChild><Link href={`/bridge/assets?addAssets=${destinationAddr}`} target="_blank">+ Add to Wallet</Link></Button>}
+        </div>
+      </div>
+      <div className="p-6 my-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <p className="font-extralight opacity-80 mb-4">Transaction ID</p>
+        <p className="text-xl font-light">{txId}</p>
+      </div>
+      <div className="p-6 bg-background flex gap-2 font-light rounded-md animate-[delayed-fade-in_0.7s_ease_forwards]">
+        <div className="flex flex-col w-full gap-2 animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <p className="font-extralight opacity-80 mb-4">Transaction Confirmed</p>
+          <Button className="w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl" asChild>
+            <Link href={`${destinationChain.explorerUrl}/tx/${txId}`} target="_blank">View on Explorer <ArrowUpRight className="w-5 mb-3 ml-0.5 h-auto" /></Link>
+          </Button>
+        </div>
       </div>
     </div>
-  </>
+  )
 }
