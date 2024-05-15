@@ -55,8 +55,8 @@ function Messages() {
     const sourceChainDisplayName = NETWORKS.find(n => n.id === m.source_chain)!.displayName
     const destChainDisplayName = NETWORKS.find(n => n.id === m.destination_chain)!.displayName
     const timeSince = formatDistanceToNow(timestamp * 1000, { addSuffix: true }).replace('about ', '')
-    const sourceChainIcon = <div className="border bg-background p-0.5 rounded-full">{getChainIcon(sourceChainDisplayName, 'w-5')}</div>
-    const destChainIcon = <div className="border z-10 bg-background p-0.5 rounded-full shadow">{getChainIcon(destChainDisplayName, 'w-5')}</div>
+    const sourceChainIcon = <div className="bg-background p-0.5 rounded-full">{getChainIcon(sourceChainDisplayName, 'w-5 mt-0.5')}</div>
+    const destChainIcon = <div className="bg-background p-0.5 rounded-full">{getChainIcon(destChainDisplayName, 'w-5 mt-0.5')}</div>
 
     return (
       <div key={m.id} className={cn("rounded-md w-full p-6 bg-background z-10 animate-in fade-in slide-in-from-bottom-2 duration-500 flex flex-col gap-2", i + 1 > 3 && 'hidden md:flex')}>
