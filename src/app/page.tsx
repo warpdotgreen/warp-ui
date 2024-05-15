@@ -1,4 +1,3 @@
-"use client"
 import { Button } from "@/components/ui/button"
 import Header from "./landingPageComponents/Header"
 import Link from "next/link"
@@ -6,31 +5,18 @@ import Messages from "./landingPageComponents/Messages"
 import Starfield from "./landingPageComponents/Starfield"
 import { NETWORKS } from "./bridge/config"
 import { getChainIcon } from "@/lib/utils"
-import { useEffect, useState } from "react"
 import Image from "next/image"
 import LiveApps from "./landingPageComponents/LiveApps"
 import MessagesDelivered from "./landingPageComponents/MessagesDelivered"
 
 export default function LandingPage() {
-
-  // Disable star animation speed if user prefers reduced-motion
-  const [isReducedMotion, setIsReducedMotion] = useState<boolean>(false)
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
-    mediaQuery.addEventListener('change', () => {
-      console.log(mediaQuery.media, mediaQuery.matches)
-      setIsReducedMotion(true)
-    })
-  }, [])
-  const starSpeed = isReducedMotion ? 0 : 0.05
-
   return (
     <>
       <Header />
       <Starfield
         starCount={1000}
         starColor={[255, 255, 255]}
-        speedFactor={starSpeed}
+        speedFactor={0.05}
         backgroundColor="black"
       />
       <main id="scrollContainer" className="relative px-4 sm:px-8 py-4 pb-20">
