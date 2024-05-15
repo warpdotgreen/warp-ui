@@ -30,7 +30,7 @@ export default function LandingPage() {
 
               <div className="flex my-8 gap-2">
                 <Button variant="ghost" asChild><Link href="https://docs.warp.green/developers" target="_blank">Developer Docs</Link></Button>
-                <Button variant="outline" className="shadow-sm shadow-white" asChild><Link href="/bridge">Bridge Interface</Link></Button>
+                <Button variant="outline" className="shadow-sm shadow-white z-10" asChild><Link href="/bridge">Bridge Interface</Link></Button>
               </div>
             </div>
 
