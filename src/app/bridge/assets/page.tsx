@@ -1,18 +1,12 @@
 "use client"
-import { useState } from 'react'
 import { NETWORKS, Network, NetworkType, TOKENS } from '../config'
 import { BaseIcon, ChiaIcon, ETHIcon } from '../components/Icons/ChainIcons'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
 import { addCATParams } from '../ChiaWalletManager/wallets/types'
 import AddCATButton from './components/AddCATButton'
 import { useSearchParams } from 'next/navigation'
 import { cn, withToolTip } from '@/lib/utils'
 import AddERCTokenButton from './components/AddERCTokenButton'
+import { CopyableLongHexString } from '@/components/CopyableHexString'
 
 function useFilteredTokens(networkType: NetworkType) {
   return TOKENS.filter((token) => token.sourceNetworkType === networkType)
@@ -69,7 +63,7 @@ function TokenItem({ token, tokenInfo, highlightedAssets }: { token: any, tokenI
             <AddERCTokenButton tokenAddress={destChainTokenAddr} tokenChainId={destChain.chainId} className={cn(highlightedAssets.includes(destChainTokenAddr) && 'bg-theme-purple hover:bg-theme-purple hover:opacity-80 font-light hover:border-theme-purple')} />
           }
         </div>
-        <CopyableLongHexString hexString={destChainTokenAddr} />
+        <CopyableLongHexString hexString={destChainTokenAddr} className='ml-10' />
         {/* {highlightedAssets.includes(destChainTokenAddr) && <div className='p-2 bg-theme-purple mt-4 rounded-[8px] px-4 font-light flex gap-2'><CircleAlertIcon className='w-4 h-auto shrink-0' />This asset has been flagged for you to add</div>} */}
       </div>
     </div>
@@ -90,8 +84,6 @@ function getChainIcon(chainDisplayName: string) {
   }
 }
 
-
-
 export default function AssetList() {
   const searchParams = useSearchParams()
   const addAssetsParam = searchParams.get('addAssets')
@@ -102,11 +94,6 @@ export default function AssetList() {
 
   const erc20Assets = useFilteredTokens(NetworkType.EVM)
   const coinsetTokens = useFilteredTokens(NetworkType.COINSET)
-
-
-
-
-
 
   return (
     <div className='max-w-6xl mt-12 mx-auto w-full p-4 xl:p-0'>
@@ -129,43 +116,9 @@ export default function AssetList() {
   )
 }
 
-
-
 /*
  *  Icons
 */
-
-function CopyableLongHexString({ hexString }: { hexString: string }) {
-  const [isCopied, setIsCopied] = useState(false)
-  const displayText = `${hexString.slice(0, 6)}...${hexString.slice(-4)}`
-
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(hexString)
-    setIsCopied(true)
-    setTimeout(() => setIsCopied(false), 3000) // Resets the icon after 3 seconds
-  }
-
-  const copyElement = (
-    <p className={`opacity-80 select-none hover:opacity-60 ml-10 bg-accent w-fit px-2 py-0.5 text-sm rounded text-primary/80 ${isCopied ? 'opacity-60' : 'cursor-pointer'}`} onClick={isCopied ? () => { } : handleCopy}>
-      {isCopied ? 'Copied' : displayText}
-    </p>
-  )
-  if (isCopied) return copyElement
-
-  return (
-    <TooltipProvider delayDuration={0}>
-      <Tooltip>
-        <TooltipTrigger asChild className="transition-colors focus-visible:outline-none ring-offset-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-          {copyElement}
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>Copy</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider >
-  )
-}
-
 function DownArrowIcon() {
   return (
     <svg className='ml-[15px] -mt-8 translate-y-5 bg-accent rounded-full p-1 opacity-80 w-6 h-auto' width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.5 2C7.77614 2 8 2.22386 8 2.5L8 11.2929L11.1464 8.14645C11.3417 7.95118 11.6583 7.95118 11.8536 8.14645C12.0488 8.34171 12.0488 8.65829 11.8536 8.85355L7.85355 12.8536C7.75979 12.9473 7.63261 13 7.5 13C7.36739 13 7.24021 12.9473 7.14645 12.8536L3.14645 8.85355C2.95118 8.65829 2.95118 8.34171 3.14645 8.14645C3.34171 7.95118 3.65829 7.95118 3.85355 8.14645L7 11.2929L7 2.5C7 2.22386 7.22386 2 7.5 2Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path></svg>
