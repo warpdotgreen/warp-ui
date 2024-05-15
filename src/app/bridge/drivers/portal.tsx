@@ -316,6 +316,7 @@ export async function getSigsAndSelectors(
   pool.close(NOSTR_CONFIG.relays);
 
   if(events.length === 0) {
+    console.log("No Nostr events found for this nonce (yet)"); // todo: debug
     return [[], []];
   }
 
@@ -324,7 +325,10 @@ export async function getSigsAndSelectors(
     const destinationNetworkId = hexToString(destinationChainHex);
     const destinationNetwork = NETWORKS.filter((network) => network.id === destinationNetworkId)[0];
 
-    let sigStrings = events.sort((a, b) => {
+    let sigStrings = events.filter((e) => 
+      NOSTR_CONFIG.validatorKeys.includes(e.pubkey)
+    ).sort((a, b) => {
+
         const indexA = NOSTR_CONFIG.validatorKeys.findIndex(key => key === a.pubkey);
         const indexB = NOSTR_CONFIG.validatorKeys.findIndex(key => key === b.pubkey);
 
