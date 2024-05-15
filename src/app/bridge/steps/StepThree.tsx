@@ -65,7 +65,7 @@ function StepThreeEVMDestination({
   useQuery({
     queryKey: ['StepThree_fetchSigsAndSelectors', nonce],
     queryFn: () => getSigsAndSelectors(
-      stringToHex(sourceChain.id), stringToHex(destinationChain.id), nonce, null
+      stringToHex(sourceChain.id), stringToHex(destinationChain.id), nonce, null, destinationChain.signatureThreshold
     ).then((sigsAndSelectors) => {
       setSigs(sigsAndSelectors[0])
       return 1
