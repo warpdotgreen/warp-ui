@@ -86,8 +86,9 @@ export default function StepZero() {
 
   const swapNetworks = () => {
     const newSourceNetworks = [...destinationNetworks]
-    const newDestinationNetworks = [...sourceNetworks]
     setSourceNetworks(newSourceNetworks)
+
+    const newDestinationNetworks = [...sourceNetworks]
     setDestinationNetworks(newDestinationNetworks)
 
     const temp = sourceNetworkId
@@ -111,16 +112,14 @@ export default function StepZero() {
     const newToken = TOKENS.find((t: Token) => t.symbol === newValue)!
     setTokenSymbol(newValue)
 
-    // if (newToken.symbol === "usdt") {
-    //   setSourceNetworks(prev => [...prev.filter(net => net.displayName !== "Base")])
-    //   setDestinationNetworks(prev => [...prev.filter(net => net.displayName !== "Base")])
-    // } else {
-    //   setSourceNetworks(prev => [...prev.filter(net => net.displayName !== "Base")])
-    //   setDestinationNetworks(prev => [...prev.filter(net => net.displayName !== "Base")])
-    // }
-
-    if (newToken.sourceNetworkType !== sourceNetworks[0].type) {
-      swapNetworks()
+    const newEvmNetworks = Array.from(new Set(newToken.supported.map(t => t.evmNetworkId))).map(id => NETWORKS.find(n => n.id === id)!);
+    const newCoinsetNetworks = Array.from(new Set(newToken.supported.map(t => t.coinsetNetworkId))).map(id => NETWORKS.find(n => n.id === id)!);
+    if(newToken.sourceNetworkType === NetworkType.EVM) {
+      setSourceNetworks(newEvmNetworks);
+      setDestinationNetworks(newCoinsetNetworks);
+    } else {
+      setSourceNetworks(newCoinsetNetworks);
+      setDestinationNetworks(newEvmNetworks);
     }
 
     setSourceNetworkId(
@@ -171,7 +170,7 @@ export default function StepZero() {
               <div className="bg-accent border border-input rounded-lg p-2 flex items-center justify-between animate-in fade-in slide-in-from-bottom-2 duration-500">
                 <BlockchainDropdown
                   label="From"
-                  options={sourceNetworks.filter(n => tokenSymbol === "USDT" ? n.displayName !== "Base" : n)}
+                  options={sourceNetworks}
                   selectedValue={sourceNetworkId}
                   updateSelectedValue={setSourceNetworkId}
                 />
