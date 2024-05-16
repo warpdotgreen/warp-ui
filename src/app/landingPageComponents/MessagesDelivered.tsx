@@ -29,7 +29,7 @@ function MessagesDelivered() {
   )
 
   return (
-    <div className="rounded-lg border p-6 h-full bg-accent/50 bg-opacity-50 hover:bg-opacity-90 flex flex-col">
+    <div className="rounded-lg border p-6 h-full bg-accent/50 hover:bg-accent/90 transition-colors flex flex-col">
       <p className="text-center text-xl">Stats</p>
       <div className="flex flex-col mt-6 mx-4 pb-2">
         <div className="flex flex-col justify-center items-center pb-4 border-b">

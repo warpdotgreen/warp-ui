@@ -1,10 +1,4 @@
 import { useState } from "react"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 
 export function CopyableLongHexString({ hexString, className, tooltipText = "Copy" }: { hexString: string, className?: string, tooltipText?: string }) {
@@ -24,16 +18,5 @@ export function CopyableLongHexString({ hexString, className, tooltipText = "Cop
   )
   if (isCopied) return copyElement
 
-  return (
-    <TooltipProvider delayDuration={0}>
-      <Tooltip>
-        <TooltipTrigger asChild className="transition-colors focus-visible:outline-none ring-offset-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-          {copyElement}
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>{tooltipText}</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider >
-  )
+  return <>{copyElement}</>
 }

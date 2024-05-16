@@ -101,7 +101,7 @@ function LiveApps() {
 
   const formatApp = (app: typeof liveAppsConfig[0]) => {
     return (
-      <div className="border bg-accent/50 h-full p-6 rounded-md animate-in fade-in slide-in-from-bottom-2 duration-500">
+      <div className="border bg-accent/50 hover:bg-accent/90 transition-colors h-full p-6 rounded-md animate-in fade-in slide-in-from-bottom-2 duration-500">
         <p className="text-xl mb-4 text-center">{app.name}</p>
         <table className="w-full py-2 h-[calc(100%-2rem)]">
           <tbody>
