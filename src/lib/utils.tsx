@@ -7,6 +7,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import type { ReactNode } from "react"
+import { BaseIcon, ChiaIcon, ETHIcon } from "@/app/bridge/components/Icons/ChainIcons"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -23,4 +24,17 @@ export function withToolTip(triggerText: any, toolTopContent: string | ReactNode
       </Tooltip>
     </TooltipProvider>
   )
+}
+
+export function getChainIcon(chainName: string, className?: string) {
+  switch (chainName) {
+    case "Base":
+      return <BaseIcon className={cn("w-8 h-auto shrink-0", className)} />
+    case "Chia":
+      return <ChiaIcon className={cn("w-8 h-auto shrink-0", className)} />
+    case "Ethereum":
+      return <ETHIcon className={cn("w-8 h-auto shrink-0", className)} />
+    default:
+      break
+  }
 }

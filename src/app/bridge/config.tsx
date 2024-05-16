@@ -100,7 +100,7 @@ export const ETHEREUM_NETWORK: Network = {
   confirmationMinHeight: 64,
   portalAddress: "0xB5651bA4DeaF815f5929243d6ACF99D2d7C113eb",
   erc20BridgeAddress: "0xc733F712288f8B20201846bbE979a715Ff8F8Fcb",
-};
+}
 
 export const BASE_NETWORK: Network = {
   displayName: 'Base',
@@ -127,7 +127,7 @@ export const BASE_NETWORK: Network = {
   l1BlockContractAddress: "0x4200000000000000000000000000000000000015",
   portalAddress: "0xB0adb9dA8C730859cc659b4fda7Ec94b5884A4E1",
   erc20BridgeAddress: "0x895bef3757f7965D8AA9Fcb30Bd1539e03E4a24E",
-};
+}
 
 export const NETWORKS = [
   CHIA_NETWORK,
@@ -148,8 +148,8 @@ export type Token = {
   supported: TokenInfo[]
 }
 
-const MILLIETH_ADDRESS_ETHEREUM: `0x${string}` = '0xFA2839748535B0eeAaCbbC932da6676DbFF45156';
-const MILLIETH_ADDRESS_BASE: `0x${string}` = '0xE063EefEca08c1Ef7C42a90D39bA50A660a505C1';
+const MILLIETH_ADDRESS_ETHEREUM: `0x${string}` = '0xFA2839748535B0eeAaCbbC932da6676DbFF45156'
+const MILLIETH_ADDRESS_BASE: `0x${string}` = '0xE063EefEca08c1Ef7C42a90D39bA50A660a505C1'
 
 export const ETH_TOKEN: Token = {
   symbol: 'ETH',
@@ -184,9 +184,9 @@ const USDT_TOKEN: Token = {
   ]
 }
 
-const XCH_ASSET_ID = "00".repeat(32);
-const WXCH_ADDRESS_ETHERUM : `0x${string}` = '0xEC6a48BD01E7B031050FB1d1F4246abfd31114FA';
-const WXCH_ADDRESS_BASE : `0x${string}` = '0x092bA3a8CbF8126255E83f3D548085F9FB87F5C8';
+const XCH_ASSET_ID = "00".repeat(32)
+const WXCH_ADDRESS_ETHERUM: `0x${string}` = '0xEC6a48BD01E7B031050FB1d1F4246abfd31114FA'
+const WXCH_ADDRESS_BASE: `0x${string}` = '0x092bA3a8CbF8126255E83f3D548085F9FB87F5C8'
 export const XCH_TOKEN: Token = {
   symbol: 'XCH',
   sourceNetworkType: NetworkType.COINSET,
@@ -206,9 +206,9 @@ export const XCH_TOKEN: Token = {
   ]
 }
 
-const DBX_ASSET_ID = "d82dd03f8a9ad2f84353cd953c4de6b21dbaaf7de3ba3f4ddd9abe31ecba80ad";
-const WDBX_ADDRESS_ETHERUM : `0x${string}` = '0x5C5d6FA07c570DF689A34C9334B1DC9fe6E9dF1C';
-const WDBX_ADDRESS_BASE : `0x${string}` = '0x2FD5f17f7F9284f1c12ff7bF45cB38df02519Ea5';
+const DBX_ASSET_ID = "d82dd03f8a9ad2f84353cd953c4de6b21dbaaf7de3ba3f4ddd9abe31ecba80ad"
+const WDBX_ADDRESS_ETHERUM: `0x${string}` = '0x5C5d6FA07c570DF689A34C9334B1DC9fe6E9dF1C'
+const WDBX_ADDRESS_BASE: `0x${string}` = '0x2FD5f17f7F9284f1c12ff7bF45cB38df02519Ea5'
 export const DBX_TOKEN: Token = {
   symbol: 'DBX',
   sourceNetworkType: NetworkType.COINSET,
@@ -248,7 +248,7 @@ export const WcMetadata = {
   name: 'warp.green Bridge Interface',
   description: 'Bridging powered by the warp.green cross-chain messaging protocol',
   url: 'https://warp.green',
-  icons: ['https://testnet.warp.green/warp-green-logo.png']
+  icons: ['https://testnet.warp.green/warp-green-icon.png']
 }
 
 export const wagmiConfig = defaultWagmiConfig({
