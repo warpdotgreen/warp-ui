@@ -24,7 +24,7 @@ export default function LandingPage() {
             <h1 className="text-4xl sm:text-7xl text-balance text-center font-light">A Cross-Chain <span className="text-theme-purple">Messaging</span> <span className="text-theme-green-foreground">Protocol</span></h1>
             <h2 className="opacity-80 text-center mt-4 text-pretty text-3xl">warp.green allows your app to communicate across blockchains</h2>
           </div>
-          <div className="absolute bottom-6 -translate-y-[72px] left-1/2 -translate-x-1/2 flex-col gap-2 flex items-center">
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex-col gap-2 flex items-center">
             <p>Scroll Down</p>
             <ChevronDown className=" animate-bounce" />
           </div>
@@ -61,7 +61,7 @@ export default function LandingPage() {
 
             <div className="flex flex-col gap-4 justify-center items-center">
               <h3 className="text-4xl sm:text-6xl font-light">Live Apps</h3>
-              <h4 className="text-xl opacity-80">Apps that use warp-green as an oracle</h4>
+              <h4 className="text-xl opacity-80">Apps that use warp.green as an oracle</h4>
             </div>
 
             <LiveApps />
