@@ -15,7 +15,7 @@ export default function LandingPage() {
   return (
     <>
       <Header />
-      <canvas id="canvas" className="absolute z-[-10] bg-zinc-950"></canvas>
+      <canvas id="canvas" className="absolute z-[-10]"></canvas>
       <main id="scrollContainer" className="relative px-4 sm:px-8 py-4 2xl:snap-y 2xl:snap-mandatory h-[100svh] overflow-y-scroll no-scrollbar">
 
 
