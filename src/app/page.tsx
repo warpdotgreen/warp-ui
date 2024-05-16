@@ -33,10 +33,10 @@ export default function LandingPage() {
         </section>
 
         {/* SLIDE 2 */}
-        <section id="slide2" className="slide 2xl:h-[max(100svh,60rem)] 2xl:snap-start grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-y-24 2xl:gap-y-4 grow-rows-3 p-0 sm:p-8 !pt-[144px] gap-4">
+        <section id="slide2" className="max-w-[130rem] mx-auto slide 2xl:h-[max(100svh,60rem)] my-auto 2xl:snap-start grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-y-24 2xl:gap-y-4 grow-rows-3 p-0 sm:p-8 !pt-[144px] gap-4">
 
           {/* Col 1 */}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 max-h-[51.5rem]">
 
             <div className="flex flex-col gap-4 justify-center items-center">
               <h3 className="text-4xl sm:text-6xl font-light">At a Glance</h3>
@@ -78,11 +78,11 @@ export default function LandingPage() {
               <h4 className="text-xl opacity-80 text-center">Latest messages processed by warp.green</h4>
             </div>
 
-            <div className="relative row-span-2 h-full">
-              <ScrollArea className="hidden max-h-[600px] 2xl:max-h-full 2xl:flex flex-col gap-4 h-full w-full 2xl:pr-3 overflow-y-hidden 2xl:overflow-y-scroll">
+            <div className="relative row-span-2 h-full no-scrollbar">
+              <ScrollArea className="hidden max-h-[600px] 2xl:max-h-full 2xl:flex flex-col gap-4 h-full w-full 2xl:pr-3 overflow-y-hidden 2xl:overflow-y-scroll no-scrollbar">
                 <Messages />
               </ScrollArea>
-              <div className="max-h-[600px] overflow-y-hidden 2xl:hidden">
+              <div className="overflow-y-hidden 2xl:hidden">
                 <Messages />
               </div>
             </div>
@@ -92,7 +92,7 @@ export default function LandingPage() {
         </section>
 
         <section id="slide3" className="slide h-[100svh] mt-[72px] snap-center flex flex-col gap-8 items-center justify-center pt-[72px]">
-          <h3 className="text-3xl text-balance sm:text-5xl text-center">Ready to <span className="text-theme-green-foreground font-light">warp</span>? Check out our <Link href="https://docs.warp.green/developers/" className="underline">developer docs</Link></h3>
+          <h3 className="text-3xl text-balance sm:text-5xl text-center">Ready to <span className="text-theme-green-foreground font-light">warp</span>? Check out our <Link href="https://docs.warp.green/developers/" className="underline">developer docs</Link>.</h3>
         </section>
 
       </main>
@@ -110,21 +110,21 @@ function SupportedNetworksCard() {
   return (
     <div className="flex h-full justify-between w-full items-center sm:mx-8">
       <div className="relative">
-        <div className="w-20 sm:w-24 aspect-square h-auto p-3 rounded-full border border-zinc-700 bg-zinc-900 bg-opacity-50 hover:bg-opacity-90 flex items-center justify-center">
+        <div className="w-20 h-20 sm:w-24 aspect-square sm:h-auto p-3 rounded-full border border-zinc-700 bg-zinc-900 bg-opacity-50 hover:bg-opacity-90 flex items-center justify-center">
           <img src="https://raw.githubusercontent.com/base-org/brand-kit/main/logo/symbol/Base_Symbol_Blue.svg" alt="Network" className="w-full h-full rounded-full object-cover" />
         </div>
         <p className="text-center text-zinc-300 pt-2">Base</p>
       </div>
       <div className="w-full h-px bg-zinc-700 flex-grow relative mb-8"></div>
       <div className="relative">
-        <div className="w-20 sm:w-24 aspect-square h-auto p-2 rounded-full border border-zinc-700 bg-zinc-900 bg-opacity-50 hover:bg-opacity-90 flex items-center justify-center">
+        <div className="w-20 h-20 sm:w-24 aspect-square sm:h-auto p-2 rounded-full border border-zinc-700 bg-zinc-900 bg-opacity-50 hover:bg-opacity-90 flex items-center justify-center">
           <img src="https://www.chia.net/wp-content/uploads/2023/06/chia_icon_green-hex5ECE71.svg?w=64" alt="Network" className="w-full h-full rounded-full object-cover" />
         </div>
         <p className="text-center text-zinc-300 pt-2">Chia</p>
       </div>
       <div className="w-full h-px bg-zinc-700 flex-grow relative mb-8"></div>
       <div className="relative">
-        <div className="w-20 sm:w-24 aspect-square h-auto p-3 rounded-full border border-zinc-700 bg-zinc-900 bg-opacity-50 hover:bg-opacity-90 flex items-center justify-center">
+        <div className="w-20 h-20 sm:w-24 aspect-square sm:h-auto p-3 rounded-full border border-zinc-700 bg-zinc-900 bg-opacity-50 hover:bg-opacity-90 flex items-center justify-center">
           {/* <img src="https://raw.githubusercontent.com/ethereum/ethereum-org-website/dev/public/assets/eth-diamond-black-gray.png" alt="Network" className="w-full h-full rounded-full object-cover" /> */}
           {/* <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Ethereum_logo_2014.svg" alt="Network" className="w-full h-full rounded-full object-cover" /> */}
           <svg className="w-full h-full rounded-full object-cover" width="256px" height="417px" viewBox="0 0 256 417" version="1.1" preserveAspectRatio="xMidYMid">
