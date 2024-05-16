@@ -23,22 +23,31 @@ function MessagesDelivered() {
   })
 
   if (isLoading || !data) return (
-    <div className="relative z-10 bg-accent border rounded-md min-h-40 flex gap-4 p-2 justify-between overflow-hidden">
-      <Skeleton className="w-full bg-accent" />
+    <div className="relative z-10 bg-accent/50 border rounded-md min-h-40 flex gap-4 p-2 justify-between overflow-hidden">
+      <Skeleton className="w-full bg-transparent" />
     </div>
   )
 
   return (
-    <div className="relative z-10 bg-accent border rounded-md min-h-40 flex gap-4 p-2 justify-between overflow-hidden">
-      <div className="px-4 flex flex-col my-4 w-full">
-        <p className="text-xl">Messages Delivered</p>
-        <div className="mt-auto text-sm sm:text-base animate-in fade-in slide-in-from-bottom-2 duration-500">
-          <p className="opacity-80">{formatNumber(data.messages_to_chia)} to Chia</p>
-          <p className="opacity-80">{formatNumber(data.messages_from_chia)} from Chia</p>
+    <div className="rounded-lg border p-6 h-full bg-accent/50 bg-opacity-50 hover:bg-opacity-90 flex flex-col">
+      <p className="text-center text-xl">Stats</p>
+      <div className="flex flex-col mt-6 mx-4 pb-2">
+        <div className="flex flex-col justify-center items-center pb-4 border-b">
+          <div className="text-7xl font-light">{formatNumber(data.total_messages)}</div>
+          <div className="text-lg opacity-50">delivered messages</div>
         </div>
-      </div>
-      <div className="absolute bottom-3 right-2 px-4 flex items-end animate-in fade-in slide-in-from-bottom-2 duration-500">
-        <p className="text-7xl sm:text-9xl font-light">{formatNumber(data.total_messages)}</p>
+
+        <div className="flex w-full rounded-lg">
+          <div className="flex-1 flex flex-col justify-left py-4 items-center">
+            <div className="text-2xl">{formatNumber(data.messages_to_chia)}</div>
+            <div className="text-lg opacity-50">to Chia</div>
+          </div>
+
+          <div className="flex-1 flex flex-col justify-left py-4 items-center">
+            <div className="text-2xl">{formatNumber(data.messages_from_chia)}</div>
+            <div className="text-lg opacity-50">from Chia</div>
+          </div>
+        </div>
       </div>
     </div>
   )

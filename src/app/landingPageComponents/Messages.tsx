@@ -5,7 +5,6 @@ import { NETWORKS } from "../bridge/config"
 import { cn, getChainIcon } from "@/lib/utils"
 import { Skeleton } from "@/components/ui/skeleton"
 import { CopyableLongHexString } from "@/components/CopyableHexString"
-import { ChevronRight } from "lucide-react"
 
 
 interface MessageResponse {
@@ -40,7 +39,7 @@ const typeToDisplayName = new Map([
   ["erc20_bridge", "ERC-20 Bridge"],
 ])
 
-const NUM_OF_MESSAGES = 6
+const NUM_OF_MESSAGES = 12
 
 function Messages() {
   const { data: messages, isLoading } = useQuery<MessageResponse[]>({
@@ -59,34 +58,26 @@ function Messages() {
     const destChainIcon = <div className="bg-background p-0.5 rounded-full">{getChainIcon(destChainDisplayName, 'w-5 mt-0.5')}</div>
 
     return (
-      <div key={m.id} className={cn("rounded-md w-full p-6 bg-background z-10 animate-in fade-in slide-in-from-bottom-2 duration-500 flex flex-col gap-2", i + 1 > 3 && 'hidden md:flex')}>
+      <div key={m.id} className={cn("rounded-md w-full p-4 bg-accent/50 border z-10 animate-in fade-in slide-in-from-bottom-2 duration-500 flex flex-col gap-0", i + 1 > 3 && 'hidden md:flex')}>
         <div className="flex gap-4 justify-between items-center">
-          <CopyableLongHexString hexString={`0x${m.nonce}`} className="bg-transparent p-0 text-xl text-primary opacity-100" tooltipText="Copy Message Nonce" />
+          <CopyableLongHexString hexString={`0x${m.nonce}`} className="p-0 text-md font-extralight opacity-80 px-4 rounded-[8px] border text-primary" tooltipText="Copy Message Nonce" />
           <div className="flex gap-1 py-2">
-            {sourceChainIcon}
-            <ArrowRight />
-            {destChainIcon}
+            <p><span className={cn('font-medium', m.destination_timestamp === null ? 'text-theme-purple' : 'text-theme-green-foreground')}>{m.destination_timestamp === null ? 'Sent' : 'Received'}</span> <span className="opacity-50">{timeSince}</span></p>
           </div>
         </div>
 
-        <div className="flex gap-4 justify-between items-center">
-          <div className="flex flex-col gap-1 py-2 w-full opacity-80">
-            <table>
-              <tbody>
-                <tr className="">
-                  <td className="opacity-80">Time</td>
-                  <td className="text-right">{m.destination_timestamp === null ? 'Sent' : 'Received'} {timeSince}</td>
-                </tr>
-                <tr>
-                  <td className="opacity-80">App</td>
-                  <td className="text-right">{typeDisplayName}</td>
-                </tr>
-                <tr>
-                  <td className="opacity-80">Token</td>
-                  <td className="text-right">{m.parsed.token_symbol}</td>
-                </tr>
-              </tbody>
-            </table>
+        <div className="grid sm:grid-cols-3 rounded-lg">
+          <div className="flex flex-row-reverse sm:flex-col justify-between sm:justify-center items-start sm:items-center sm:text-center">
+            <p className="text-md">{sourceChainDisplayName}</p>
+            <p className="opacity-50">Source Chain</p>
+          </div>
+          <div className="flex flex-row-reverse sm:flex-col justify-between sm:justify-center items-start sm:items-center sm:text-center">
+            <p className="text-md">{destChainDisplayName}</p>
+            <p className="opacity-50">Destination Chain</p>
+          </div>
+          <div className="flex flex-row-reverse sm:flex-col justify-between sm:justify-center items-start sm:items-center sm:text-center">
+            <p className="text-md">{typeDisplayName}</p>
+            <p className="opacity-50">App Name</p>
           </div>
         </div>
       </div>
@@ -94,7 +85,7 @@ function Messages() {
   }
 
   if (isLoading || !messages) {
-    return <>{Array.from({ length: NUM_OF_MESSAGES }, (_, i) => <Skeleton key={i} className="w-full h-[192px] bg-accent animate-none" />)}</>
+    return <>{Array.from({ length: NUM_OF_MESSAGES }, (_, i) => <Skeleton key={i} className="w-full h-[192px] bg-transparent animate-none" />)}</>
   }
 
   return <>{messages.map(formatMessage)}</>

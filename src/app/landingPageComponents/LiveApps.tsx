@@ -84,18 +84,26 @@ function LiveApps() {
     const lockedValue = formatNumber(data[`${token.accessorPrefixKey}_locked` as keyof StatsResponse], token.decimals)
     const volumeValue = formatNumber(data[`${token.accessorPrefixKey}_total_volume` as keyof StatsResponse], token.decimals)
     return (
-      <tr>
-        <td className="opacity-80 flex gap-2"><Lock className="w-3.5 opacity-80 h-auto" />{lockedValue} {token.symbol}</td>
-        <td className="text-right">{volumeValue} {token.symbol} Vol.</td>
+      <tr className="border-b last:border-0">
+        <td className="text-center py-2">
+          <p className="text-xl">{lockedValue} {token.symbol}</p>
+          <p className="opacity-50">Locked</p>
+        </td>
+        <td className="text-center">
+          <div>
+            <p className="text-xl">{volumeValue} {token.symbol}</p>
+            <p className="opacity-50">Total Volume</p>
+          </div>
+        </td>
       </tr>
     )
   }
 
   const formatApp = (app: typeof liveAppsConfig[0]) => {
     return (
-      <div className="bg-background p-6 rounded-md animate-in fade-in slide-in-from-bottom-2 duration-500">
-        <p className="text-xl mb-4">{app.name}</p>
-        <table className="w-full py-2">
+      <div className="border bg-accent/50 h-full p-6 rounded-md animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <p className="text-xl mb-4 text-center">{app.name}</p>
+        <table className="w-full py-2 h-[calc(100%-2rem)]">
           <tbody>
             {app.tokens.map(getTokenTableRow)}
           </tbody>

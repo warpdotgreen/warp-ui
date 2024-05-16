@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import ReactQueryProvider from "@/components/ReactQueryProvider"
+import { cn } from "@/lib/utils"
 
 const inter = Inter({ subsets: ["latin"], variable: '--font-inter' })
 
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
 export default function UILayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="dark font-extralight">
-      <body className={inter.className}>
+      <body className={cn(inter.className, 'max-w-screen overflow-x-hidden')}>
         <ReactQueryProvider>
           {children}
         </ReactQueryProvider>
