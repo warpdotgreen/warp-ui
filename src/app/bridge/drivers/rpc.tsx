@@ -8,10 +8,10 @@ export function sbToJSON(sb: any): any {
         puzzle_hash: "0x" + coinSpend.coin.puzzleHash.replace("0x", ""),
         amount: parseInt(coinSpend.coin.amount.toString())
       },
-      puzzle_reveal: GreenWeb.util.sexp.toHex(coinSpend.puzzleReveal),
-      solution: GreenWeb.util.sexp.toHex(coinSpend.solution)
+      puzzle_reveal: "0x" + GreenWeb.util.sexp.toHex(coinSpend.puzzleReveal),
+      solution: "0x" + GreenWeb.util.sexp.toHex(coinSpend.solution)
     })),
-    aggregated_signature: sb.aggregatedSignature
+    aggregated_signature: "0x" + sb.aggregatedSignature
   };
 }
 
