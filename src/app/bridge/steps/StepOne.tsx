@@ -258,6 +258,7 @@ function EthereumButton({
         functionName: "bridgeEtherToChia",
         args: [
           ("0x" + receiver) as `0x${string}`,
+          sourceChain.messageToll
         ],
         value: ethers.parseEther(amount) + sourceChain.messageToll,
         chainId: sourceChain.chainId
