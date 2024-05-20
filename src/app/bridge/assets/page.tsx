@@ -37,7 +37,7 @@ function TokenItem({ token, tokenInfo, highlightedAssets }: { token: any, tokenI
   // If source chain type is erc
   const addCATParams: addCATParams = {
     assetId: destChainTokenAddr,
-    symbol: `${sourceChain.id}w${formattedTokenSymbol}`,
+    symbol: `w${formattedTokenSymbol}${sourceChain.id == 'bse' ? '.b' : ''}`,
     logoUrl: 'https://warp.green/warp-green-icon.png'
   }
 
