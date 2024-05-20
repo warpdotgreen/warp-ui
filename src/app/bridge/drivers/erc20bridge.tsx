@@ -576,6 +576,11 @@ export async function burnCATs(
   InstanceType<typeof GreenWeb.util.serializer.types.SpendBundle>, // sb
   string // txId
 ]> {
+  if(ethTokenReceiverAddress.toLowerCase() === "0x" + "00".repeat(20)) {
+    alert("Did not correctly fetch address - resetting...");
+    return [new GreenWeb.util.serializer.types.SpendBundle(), ""];
+  }
+  
   tokenContractAddress = GreenWeb.util.unhexlify(tokenContractAddress)!;
   tokenContractAddress = "0".repeat(64 - tokenContractAddress.length) + tokenContractAddress;
 

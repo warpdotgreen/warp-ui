@@ -269,6 +269,9 @@ export const wagmiConfig = defaultWagmiConfig({
 export const NOSTR_CONFIG = {
   relays: [
     "wss://test-relay.fireacademy.io",
+    "wss://txch-relay.bufflehead.org",
+    "wss://txch-relay.tns.cx",
+    "wss://test-relay.defibastion.com"
   ],
   validatorKeys: [
     "cd5fd0859c3a27c13dd9734b7cdc6f2c25646e45821dcecaa089808803d01706",

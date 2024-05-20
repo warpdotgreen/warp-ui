@@ -49,8 +49,7 @@ function StepThreeEVMDestination({
 }) {
 
   const wagmiChainId = useChainId()
-  const { address } = useAccount()
-  const isEthWalletConnected = Boolean(address)
+  const { isConnected: isEthWalletConnected } = useAccount()
   const { switchChainAsync, status } = useSwitchChain({ config: wagmiConfig })
 
   const searchParams = useSearchParams()
@@ -375,36 +374,38 @@ function FinalCoinsetTxConfirmer({
 
   return (
     <div className="flex flex-col">
-      <div className="p-6 py-4 mt-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-in fade-in slide-in-from-bottom-2 duration-500">
-        <div className="flex items-center gap-2">
-          <TriangleAlert className="opacity-80 w-4 h-auto" />
-          <p className="opacity-80">Don&apos;t see your bridged asset?</p>
-          <Button variant="outline" className="ml-auto" asChild><Link href="/bridge/assets" target="_blank">Add to Wallet</Link></Button>
-        </div>
-      </div>
       <div className="p-6 my-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-in fade-in slide-in-from-bottom-2 duration-500">
         <p className="font-extralight opacity-80 mb-4">Transaction ID</p>
         <p className="text-xl font-light">{txId}</p>
       </div>
-      <div className="p-6 bg-background flex gap-2 font-light rounded-md animate-[delayed-fade-in_0.7s_ease_forwards]">
         {
-          includedInBlock ? (
-            <div className="flex flex-col w-full gap-2 animate-in fade-in slide-in-from-bottom-2 duration-500">
-              <p className="font-extralight opacity-80 mb-4">Transaction Sent</p>
-              <Button className="w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl" asChild>
-                <Link href={`${destinationChain.explorerUrl}/coin/0x${txId}`} target="_blank">Verify on SpaceScan <ArrowUpRight className="w-5 mb-3 h-auto" /></Link>
-              </Button>
-            </div>
-          ) : (
-            <>
-              <Loader className="w-4 shrink-0 h-auto animate-spin" />
-              <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-                <p className="animate-pulse">Waiting for transaction to be included in a block...</p>
+        includedInBlock ? (
+          <>
+            <div className="p-6 bg-background flex gap-2 font-light rounded-md animate-[delayed-fade-in_0.7s_ease_forwards]">
+              <div className="flex flex-col w-full gap-2 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                <p className="font-extralight opacity-80 mb-4">Transaction Sent</p>
+                <Button className="w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl" asChild>
+                  <Link href={`${destinationChain.explorerUrl}/coin/0x${txId}`} target="_blank">Verify on SpaceScan <ArrowUpRight className="w-5 mb-3 h-auto" /></Link>
+                </Button>
               </div>
-            </>
-          )
-        }
-      </div>
+            </div>
+            <div className="p-6 py-4 mt-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-in fade-in slide-in-from-bottom-2 duration-500">
+              <div className="flex items-center gap-2">
+                <TriangleAlert className="opacity-80 w-4 h-auto" />
+                <p className="opacity-80">Don&apos;t see your bridged asset?</p>
+                <Button variant="outline" className="ml-auto" asChild><Link href="/bridge/assets" target="_blank">Add to Wallet</Link></Button>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="p-6 bg-background flex gap-2 font-light rounded-md animate-[delayed-fade-in_0.7s_ease_forwards]">
+            <Loader className="w-4 shrink-0 h-auto animate-spin" />
+            <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+              <p className="animate-pulse">Waiting for transaction to be included in a block...</p>
+            </div>
+          </div>
+        )
+      }
     </div>
   )
 }
@@ -422,13 +423,6 @@ function FinalEVMTxConfirmer({
   const chainId = NETWORKS.find(n => n.id === toChainName)?.chainId
   return (
     <div className="flex flex-col">
-      <div className="p-6 py-4 mt-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-in fade-in slide-in-from-bottom-2 duration-500">
-        <div className="flex items-center gap-2">
-          <TriangleAlert className="opacity-80 w-4 h-auto" />
-          <p className="opacity-80">Don&apos;t see your bridged asset?</p>
-          {chainId ? <AddERCTokenButton tokenAddress={destinationAddr} tokenChainId={chainId} /> : <Button variant="ghost" className="ml-auto" asChild><Link href={`/bridge/assets?addAssets=${destinationAddr}`} target="_blank">+ Add to Wallet</Link></Button>}
-        </div>
-      </div>
       <div className="p-6 my-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-in fade-in slide-in-from-bottom-2 duration-500">
         <p className="font-extralight opacity-80 mb-4">Transaction ID</p>
         <p className="text-xl font-light">{txId}</p>
@@ -439,6 +433,13 @@ function FinalEVMTxConfirmer({
           <Button className="w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl" asChild>
             <Link href={`${destinationChain.explorerUrl}/tx/${txId}`} target="_blank">View on Explorer <ArrowUpRight className="w-5 mb-3 ml-0.5 h-auto" /></Link>
           </Button>
+        </div>
+      </div>
+      <div className="p-6 py-4 mt-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <div className="flex items-center gap-2">
+          <TriangleAlert className="opacity-80 w-4 h-auto" />
+          <p className="opacity-80">Don&apos;t see your bridged asset?</p>
+          {chainId ? <AddERCTokenButton tokenAddress={destinationAddr} tokenChainId={chainId} /> : <Button variant="ghost" className="ml-auto" asChild><Link href={`/bridge/assets?addAssets=${destinationAddr}`} target="_blank">+ Add to Wallet</Link></Button>}
         </div>
       </div>
     </div>

@@ -317,9 +317,12 @@ export async function getSigsAndSelectors(
   const pool = new SimplePool();
   const events = await pool.querySync(
     relays,
-    {
+    coinData.length > 0 ? {
       kinds: [1],
       "#c": [coinData],
+      "#r": [routingData]
+    } : {
+      kinds: [1],
       "#r": [routingData]
     }
   );

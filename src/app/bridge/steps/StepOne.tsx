@@ -400,6 +400,10 @@ function ChiaButton({
       setStatus
     ))
 
+    if(nonce.length == 0) {
+      router.push("/bridge");
+    }
+
     const pushTxResp = await pushTx(sourceChain.rpcUrl, sb)
     if (!pushTxResp.success) {
       const sbJson = sbToJSON(sb)
