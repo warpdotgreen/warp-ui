@@ -1,7 +1,7 @@
 import * as GreenWeb from 'greenwebjs';
 import { getSingletonStruct, SINGLETON_LAUNCHER_HASH } from './singleton';
 import { SExp, Tuple, Bytes, getBLSModule } from "clvm";
-import { Network } from '../config';
+import { Network, TESTNET } from '../config';
 import { ConditionOpcode } from "greenwebjs/util/sexp/condition_opcodes";
 import { getCoinRecordByName, getPuzzleAndSolution } from './rpc';
 import { bech32m } from "bech32";
@@ -303,9 +303,20 @@ export async function getSigsAndSelectors(
     coinData = GreenWeb.util.address.puzzleHashToAddress(coinId, "c");
   }
 
+  const relays = [];
+  if (TESTNET) {
+    relays.push(NOSTR_CONFIG.relays[0]);
+  }
+  const remainingRelays = NOSTR_CONFIG.relays.slice(TESTNET ? 1 : 0);
+  while (relays.length < 3) {
+    const randomIndex = Math.floor(Math.random() * remainingRelays.length);
+    relays.push(remainingRelays[randomIndex]);
+  }
+
+
   const pool = new SimplePool();
   const events = await pool.querySync(
-    NOSTR_CONFIG.relays,
+    relays,
     {
       kinds: [1],
       "#c": [coinData],
@@ -313,7 +324,7 @@ export async function getSigsAndSelectors(
     }
   );
 
-  pool.close(NOSTR_CONFIG.relays);
+  pool.close(relays);
 
   if(events.length === 0) {
     console.log("No Nostr events found for this nonce (yet)"); // todo: debug
