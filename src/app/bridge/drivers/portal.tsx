@@ -308,7 +308,7 @@ export async function getSigsAndSelectors(
     relays.push(NOSTR_CONFIG.relays[0]);
   }
   const remainingRelays = NOSTR_CONFIG.relays.slice(TESTNET ? 1 : 0);
-  while (relays.length < 3) {
+  while (relays.length < 4) {
     const randomIndex = Math.floor(Math.random() * remainingRelays.length);
     relays.push(remainingRelays[randomIndex]);
   }
