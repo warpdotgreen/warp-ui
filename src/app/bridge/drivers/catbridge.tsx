@@ -457,6 +457,7 @@ export async function lockCATs(
 
 
 export async function unlockCATs(
+  portalBootstrapCoinId: string,
   offer: string,
   rawMessage: RawMessage,
   tokenTailHash: string | null,
@@ -555,6 +556,7 @@ export async function unlockCATs(
     portalSigs,
     messageCoin
   ] = await receiveMessageAndSpendMessageCoin(
+    portalBootstrapCoinId,
     coinsetNetwork,
     rawMessage,
     unlockerCoin,

@@ -405,6 +405,7 @@ export function getWrappedERC20AssetID(sourceChain: Network, erc20ContractAddres
 }
 
 export async function mintCATs(
+  portalBootstrapCoinId: string,
   offer: string,
   rawMessage: RawMessage,
   coinsetNetwork: Network,
@@ -451,6 +452,7 @@ export async function mintCATs(
     portalSigs,
     messageCoin
   ] = await receiveMessageAndSpendMessageCoin(
+    portalBootstrapCoinId,
     coinsetNetwork,
     rawMessage,
     minterCoin,

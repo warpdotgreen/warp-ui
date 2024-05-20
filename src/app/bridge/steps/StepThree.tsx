@@ -1,13 +1,14 @@
 "use client"
 
 import { useRouter, useSearchParams } from "next/navigation"
+import * as GreenWeb from 'greenwebjs';
 import { NETWORKS, Network, NetworkType, TESTNET, TOKENS, wagmiConfig } from "../config"
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { getStepThreeURL } from "./urls"
 import { useQuery } from "@tanstack/react-query"
 import { useAccount, useChainId, useSwitchChain, useWriteContract } from "wagmi"
-import { decodeSignature, getSigsAndSelectors, RawMessage } from "../drivers/portal"
+import { bootstrapPortal, decodeSignature, getSigsAndSelectors, PortalInfo, RawMessage } from "../drivers/portal"
 import { stringToHex } from "../drivers/util"
 import { PortalABI } from "../drivers/abis"
 import { getCoinRecordByName, pushTx, sbToJSON } from "../drivers/rpc"
@@ -19,6 +20,7 @@ import { toast } from "sonner"
 import { useWallet } from "../ChiaWalletManager/WalletContext"
 import AddERCTokenButton from "../assets/components/AddERCTokenButton"
 import { cn } from "@/lib/utils"
+import { ethers } from "ethers"
 
 export default function StepThree({
   sourceChain,
@@ -158,6 +160,7 @@ function StepThreeCoinsetDestination({
   const router = useRouter()
   const searchParams = useSearchParams()
 
+  const portalBootstrapCoinId: string | null = searchParams.get("portal_bootstrap_id")
   const offer: string | null = searchParams.get("offer")
 
   const [status, setStatus] = useState("Loading...")
@@ -172,25 +175,26 @@ function StepThreeCoinsetDestination({
   const destination = searchParams.get("destination") ?? ""
   const contents = JSON.parse(searchParams.get("contents") ?? "[]")
 
+  const rawMessage: RawMessage = {
+    nonce: nonce.replace("0x", ""),
+    destinationHex: destination.replace("0x", ""),
+    destinationChainHex: stringToHex(destinationChain.id),
+    sourceHex: source.replace("0x", ""),
+    sourceChainHex: stringToHex(sourceChain.id),
+    contents: contents.map((c: string) => c.replace("0x", "")),
+  }
+
   const isNativeCAT = contents.length == 2
 
   const destTxId = searchParams.get("tx")
   useQuery({
-    queryKey: ['StepThree_buildAndSubmitTx'],
+    queryKey: ['StepThree_buildAndSubmitTx', rawMessage.nonce],
     queryFn: async () => {
-      const rawMessage: RawMessage = {
-        nonce: nonce.replace("0x", ""),
-        destinationHex: destination.replace("0x", ""),
-        destinationChainHex: stringToHex(destinationChain.id),
-        sourceHex: source.replace("0x", ""),
-        sourceChainHex: stringToHex(sourceChain.id),
-        contents: contents.map((c: string) => c.replace("0x", "")),
-      }
-
       var sb, txId
       if (!isNativeCAT) { // wrapped ERC20s
         try {
           [sb, txId] = await mintCATs(
+            portalBootstrapCoinId!,
             offer!,
             rawMessage,
             destinationChain,
@@ -214,6 +218,7 @@ function StepThreeCoinsetDestination({
 
         try {
           [sb, txId] = await unlockCATs(
+            portalBootstrapCoinId!,
             offer!,
             rawMessage,
             assetId === "00".repeat(32) ? null : assetId,
@@ -257,7 +262,8 @@ function StepThreeCoinsetDestination({
       <GenerateOfferPrompt
         destinationChain={destinationChain}
         amount={isNativeCAT ? 1 : amount}
-        onOfferGenerated={(offer) => {
+        rawMessage={rawMessage}
+        onOfferGenerated={(portalBootstrapId, offer) => {
           router.push(getStepThreeURL({
             sourceNetworkId: sourceChain.id,
             destinationNetworkId: destinationChain.id,
@@ -266,6 +272,7 @@ function StepThreeCoinsetDestination({
             destination,
             contents,
             offer,
+            portalBootstrapId
           }))
         }}
       />
@@ -288,18 +295,67 @@ function StepThreeCoinsetDestination({
   )
 }
 
+function ChiaFeeWarning({
+  portalInfo,
+}: {
+  portalInfo: PortalInfo
+}) {
+  const originalCost = GreenWeb.BigNumber.from(portalInfo.mempoolSbCost);
+  const originalFee = portalInfo.mempoolSbFee.eq(0) ? originalCost.mul(4) : GreenWeb.BigNumber.from(portalInfo.mempoolSbFee);
+
+  const estAdditionalCost = GreenWeb.BigNumber.from("200000000");
+  const recommendedFeeMojos: GreenWeb.BigNumber = (
+    originalCost.add(estAdditionalCost) // new cost = original_cost + estimated cost for adding new coin spends (200 mil.)
+  ).mul(
+    (originalFee.add(originalCost)).div(originalCost) // fpc + 1 = original_fee / original_cost + 1 = (original_fee + original_cost) / original_cost
+  )
+
+  return (
+    <div className="p-6 mt-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-in fade-in slide-in-from-bottom-2 duration-500">
+      <div className="flex items-center gap-2">
+        <TriangleAlert className="w-12 h-auto opacity-80" />
+        <div className="px-2">
+          <p><span className="font-medium">The mempool already contains a portal spend</span><span className="opacity-100"> with a fee of {ethers.formatUnits(portalInfo.mempoolSbFee.toString(), 12)} XCH.</span></p>
+          <p className="pt-4"><span className="opacity-80">To replace it, it is recommended that you </span><span className="font-medium opacity-100">use a minimum fee of {ethers.formatUnits(recommendedFeeMojos.toString(), 12)} XCH</span>.</p>
+          <p className="pt-5 opacity-80">Alternatively, you can wait for the pending transaction to be confirmed, when this warning will disappear.</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function GenerateOfferPrompt({
   destinationChain,
+  rawMessage,
   amount,
   onOfferGenerated,
 }: {
   destinationChain: Network,
+  rawMessage: RawMessage,
   amount: number,
-  onOfferGenerated: (offer: string) => void
+  onOfferGenerated: (portalInfo: string, offer: string) => void
 }) {
+  const [portalInfo, setPortalInfo] = useState<PortalInfo | null>(null)
+  const [status, setStatus] = useState("Fetching portal bootstrap coin id...")
   const [waitingForTx, setWaitingForTx] = useState(false)
   const { createOffer, address } = useWallet()
   const isConnectedToChiaWallet = Boolean(address)
+
+  useQuery({
+    queryKey: ['StepThree_bootstrapPortalCoinId', rawMessage.nonce],
+    queryFn: async () => {
+      try {
+        const newPortalInfo = await bootstrapPortal(portalInfo, destinationChain, rawMessage, setStatus);
+        setPortalInfo(newPortalInfo)
+      } catch(_) {
+        console.error(_)
+        setStatus("Failed to fetch portal bootstrap coin id.")
+      }
+
+      return 1
+    },
+    refetchInterval: 5000,
+  });
 
   const generateOfferPls = async () => {
     setWaitingForTx(true)
@@ -315,7 +371,7 @@ function GenerateOfferPrompt({
       }
       const offer = await createOffer(params)
       if (offer) {
-        onOfferGenerated(offer)
+        onOfferGenerated(portalInfo?.coinId ?? "", offer)
       }
     } catch (e) {
       console.error(e)
@@ -324,31 +380,45 @@ function GenerateOfferPrompt({
     }
   }
 
-  return (
-    <div className="p-6 mt-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-in fade-in slide-in-from-bottom-2 duration-500">
-      <p className="px-4">
-        Click the button below to create an offer for minting wrapped assets on {destinationChain.displayName}.
-        Note that lower fees mean slower confirmations.
-      </p>
-      <div className="flex mt-6">
-        {!waitingForTx ? (
-          <Button
-            disabled={!isConnectedToChiaWallet}
-            className="w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl"
-            onClick={isConnectedToChiaWallet ? generateOfferPls : () => { }}
-          >
-            {isConnectedToChiaWallet ? 'Generate Offer' : 'Connect Chia Wallet'}
-          </Button>
-        ) : (
-          <Button
-            className="relative flex items-center gap-2 w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl"
-            disabled={true}
-          >
-            <p className="animate-pulse whitespace-normal">Waiting for transaction approval</p>
-          </Button>
-        )}
+  if(portalInfo === null) {
+    return (
+      <div className="flex gap-2 items-center bg-background h-14 w-full px-6 rounded-md font-light">
+        <Loader className="w-4 shrink-0 h-auto animate-spin" />
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <p className="animate-pulse">{status}</p>
+        </div>
       </div>
-    </div>
+    )
+  }
+
+  return (
+    <>
+      {portalInfo.mempoolSb !== null && <ChiaFeeWarning portalInfo={portalInfo} />}
+      <div className="p-6 mt-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <p className="px-4">
+          Click the button below to create an offer for minting assets on {destinationChain.displayName}.
+          Note that using lower fees will result in slower confirmations.
+        </p>
+        <div className="flex mt-6">
+          {!waitingForTx ? (
+            <Button
+              disabled={!isConnectedToChiaWallet}
+              className="w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl"
+              onClick={isConnectedToChiaWallet ? generateOfferPls : () => { }}
+            >
+              {isConnectedToChiaWallet ? 'Generate Offer' : 'Connect Chia Wallet'}
+            </Button>
+          ) : (
+            <Button
+              className="relative flex items-center gap-2 w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl"
+              disabled={true}
+            >
+              <p className="animate-pulse whitespace-normal">Waiting for transaction approval</p>
+            </Button>
+          )}
+        </div>
+      </div>
+    </>
   )
 }
 
