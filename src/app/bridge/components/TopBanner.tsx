@@ -7,7 +7,7 @@ import Link from "next/link";
 const BETA_BANNER_CLOSED_KEY = "beta-banner-closed";
 
 function TopBanner() {
-  const closedBetaBanner = localStorage.getItem(BETA_BANNER_CLOSED_KEY) ?? false;
+  const closedBetaBanner = window.localStorage.getItem(BETA_BANNER_CLOSED_KEY) ?? false;
   const [showBetaBanner, setShowBetaBanner] = useState(!closedBetaBanner);
 
   return (
@@ -25,7 +25,7 @@ function TopBanner() {
             className="underline font-medium hover:opacity-90 whitespace-nowrap"
           >Learn more</Link></p>
           <Button className="bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 ml-auto p-0 m-0" onClick={() => {
-            localStorage.setItem(BETA_BANNER_CLOSED_KEY, "true");
+            window.localStorage.setItem(BETA_BANNER_CLOSED_KEY, "true");
             setShowBetaBanner(false);
           }}>
             <XMarkIcon />
