@@ -1,14 +1,16 @@
-"use client";
 import { Button } from "@/components/ui/button";
 import { TESTNET } from "../config"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
 const BETA_BANNER_CLOSED_KEY = "beta-banner-closed";
 
 function TopBanner() {
-  const closedBetaBanner = window.localStorage.getItem(BETA_BANNER_CLOSED_KEY) ?? false;
-  const [showBetaBanner, setShowBetaBanner] = useState(!closedBetaBanner);
+  const [showBetaBanner, setShowBetaBanner] = useState(false);
+  useEffect(() => {
+    const bannerClosed = window.localStorage.getItem(BETA_BANNER_CLOSED_KEY);
+    setShowBetaBanner(bannerClosed !== "true");
+  }, []);
 
   return (
     <>
