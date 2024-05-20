@@ -20,7 +20,7 @@ function TopBanner() {
         </div>
       )}
       {showBetaBanner && (
-        <div className="bg-theme-purple text-center w-full px-4 font-light flex items-center justify-between">
+        <div className="bg-theme-purple text-center w-full px-4 font-light flex items-center justify-between animate-in fade-in duration-500">
           <p className="flex-grow text-center py-2">We&apos;re currently in <span className="font-medium">Beta</span>. More audits are scheduled. <Link
             href="https://docs.warp.green/#what-does-beta-mean"
             target="_blank"
