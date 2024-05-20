@@ -101,14 +101,14 @@ export default function AssetList() {
       {!!highlightedAssets.length && <p className='border rounded-md px-6 py-4 mb-4'>We have flagged assets (with purple) you need to add to your wallet to continue the bridging process</p>}
       <div className='grid xl:grid-cols-2 gap-4'>
         {erc20Assets.map(token => token.supported.map(tokenInfo => (
-          <TokenItem key={`${token.symbol}-${tokenInfo.assetId}`} token={token} tokenInfo={tokenInfo} highlightedAssets={highlightedAssets} />
+          <TokenItem key={`${token.symbol}-${tokenInfo.evmNetworkId}-${tokenInfo.coinsetNetworkId}-${tokenInfo.assetId}`} token={token} tokenInfo={tokenInfo} highlightedAssets={highlightedAssets} />
         )))}
       </div>
 
       <h2 className="mb-4 mt-12 text-xl font-light">Supported CAT Assets</h2>
       <div className='grid xl:grid-cols-2 gap-4'>
         {coinsetTokens.map(token => token.supported.map(tokenInfo => {
-          return <TokenItem key={`${token.symbol}-${tokenInfo.assetId}`} token={token} tokenInfo={tokenInfo} highlightedAssets={highlightedAssets} />
+          return <TokenItem key={`${token.symbol}-${tokenInfo.evmNetworkId}-${tokenInfo.coinsetNetworkId}-${tokenInfo.assetId}`} token={token} tokenInfo={tokenInfo} highlightedAssets={highlightedAssets} />
         }))}
       </div>
 
