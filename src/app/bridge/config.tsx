@@ -29,6 +29,7 @@ export type Network = {
   aggSigData?: string,
   multisigThreshold?: number,
   multisigInfos?: string[],
+  explorer2Url?: string,
 
   // EVM only
   chainId?: number,
@@ -43,6 +44,7 @@ export const CHIA_NETWORK: Network = {
   type: NetworkType.COINSET,
   rpcUrl: 'https://testnet.fireacademy.io/',
   explorerUrl: 'https://testnet11.spacescan.io/',
+  // explorer2Url: 'https://xchscan.com/',
   messageToll: BigInt(1000000000),
   signatureThreshold: 3,
   validatorInfos: [

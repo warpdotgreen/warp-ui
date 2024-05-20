@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter, useSearchParams } from "next/navigation"
-import { NETWORKS, Network, NetworkType, TOKENS, wagmiConfig } from "../config"
+import { NETWORKS, Network, NetworkType, TESTNET, TOKENS, wagmiConfig } from "../config"
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { getStepThreeURL } from "./urls"
@@ -385,8 +385,13 @@ function FinalCoinsetTxConfirmer({
               <div className="flex flex-col w-full gap-2 animate-in fade-in slide-in-from-bottom-2 duration-500">
                 <p className="font-extralight opacity-80 mb-4">Transaction Sent</p>
                 <Button className="w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl" asChild>
-                  <Link href={`${destinationChain.explorerUrl}/coin/0x${txId}`} target="_blank">Verify on SpaceScan <ArrowUpRight className="w-5 mb-3 h-auto" /></Link>
+                  <Link href={`${destinationChain.explorerUrl}coin/0x${txId}`} target="_blank">Verify on SpaceScan <ArrowUpRight className="w-5 mb-3 h-auto" /></Link>
                 </Button>
+                {destinationChain.explorer2Url && (
+                  <Button className="w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl" asChild>
+                    <Link href={`${destinationChain.explorer2Url}txns/0x${txId}`} target="_blank">Verify on XCHScan <ArrowUpRight className="w-5 mb-3 h-auto" /></Link>
+                  </Button>
+                )}
               </div>
             </div>
             <div className="p-6 py-4 mt-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-[delayed-fade-in_0.7s_ease_forwards]">
