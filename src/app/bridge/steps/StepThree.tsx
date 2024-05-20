@@ -381,7 +381,7 @@ function FinalCoinsetTxConfirmer({
         {
         includedInBlock ? (
           <>
-            <div className="p-6 bg-background flex gap-2 font-light rounded-md animate-[delayed-fade-in_0.7s_ease_forwards]">
+            <div className="p-6 bg-background flex gap-2 font-light rounded-md animate-[delayed-fade-in_0.4s_ease_forwards]">
               <div className="flex flex-col w-full gap-2 animate-in fade-in slide-in-from-bottom-2 duration-500">
                 <p className="font-extralight opacity-80 mb-4">Transaction Sent</p>
                 <Button className="w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl" asChild>
@@ -389,7 +389,7 @@ function FinalCoinsetTxConfirmer({
                 </Button>
               </div>
             </div>
-            <div className="p-6 py-4 mt-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <div className="p-6 py-4 mt-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-[delayed-fade-in_0.7s_ease_forwards]">
               <div className="flex items-center gap-2">
                 <TriangleAlert className="opacity-80 w-4 h-auto" />
                 <p className="opacity-80">Don&apos;t see your bridged asset?</p>
@@ -427,7 +427,7 @@ function FinalEVMTxConfirmer({
         <p className="font-extralight opacity-80 mb-4">Transaction ID</p>
         <p className="text-xl font-light">{txId}</p>
       </div>
-      <div className="p-6 bg-background flex gap-2 font-light rounded-md animate-[delayed-fade-in_0.7s_ease_forwards]">
+      <div className="p-6 bg-background flex gap-2 font-light rounded-md animate-[delayed-fade-in_0.4s_ease_forwards]">
         <div className="flex flex-col w-full gap-2 animate-in fade-in slide-in-from-bottom-2 duration-500">
           <p className="font-extralight opacity-80 mb-4">Transaction Confirmed</p>
           <Button className="w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl" asChild>
@@ -435,7 +435,7 @@ function FinalEVMTxConfirmer({
           </Button>
         </div>
       </div>
-      <div className="p-6 py-4 mt-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-in fade-in slide-in-from-bottom-2 duration-500">
+      <div className="p-6 py-4 mt-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-[delayed-fade-in_0.7s_ease_forwards]">
         <div className="flex items-center gap-2">
           <TriangleAlert className="opacity-80 w-4 h-auto" />
           <p className="opacity-80">Don&apos;t see your bridged asset?</p>
