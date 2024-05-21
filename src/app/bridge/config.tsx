@@ -299,7 +299,7 @@ const USDC_TOKEN_MAINNET_ONLY: Token = {
     {
       evmNetworkId: BASE_NETWORK.id,
       coinsetNetworkId: CHIA_NETWORK.id,
-      assetId: getWrappedERC20AssetID(ETHEREUM_NETWORK, USDC_ADDRESS_BASE_MAINNET),
+      assetId: getWrappedERC20AssetID(BASE_NETWORK, USDC_ADDRESS_BASE_MAINNET),
       contractAddress: USDC_ADDRESS_BASE_MAINNET
     },
     {
@@ -393,7 +393,7 @@ export const TOKENS = TESTNET ? [
   XCH_TOKEN,
   DBX_TOKEN,
   SBX_TOKEN_MAINNET_ONLY,
-  USDT_TOKEN
+  // USDT_TOKEN
 ]
 
 declare module 'wagmi' {

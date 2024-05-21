@@ -321,6 +321,10 @@ function EthereumButton({
   }
 
   const approveTokenSpend = async () => {
+    console.log({
+        amountToApprove: ethers.parseUnits(amount, tokenDecimalsFromContract ?? (token.sourceNetworkType === NetworkType.EVM ? 6 : 18)),
+        addy: tokenInfo.contractAddress
+    })
     writeContractForApproval({
       address: tokenInfo.contractAddress,
       abi: erc20ABI,
