@@ -1,13 +1,13 @@
 import { defaultWagmiConfig } from "@web3modal/wagmi"
 import { ethers } from "ethers"
 import { http } from 'wagmi'
-import { sepolia, baseSepolia } from 'wagmi/chains'
+import { sepolia, baseSepolia, mainnet, base } from 'wagmi/chains'
 import { getWrappedERC20AssetID } from "./drivers/erc20bridge"
 
 export const TESTNET = process.env.NEXT_PUBLIC_TESTNET === "true";
 
-export const WATCHER_API_ROOT = 'https://test-watcher.fireacademy.io/';
-export const STATUS_URL ='https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+export const WATCHER_API_ROOT = TESTNET ? 'https://test-watcher.fireacademy.io/' : 'https://watcher-api.warp.green/';
+export const STATUS_URL = TESTNET ? 'https://warp-validators.bufflehead.org/' : 'https://status.warp.green/';
 
 export enum NetworkType {
   COINSET = 'coinset',
@@ -41,7 +41,7 @@ export type Network = {
   l1BlockContractAddress?: `0x${string}` // Optimism L2 only
 }
 
-export const CHIA_NETWORK: Network = {
+export const CHIA_NETWORK: Network = TESTNET ? {
   displayName: 'Chia',
   id: 'xch',
   type: NetworkType.COINSET,
@@ -81,9 +81,49 @@ export const CHIA_NETWORK: Network = {
   prefix: "txch",
   portalLauncherId: "ed3ae61bacb1479b2ab8a771b758bc551ec8ba5c930bce002f30ae8a34a06abe",
   aggSigData: "37a90eb5185a9c4439a91ddc98bbadce7b4feba060d50116a067de66bf236615",
+} : { // mainnet
+  displayName: 'Chia',
+  id: 'xch',
+  type: NetworkType.COINSET,
+  rpcUrl: 'https://kraken.fireacademy.io/5e520516-a257-42b5-9ef5-0b4747e4b3f3/leaflet',
+  explorerUrl: 'https://spacescan.io/',
+  explorer2Url: 'https://xchscan.com/',
+  messageToll: BigInt(1000000000),
+  signatureThreshold: 7,
+  validatorInfos: [
+    "8d7b289831084afb41ec99d4ccd781b0a7e5c01fb9a1d3a6e0af70582bb2c7ff3bc36d657e7bfba60e5119d62bd30993",
+    "b4c92890f9dfdf47d674943a8acbdb4b695c6936d79c66c62a5679c2dc2fe649ba11431f474ff0b168cf709515e0b6e6",
+    "a8fcd9e4afef11b5e7072dc418849189bf14c75b40d9cb5b2f5b6657c27f1a119381304b7bc4fe7aad33ced25f63bf76",
+    "989eaa2133912b060485b633ff2ab9063788472857514970fa521407fd4ac36f65aa35e723c736f5f77f36fed0f7064c",
+    "8b9d5443a67c74229427c2f917138ec23032892df8302d209f25e8f8ff8192303d82dbab603b50e207da94887fc8c446",
+    "b59977c6144eb5e666c7276fda1bf15a1ee23ca57f63487ae8c5694d69a7eac24ed3036d8562749f4586f10a2d51f3eb",
+    "ada250cbdf981a00cc69fa24e326d5528e6f7d3d5283ee8e788ae018ddc511cc4bde6e7de0919c5e37ac5af97f47ba35",
+    "abb4408a3e0c9cfb14f2b0bd27265a7650c3d1d916e9ac3ef8d2a91558364ce4610575c7339767d1ffdd52ffff085d50",
+    "8efc3b506c75e91a66357f9b965721434074ea148fd54d25dce8371a8496f9f66f6bb811fafa73d77798eb9e02d0bf7f",
+    "a166b08281b6f29d858e1723a85ca4581740b09ad3f38f35db5038ebd06162cf45d41d13acb290b392db3b10dbb230eb",
+    "879f8e452a99610c4e841ec0bd739db0ec8912b796509c88d67f5223315f74bd79e39147a31f23eb7eba64b8641eca3e"
+  ],
+  multisigThreshold: 7,
+  multisigInfos: [
+    "b63871fbc72a7ff07d8f2419c8d3bbe1ac557d3cbf367761d08a1a1209dd285358124845151381da912751e33bd7ffa8",
+    "8d5ca1a64a587c2fe7603a6933d335ad01a50f0187085981651d617ffaffce9d57ad25680813a030665fabef12075811",
+    "aa5ea815c1c0e70882b532bb7462a2d8ba68817a4ccfb728214382217b671fd534e19b869ad404ecd5c7852520c6f0c0",
+    "b2ee00a2e657ee8bb818999f56ec781c4b10a04919eb061904e44bc96f022e47a75454b1d63796ea6eff8fcf2932d8ca",
+    "9322d4a1f8d078b81ea674947ba2420f4175f38483d7ac60dc3ff4de3d27cf33bb1c06cb7638467536ef766533a7ad79",
+    "a7b9970795c085979ca94b54e5c1b8e4ee96104dac690c01175b138b327c85e2537e53dc97189ecca57b629d3283bdca",
+    "813dcc8c4870df68416f14253a559aa0e088db84a46b9fe3e442eb6dbc2a1cb5381e2e862927a2743a1903889aadad1b",
+    "b5bd04adb90273d97a458b5e42d4930ab35643203131c22d53ac312026da74fda64c71216fc6db263063262266c45727",
+    "84b00e171a571b5904e48cdf456bf2861d37f01961c8b641a66974c70f49393fc55ba4b05543ca2894e8f6c7daad0719",
+    "836324ba44d7e1f2290a1ccf4c3c2d064c5047619981198ec4059165d85c06a1fd214da2b1b58603254f9b48637a9db1",
+    "8ca3153d0cc39eb9aff1bf51d09900758bc995605f1ad3fedc696f396f7fde2833cd5d1eda1f18bfb409a8752646d8e3"
+  ],
+  confirmationMinHeight: 32,
+  prefix: "xch",
+  portalLauncherId: "46e2bdbbcd1e372523ad4cd3c9cf4b372c389733c71bb23450f715ba5aa56d50",
+  aggSigData: "ccd5bb71183532bff220ba46c268991a3ff07eb358e8255a65c30a2dce0e5fbb",
 }
 
-export const ETHEREUM_NETWORK: Network = {
+export const ETHEREUM_NETWORK: Network = TESTNET ? {
   displayName: 'Ethereum',
   id: 'eth',
   type: NetworkType.EVM,
@@ -108,9 +148,34 @@ export const ETHEREUM_NETWORK: Network = {
   confirmationMinHeight: 64,
   portalAddress: "0xB5651bA4DeaF815f5929243d6ACF99D2d7C113eb",
   erc20BridgeAddress: "0xc733F712288f8B20201846bbE979a715Ff8F8Fcb",
+} : { // mainnet
+  displayName: 'Ethereum',
+  id: 'eth',
+  type: NetworkType.EVM,
+  chainId: mainnet.id,
+  rpcUrl: 'https://eth-mainnet.g.alchemy.com/v2/dDzTe56MDqiiidZBkqWrGL5uuRj7MQ8h',
+  explorerUrl: 'https://etherscan.io',
+  messageToll: ethers.parseEther("0.00001"),
+  signatureThreshold: 7,
+  validatorInfos: [
+    "0x12a67BDC9a74dc0Bde185d6cA03480a16BFB0E96",
+    "0x0838a3f6B6465BF44898c91B89823B4D743001Cb",
+    "0x9b03A7e2868B922D0f24bedC63145EDb04697A60",
+    "0xDd0f7b677cD79A28Faf43A1140251fd804341943",
+    "0xCEc9e92B3C9D7fd7f8211FB8CaD24ba064A9185c",
+    "0x9EC3559492Cd4F1109EE6467B052184F79C28fe7",
+    "0xe456b36224f163242778db6C877eaED81922166F",
+    "0xAd2169657d32B302a6519C545B5425608e4aC4E2",
+    "0x8094548A72eadAC2742F368E9e8Bf644FF17D03f",
+    "0x5110FB4762021ad3954Bdf2caBF4510C0ACd6d2f",
+    "0x9a342A2dB17e8Ad8dafA1a7748AD42d66919B3f3"
+  ],
+  confirmationMinHeight: 64,
+  portalAddress: "0x2593C582B7a24d94Ba0056B493Fd4048bd99fc3F",
+  erc20BridgeAddress: "0x208b80E85dAC3354DD80f72cC272297909EE81b7"
 }
 
-export const BASE_NETWORK: Network = {
+export const BASE_NETWORK: Network = TESTNET ? {
   displayName: 'Base',
   id: 'bse',
   chainId: baseSepolia.id,
@@ -136,6 +201,32 @@ export const BASE_NETWORK: Network = {
   l1BlockContractAddress: "0x4200000000000000000000000000000000000015",
   portalAddress: "0xB0adb9dA8C730859cc659b4fda7Ec94b5884A4E1",
   erc20BridgeAddress: "0x895bef3757f7965D8AA9Fcb30Bd1539e03E4a24E",
+} : { // mainnet
+  displayName: 'Base',
+  id: 'bse',
+  chainId: base.id,
+  type: NetworkType.EVM,
+  rpcUrl: 'https://base-mainnet.g.alchemy.com/v2/dFsyohmw48bNflAmgGnvmkE2Qmbo3st1',
+  explorerUrl: 'https://basescan.org',
+  messageToll: ethers.parseEther("0.00001"),
+  signatureThreshold: 7,
+  validatorInfos: [
+    "0x12a67BDC9a74dc0Bde185d6cA03480a16BFB0E96",
+    "0x0838a3f6B6465BF44898c91B89823B4D743001Cb",
+    "0x9b03A7e2868B922D0f24bedC63145EDb04697A60",
+    "0xDd0f7b677cD79A28Faf43A1140251fd804341943",
+    "0xCEc9e92B3C9D7fd7f8211FB8CaD24ba064A9185c",
+    "0x9EC3559492Cd4F1109EE6467B052184F79C28fe7",
+    "0xe456b36224f163242778db6C877eaED81922166F",
+    "0xAd2169657d32B302a6519C545B5425608e4aC4E2",
+    "0x8094548A72eadAC2742F368E9e8Bf644FF17D03f",
+    "0x5110FB4762021ad3954Bdf2caBF4510C0ACd6d2f",
+    "0x9a342A2dB17e8Ad8dafA1a7748AD42d66919B3f3"
+  ],
+  confirmationMinHeight: 64,
+  l1BlockContractAddress: "0x4200000000000000000000000000000000000015",
+  portalAddress: "0x382bd36d1dE6Fe0a3D9943004D3ca5Ee389627EE",
+  erc20BridgeAddress: "0x8412f06e811b858Ea9edcf81a5E5882dbf70aC96",
 }
 
 export const NETWORKS = [
@@ -157,8 +248,12 @@ export type Token = {
   supported: TokenInfo[]
 }
 
-const MILLIETH_ADDRESS_ETHEREUM: `0x${string}` = '0xFA2839748535B0eeAaCbbC932da6676DbFF45156'
-const MILLIETH_ADDRESS_BASE: `0x${string}` = '0xE063EefEca08c1Ef7C42a90D39bA50A660a505C1'
+const MILLIETH_ADDRESS_ETHEREUM: `0x${string}` = TESTNET ?
+ '0xFA2839748535B0eeAaCbbC932da6676DbFF45156' :
+ '0xf2D5d8eC69E2faed5eB4De90749c87ee314a4B12' // mainnet
+const MILLIETH_ADDRESS_BASE: `0x${string}` = TESTNET ?
+ '0xE063EefEca08c1Ef7C42a90D39bA50A660a505C1' :
+ '0xf2D5d8eC69E2faed5eB4De90749c87ee314a4B12' // mainnet
 
 export const ETH_TOKEN: Token = {
   symbol: 'ETH',
@@ -179,7 +274,9 @@ export const ETH_TOKEN: Token = {
   ],
 }
 
-const USDT_ADDRESS_ETHEREUM: `0x${string}` = '0xaa8e23fb1079ea71e0a56f48a2aa51851d8433d0'
+const USDT_ADDRESS_ETHEREUM: `0x${string}` = TESTNET ?
+  '0xaa8e23fb1079ea71e0a56f48a2aa51851d8433d0' :
+  '0xdAC17F958D2ee523a2206206994597C13D831ec7' // mainnet
 const USDT_TOKEN: Token = {
   symbol: 'USDT',
   sourceNetworkType: NetworkType.EVM,
@@ -193,41 +290,73 @@ const USDT_TOKEN: Token = {
   ]
 }
 
+const USDC_ADDRESS_ETHEREUM_MAINNET: `0x${string}` = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
+const USDC_ADDRESS_BASE_MAINNET: `0x${string}` = '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
+const USDC_TOKEN_MAINNET_ONLY: Token = {
+  symbol: 'USDC',
+  sourceNetworkType: NetworkType.EVM,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: getWrappedERC20AssetID(ETHEREUM_NETWORK, USDC_ADDRESS_BASE_MAINNET),
+      contractAddress: USDC_ADDRESS_BASE_MAINNET
+    },
+    {
+      evmNetworkId: ETHEREUM_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: getWrappedERC20AssetID(ETHEREUM_NETWORK, USDC_ADDRESS_ETHEREUM_MAINNET),
+      contractAddress: USDC_ADDRESS_ETHEREUM_MAINNET
+    }
+  ]
+}
+
 const XCH_ASSET_ID = "00".repeat(32)
-const WXCH_ADDRESS_ETHERUM: `0x${string}` = '0xEC6a48BD01E7B031050FB1d1F4246abfd31114FA'
-const WXCH_ADDRESS_BASE: `0x${string}` = '0x092bA3a8CbF8126255E83f3D548085F9FB87F5C8'
+const WXCH_ADDRESS_BASE: `0x${string}` = TESTNET ? '0x092bA3a8CbF8126255E83f3D548085F9FB87F5C8' : '0x36be1d329444aeF5D28df3662Ec5B4F965Cd93E9'
+const WXCH_ADDRESS_ETHERUM: `0x${string}` = TESTNET ? '0xEC6a48BD01E7B031050FB1d1F4246abfd31114FA' : '0x1be362F422A862055dCFF627D33f9bD478e6C7d7'
 export const XCH_TOKEN: Token = {
   symbol: 'XCH',
   sourceNetworkType: NetworkType.COINSET,
   supported: [
-    {
-      evmNetworkId: ETHEREUM_NETWORK.id,
-      coinsetNetworkId: CHIA_NETWORK.id,
-      assetId: XCH_ASSET_ID,
-      contractAddress: WXCH_ADDRESS_ETHERUM
-    },
     {
       evmNetworkId: BASE_NETWORK.id,
       coinsetNetworkId: CHIA_NETWORK.id,
       assetId: XCH_ASSET_ID,
       contractAddress: WXCH_ADDRESS_BASE
     },
+    {
+      evmNetworkId: ETHEREUM_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: XCH_ASSET_ID,
+      contractAddress: WXCH_ADDRESS_ETHERUM
+    },
   ]
 }
 
-const DBX_ASSET_ID = "d82dd03f8a9ad2f84353cd953c4de6b21dbaaf7de3ba3f4ddd9abe31ecba80ad"
-const WDBX_ADDRESS_ETHERUM: `0x${string}` = '0x5C5d6FA07c570DF689A34C9334B1DC9fe6E9dF1C'
-const WDBX_ADDRESS_BASE: `0x${string}` = '0x2FD5f17f7F9284f1c12ff7bF45cB38df02519Ea5'
+const DBX_ASSET_ID = TESTNET ? "d82dd03f8a9ad2f84353cd953c4de6b21dbaaf7de3ba3f4ddd9abe31ecba80ad" :
+  "db1a9020d48d9d4ad22631b66ab4b9ebd3637ef7758ad38881348c5d24c38f20" // mainnet
+
+const WDBX_ADDRESS_ETHERUM_SEPOLIA: `0x${string}` = '0x5C5d6FA07c570DF689A34C9334B1DC9fe6E9dF1C'
+const WDBX_ADDRESS_BASE: `0x${string}` = TESTNET ? '0x2FD5f17f7F9284f1c12ff7bF45cB38df02519Ea5' :
+  '0x2dabfFED5584DAb0CA3f9A56BA849f97A08cAd9A' // mainnet
+
 export const DBX_TOKEN: Token = {
   symbol: 'DBX',
   sourceNetworkType: NetworkType.COINSET,
-  supported: [
+  supported: TESTNET ? [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: DBX_ASSET_ID,
+      contractAddress: WDBX_ADDRESS_BASE
+    },
     {
       evmNetworkId: ETHEREUM_NETWORK.id,
       coinsetNetworkId: CHIA_NETWORK.id,
       assetId: DBX_ASSET_ID,
-      contractAddress: WDBX_ADDRESS_ETHERUM
-    },
+      contractAddress: WDBX_ADDRESS_ETHERUM_SEPOLIA
+    }
+  ] : [
     {
       evmNetworkId: BASE_NETWORK.id,
       coinsetNetworkId: CHIA_NETWORK.id,
@@ -237,12 +366,34 @@ export const DBX_TOKEN: Token = {
   ]
 }
 
+const SBX_ASSET_ID_MAINNET = 'a628c1c2c6fcb74d53746157e438e108eab5c0bb3e5c80ff9b1910b3e4832913'
+const SBX_ADDRESS_BASE_MAINNET = '0x0f374737547cC191f940E02763084CD62BCDe4a6'
 
-export const TOKENS = [
+export const SBX_TOKEN_MAINNET_ONLY: Token = {
+  symbol: 'SBX',
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: SBX_ASSET_ID_MAINNET,
+      contractAddress: SBX_ADDRESS_BASE_MAINNET
+    },
+  ]
+}
+
+export const TOKENS = TESTNET ? [
   ETH_TOKEN,
   USDT_TOKEN,
   XCH_TOKEN,
   DBX_TOKEN
+] : [
+  USDC_TOKEN_MAINNET_ONLY,
+  ETH_TOKEN,
+  XCH_TOKEN,
+  DBX_TOKEN,
+  SBX_TOKEN_MAINNET_ONLY,
+  USDT_TOKEN
 ]
 
 declare module 'wagmi' {
@@ -261,24 +412,39 @@ export const WcMetadata = {
 }
 
 export const wagmiConfig = defaultWagmiConfig({
-  chains: [sepolia, baseSepolia],
+  chains: [
+    TESTNET ? baseSepolia : base,
+    TESTNET ? sepolia : mainnet,
+  ],
   projectId: WALLETCONNECT_PROJECT_ID,
   ssr: true,
   metadata: WcMetadata,
   transports: {
-    [sepolia.id]: http(ETHEREUM_NETWORK.rpcUrl),
-    [baseSepolia.id]: http(BASE_NETWORK.rpcUrl),
-  },
+    [TESTNET ? baseSepolia.id : base.id]: http(BASE_NETWORK.rpcUrl),
+    [TESTNET ? sepolia.id : mainnet.id]: http(ETHEREUM_NETWORK.rpcUrl),
+  }
 })
 
 export const NOSTR_CONFIG = {
-  relays: [
+  relays: TESTNET ? [
     "wss://test-relay.fireacademy.io",
     "wss://txch-relay.bufflehead.org",
     "wss://txch-relay.tns.cx",
     "wss://test-relay.defibastion.com"
+  ] : [
+    "wss://relay.fireacademy.io",
+    "wss://relay.bufflehead.org",
+    "wss://xch-relay.tns.cx",
+    "wss://relay.spacescan.io",
+    "wss://relay.chainhq.tech",
+    "wss://relay.ozonewallet.io",
+    "wss://warpgreen-relay.232220.xyz",
+    "wss://relay.msmc.dev",
+    "wss://warpgreen-mainnet-relay.midl.dev",
+    "wss://relay.giritec.com",
+    "wss://relay.goby.app"
   ],
-  validatorKeys: [
+  validatorKeys: TESTNET ? [
     "cd5fd0859c3a27c13dd9734b7cdc6f2c25646e45821dcecaa089808803d01706",
     "804f399157512ee115d19e0e15fd63f97f6330755c6f928a8c49a6bda35df74e",
     "14aed9c23d7774dda60532891423e4e8adf74f468ea5f5cbac58cf8994387b94",
@@ -290,5 +456,17 @@ export const NOSTR_CONFIG = {
     "280e03462f0f87ba2aefeb7a033c2c1ec134fc9c06f28a5e9ed308dabf9e7700",
     "6f2aa84aa51327db3507e3c0d0fd02876d1b53fecf42aa88e9d32bbf5247ad3d",
     "7eff2950197deca52b67901a9641f4e4aac84b8bdd973d44edc6d73fb98af259"
+  ] : [
+    "db5790fd1aac8f0cb60879cd468b0cc845e5b692350ef7a26d4776c4f6da3776",
+    "ad4bc8487872b07d5acd9dd4ee11906e107a97945f2141eb60d6f0880c29f8e7",
+    "85146a6d0a14a2ae1e8eaa27142f7880caf5fe4428e11fb1fcdc0dc010a8829a",
+    "ca0085b5cae15bcc80740bb62ab3688cee8fc88dd9520edf23ce120217e653e5",
+    "5e9a145844238c5968c79a86fa614acc79edd1628e2267e06495a0b2e4aab7ba",
+    "7eff2950197deca52b67901a9641f4e4aac84b8bdd973d44edc6d73fb98af259",
+    "7567a34d43e5fbed05afe8b085eadf2462a9f9cf8e1bbb53701ecb9e04e8c09c",
+    "10eade3fefcf87d15235bf23e9e6c23bef85aac2762badabe18567fe603c1945",
+    "e0a2e65ee292aff65b0fa92a74541a4e5b54f2919bfa6dba08e7df25b4300fb6",
+    "2239f413ce7b399ad1e91e2fb4742960d73637b87a3616c4a28771cc84fb648e",
+    "f456f0c091ebb98d0446f734b5f35c124b3ae0d0d0a6773e98a53d93e0be545e"
   ]
 }
