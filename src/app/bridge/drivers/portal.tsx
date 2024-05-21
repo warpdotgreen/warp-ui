@@ -397,6 +397,7 @@ function getInfoFromSolution(
     GreenWeb.util.sexp.asAtomList(solution)[2]
   );
 
+  
   // chains_and_nonces ; (list (c source_chain_1 nonce1) (c source_chain_2 nonce2) ...)
   const rawChainsAndNonces = GreenWeb.util.sexp.asAtomList(innerSolution)[1].length > 0 ? GreenWeb.util.sexp.asAtomList(
     GreenWeb.util.sexp.fromHex(
@@ -642,9 +643,9 @@ export async function receiveMessageAndSpendMessageCoin(
   const portalParentSpend = await getPuzzleAndSolution(
     network.rpcUrl, portalCoin.parentCoinInfo, portalCoinRecord.confirmed_block_index
   );
-  const lastUsedChainAndNonces = getChainsAndNoncesFromSolution(
+  const lastUsedChainAndNonces = portalParentSpend.coin.puzzle_hash.slice(2) !== SINGLETON_LAUNCHER_HASH ? getChainsAndNoncesFromSolution(
     GreenWeb.util.sexp.fromHex(portalParentSpend.solution.replace("0x", ""))
-  );
+  ) : [];
 
   const updatePuzzle = getMOfNDelegateDirectPuzzle(
     GreenWeb.BigNumber.from(network.multisigThreshold!),
