@@ -96,7 +96,7 @@ export default function AssetList() {
   const coinsetTokens = useFilteredTokens(NetworkType.COINSET)
 
   return (
-    <div className='max-w-6xl mt-12 mx-auto w-full p-4 xl:p-0'>
+    <div className='max-w-6xl mt-12 mx-auto w-full p-4 xl:p-0 overflow-auto'>
       <h2 className="mb-4 text-xl font-light">Supported ERC-20 Assets</h2>
       {!!highlightedAssets.length && <p className='border rounded-md px-6 py-4 mb-4'>We have flagged assets (with purple) you need to add to your wallet to continue the bridging process</p>}
       <div className='grid xl:grid-cols-2 gap-4'>
