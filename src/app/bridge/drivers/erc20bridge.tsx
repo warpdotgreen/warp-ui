@@ -405,6 +405,7 @@ export function getWrappedERC20AssetID(sourceChain: Network, erc20ContractAddres
 }
 
 export async function mintCATs(
+  portalBootstrapCoinId: string,
   offer: string,
   rawMessage: RawMessage,
   coinsetNetwork: Network,
@@ -451,6 +452,7 @@ export async function mintCATs(
     portalSigs,
     messageCoin
   ] = await receiveMessageAndSpendMessageCoin(
+    portalBootstrapCoinId,
     coinsetNetwork,
     rawMessage,
     minterCoin,
@@ -576,6 +578,11 @@ export async function burnCATs(
   InstanceType<typeof GreenWeb.util.serializer.types.SpendBundle>, // sb
   string // txId
 ]> {
+  if(ethTokenReceiverAddress.toLowerCase() === "0x" + "00".repeat(20)) {
+    alert("Did not correctly fetch address - resetting...");
+    return [new GreenWeb.util.serializer.types.SpendBundle(), ""];
+  }
+  
   tokenContractAddress = GreenWeb.util.unhexlify(tokenContractAddress)!;
   tokenContractAddress = "0".repeat(64 - tokenContractAddress.length) + tokenContractAddress;
 

@@ -85,3 +85,18 @@ export async function getBlockchainState(
   const j = await res.json();
   return j.blockchain_state;
 }
+
+export async function getMempoolItemsByCoinName(
+  rpcBaseUrl: string,
+  coinName: string,
+): Promise<any[]> {
+  const res = await fetch(`${rpcBaseUrl}/get_mempool_items_by_coin_name`, {
+    method: "POST",
+    body: JSON.stringify({ coin_name: coinName.startsWith("0x") ? coinName : "0x" + coinName }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const j = await res.json();
+  return j.mempool_items;
+}

@@ -84,7 +84,7 @@ function LiveApps() {
     const lockedValue = formatNumber(data[`${token.accessorPrefixKey}_locked` as keyof StatsResponse], token.decimals)
     const volumeValue = formatNumber(data[`${token.accessorPrefixKey}_total_volume` as keyof StatsResponse], token.decimals)
     return (
-      <tr className="border-b last:border-0">
+      <tr className="border-b last:border-0" key={token.accessorPrefixKey}>
         <td className="text-center py-2">
           <p className="text-xl">{lockedValue} {token.symbol}</p>
           <p className="opacity-50">Locked</p>
@@ -101,7 +101,7 @@ function LiveApps() {
 
   const formatApp = (app: typeof liveAppsConfig[0]) => {
     return (
-      <div className="border bg-accent/50 hover:bg-accent/90 transition-colors h-full p-6 rounded-md animate-in fade-in slide-in-from-bottom-2 duration-500">
+      <div key={app.name} className="border bg-accent/50 hover:bg-accent/90 transition-colors h-full p-6 rounded-md animate-in fade-in slide-in-from-bottom-2 duration-500">
         <p className="text-xl mb-4 text-center">{app.name}</p>
         <table className="w-full py-2 h-[calc(100%-2rem)]">
           <tbody>

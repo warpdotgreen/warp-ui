@@ -29,6 +29,7 @@ export type Network = {
   aggSigData?: string,
   multisigThreshold?: number,
   multisigInfos?: string[],
+  explorer2Url?: string,
 
   // EVM only
   chainId?: number,
@@ -43,6 +44,7 @@ export const CHIA_NETWORK: Network = {
   type: NetworkType.COINSET,
   rpcUrl: 'https://testnet.fireacademy.io/',
   explorerUrl: 'https://testnet11.spacescan.io/',
+  // explorer2Url: 'https://xchscan.com/',
   messageToll: BigInt(1000000000),
   signatureThreshold: 3,
   validatorInfos: [
@@ -269,6 +271,9 @@ export const wagmiConfig = defaultWagmiConfig({
 export const NOSTR_CONFIG = {
   relays: [
     "wss://test-relay.fireacademy.io",
+    "wss://txch-relay.bufflehead.org",
+    "wss://txch-relay.tns.cx",
+    "wss://test-relay.defibastion.com"
   ],
   validatorKeys: [
     "cd5fd0859c3a27c13dd9734b7cdc6f2c25646e45821dcecaa089808803d01706",

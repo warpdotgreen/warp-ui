@@ -261,6 +261,11 @@ export async function lockCATs(
   InstanceType<typeof GreenWeb.util.serializer.types.SpendBundle>,
   string
 ]> {
+  if(ethTokenReceiverAddress.toLowerCase() === "0x" + "00".repeat(20)) {
+    alert("Did not correctly fetch address - resetting...");
+    return [new GreenWeb.util.serializer.types.SpendBundle(), ""];
+  }
+
   wrappedCatContractAddress = GreenWeb.util.unhexlify(wrappedCatContractAddress)!;
   ethTokenReceiverAddress = GreenWeb.util.unhexlify(ethTokenReceiverAddress)!;
 
@@ -452,6 +457,7 @@ export async function lockCATs(
 
 
 export async function unlockCATs(
+  portalBootstrapCoinId: string,
   offer: string,
   rawMessage: RawMessage,
   tokenTailHash: string | null,
@@ -550,6 +556,7 @@ export async function unlockCATs(
     portalSigs,
     messageCoin
   ] = await receiveMessageAndSpendMessageCoin(
+    portalBootstrapCoinId,
     coinsetNetwork,
     rawMessage,
     unlockerCoin,

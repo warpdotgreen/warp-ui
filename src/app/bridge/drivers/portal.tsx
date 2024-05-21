@@ -1,9 +1,9 @@
 import * as GreenWeb from 'greenwebjs';
 import { getSingletonStruct, SINGLETON_LAUNCHER_HASH } from './singleton';
 import { SExp, Tuple, Bytes, getBLSModule } from "clvm";
-import { Network } from '../config';
+import { Network, TESTNET } from '../config';
 import { ConditionOpcode } from "greenwebjs/util/sexp/condition_opcodes";
-import { getCoinRecordByName, getPuzzleAndSolution } from './rpc';
+import { getCoinRecordByName, getMempoolItemsByCoinName, getPuzzleAndSolution } from './rpc';
 import { bech32m } from "bech32";
 import { SimplePool } from 'nostr-tools/pool'
 import { NETWORKS, NOSTR_CONFIG } from '../config';
@@ -204,34 +204,35 @@ def get_portal_receiver_inner_solution(
     ])
 */
 // BUT we are only doing this for one message :green_heart:
+// UPDATE: we are no longer doinf this for one message only :green_heart:
 export function getPortalReceiverInnerSolution(
-  validatorSigSwitches: boolean[],
-  nonce: string,
-  sourceChain: string,
-  source: string,
-  destination: string,
-  contents: string[],
+  messageInfos: [RawMessage, number][],
+  // validatorSigSwitches: boolean[],
+  // nonce: string,
+  // sourceChain: string,
+  // source: string,
+  // destination: string,
+  // contents: string[],
 ): GreenWeb.clvm.SExp {
   return SExp.to([
     0,
-    [
-      new Tuple<SExp, SExp>(
-        GreenWeb.util.sexp.bytesToAtom(sourceChain),
-        GreenWeb.util.sexp.bytesToAtom(nonce),
+    messageInfos.map((msgInfo) => new Tuple<SExp, SExp>(
+        GreenWeb.util.sexp.bytesToAtom(msgInfo[0].sourceChainHex),
+        GreenWeb.util.sexp.bytesToAtom(msgInfo[0].nonce),
       ),
-    ],
-    [
+    ),
+    messageInfos.map((msgInfo) =>
       [
         GreenWeb.util.sexp.bytesToAtom(
           GreenWeb.util.coin.amountToBytes(
-            getSigsSwitch(validatorSigSwitches)
+            msgInfo[1]
           )
         ),
-        GreenWeb.util.sexp.bytesToAtom(source),
-        GreenWeb.util.sexp.bytesToAtom(destination),
-        contents.map(contentPart => GreenWeb.util.sexp.bytesToAtom(contentPart))
+        GreenWeb.util.sexp.bytesToAtom(msgInfo[0].sourceHex),
+        GreenWeb.util.sexp.bytesToAtom(msgInfo[0].destinationHex),
+        msgInfo[0].contents.map(contentPart => GreenWeb.util.sexp.bytesToAtom(contentPart))
       ]
-    ]
+    )
   ]);
 }
 
@@ -299,21 +300,35 @@ export async function getSigsAndSelectors(
   const routingData = bech32m.encode("r", bech32m.toWords(routingDataBuff));
 
   var coinData = "";
-  if(coinId !== null) {
+  if(coinId !== null && coinId.length > 0) {
     coinData = GreenWeb.util.address.puzzleHashToAddress(coinId, "c");
   }
 
+  const relays = [];
+  if (TESTNET) {
+    relays.push(NOSTR_CONFIG.relays[0]);
+  }
+  const remainingRelays = NOSTR_CONFIG.relays.slice(TESTNET ? 1 : 0);
+  while (relays.length < 4) {
+    const randomIndex = Math.floor(Math.random() * remainingRelays.length);
+    relays.push(remainingRelays[randomIndex]);
+  }
+
+
   const pool = new SimplePool();
   const events = await pool.querySync(
-    NOSTR_CONFIG.relays,
-    {
+    relays,
+    coinData.length > 0 ? {
       kinds: [1],
       "#c": [coinData],
+      "#r": [routingData]
+    } : {
+      kinds: [1],
       "#r": [routingData]
     }
   );
 
-  pool.close(NOSTR_CONFIG.relays);
+  pool.close(relays);
 
   if(events.length === 0) {
     console.log("No Nostr events found for this nonce (yet)"); // todo: debug
@@ -353,7 +368,7 @@ export async function getSigsAndSelectors(
 
   // We're getting sigs for XCH
   // Order doesn't matter but we need to generate the 'selectors' array
-  let sigStrings = events.map((event) => routingData + "-" + coinData + "-" + event.content);
+  let sigStrings = events.map((event) => routingData + "-" + (event.tags.find(e => e[0] == 'c')??["", ""])[1] + "-" + event.content);
   if(sigStrings.length > sigLimit) {
     sigStrings = sigStrings.slice(0, sigLimit);
   }
@@ -371,13 +386,85 @@ export async function getSigsAndSelectors(
   ];
 }
 
-const LATEST_PORTAL_STATE_KEY = "latest-portal-data";
+function getInfoFromSolution(
+  xchChainHex: string,
+  solution: GreenWeb.clvm.SExp
+): [RawMessage, number][] {
+  const innerSolution = GreenWeb.util.sexp.fromHex(
+    GreenWeb.util.sexp.asAtomList(solution)[2]
+  );
 
-export async function findLatestPortalState(rpcUrl: string, portalBootstrapCoinId: string) {
-  let {coinId, nonces, lastUsedChainAndNonces} = JSON.parse(window.localStorage.getItem(LATEST_PORTAL_STATE_KEY) ?? "{}")
-  nonces = nonces ?? {};
-  coinId = coinId ?? portalBootstrapCoinId;
-  lastUsedChainAndNonces = lastUsedChainAndNonces ?? []
+  // chains_and_nonces ; (list (c source_chain_1 nonce1) (c source_chain_2 nonce2) ...)
+  const rawChainsAndNonces = GreenWeb.util.sexp.asAtomList(innerSolution)[1].length > 0 ? GreenWeb.util.sexp.asAtomList(
+    GreenWeb.util.sexp.fromHex(
+      GreenWeb.util.sexp.asAtomList(innerSolution)[1]
+    )
+  ) : [];
+  
+  // msg_infos ; (list (list validator_sigs_switch source destination message) ... )
+  const rawMessageInfos = GreenWeb.util.sexp.asAtomList(innerSolution)[2].length > 0 ? GreenWeb.util.sexp.asAtomList(
+    GreenWeb.util.sexp.fromHex(
+      GreenWeb.util.sexp.asAtomList(innerSolution)[2]
+    )
+  ) : [];
+
+  const usedMessageInfos: [RawMessage, number][] = []
+  for(var i = 0; i < rawChainsAndNonces.length; i++) {
+    const rawChainAndNonce = GreenWeb.util.sexp.fromHex(
+      rawChainsAndNonces[i]
+    );
+
+    const sourceChain = (rawChainAndNonce.first().as_javascript() as Bytes).hex();
+    const nonce = (rawChainAndNonce.rest().as_javascript() as Bytes).hex();
+
+    const rawMessageInfo = GreenWeb.util.sexp.fromHex(
+      rawMessageInfos[i]
+    );
+
+    const sigSwitch = rawMessageInfo.first().as_int();
+    const source = (rawMessageInfo.rest().first().as_javascript() as Bytes).hex();
+    const destination = (rawMessageInfo.rest().rest().first().as_javascript() as Bytes).hex();
+
+    const contents = GreenWeb.util.sexp.asAtomList(
+      rawMessageInfo.rest().rest().rest().first()
+    ).map((s) => {
+      if(s.length < 64) {
+        return "0".repeat(64 - s.length) + s;
+      }
+
+      return s;
+    });
+
+    usedMessageInfos.push([{
+      nonce,
+      destinationHex: destination,
+      destinationChainHex: xchChainHex,
+      sourceHex: source,
+      sourceChainHex: sourceChain,
+      contents: contents
+    }, sigSwitch]);
+  }
+
+  return usedMessageInfos;
+}
+
+function getChainsAndNoncesFromSolution(
+  solution: GreenWeb.clvm.SExp
+): [string, string][] {
+  return getInfoFromSolution("", solution).map(([rawMessage, sigSwitch]) => {
+    return [rawMessage.sourceChainHex, rawMessage.nonce];
+  });
+}
+
+export async function findLatestPortalState(
+  rpcUrl: string,
+  messageNonce: string,
+  messageSourceChainHex: string,
+  messageDestinationChainHex: string,
+  portalBootstrapCoinId: string
+): Promise<PortalInfo> {
+  let coinId = portalBootstrapCoinId;
+  let lastUsedChainAndNonces: [string, string][] = [];
   
   var coinRecord = await getCoinRecordByName(rpcUrl, coinId);
 
@@ -403,30 +490,17 @@ export async function findLatestPortalState(rpcUrl: string, portalBootstrapCoinI
 
     const uncurried = GreenWeb.util.sexp.uncurry(puzzleReveal);
     if(uncurried !== null && coinRecord.coin.puzzle_hash.slice(2) !== GreenWeb.util.sexp.SINGLETON_LAUNCHER_PROGRAM_HASH) {
-      const innerSolution = GreenWeb.util.sexp.fromHex(
-        GreenWeb.util.sexp.asAtomList(solution)[2]
-      );
+      lastUsedChainAndNonces = getChainsAndNoncesFromSolution(solution)
 
-     const usedChainsAndNonces = GreenWeb.util.sexp.asAtomList(innerSolution)[1].length > 0 ? GreenWeb.util.sexp.asAtomList(
-        GreenWeb.util.sexp.fromHex(
-          GreenWeb.util.sexp.asAtomList(innerSolution)[1]
-        )
-      ) : [];
-
-      lastUsedChainAndNonces = []
-      for(var i = 0; i < usedChainsAndNonces.length; i++) {
-        const chainAndNonce = GreenWeb.util.sexp.fromHex(
-          usedChainsAndNonces[i]
-        );
-        const chain = (chainAndNonce.first().as_javascript() as Bytes).hex();
-        const nonce = (chainAndNonce.rest().as_javascript() as Bytes).hex();
-
-        lastUsedChainAndNonces.push([chain, nonce]);
-        
-        if(nonces[chain] === undefined) {
-          nonces[chain] = {};
-        }
-        nonces[chain][nonce] = coinId;
+      if(lastUsedChainAndNonces.includes([messageSourceChainHex, messageNonce])) {
+        return {
+          coinId,
+          messageCoinAlreadyCreated: true,
+          mempoolPendingThings: [],
+          mempoolSb: null,
+          mempoolSbCost: GreenWeb.BigNumber.from(0),
+          mempoolSbFee: GreenWeb.BigNumber.from(0)
+        };
       }
     }
 
@@ -439,12 +513,45 @@ export async function findLatestPortalState(rpcUrl: string, portalBootstrapCoinI
     coinRecord = await getCoinRecordByName(rpcUrl, coinId);
   }
 
-  window.localStorage.setItem(LATEST_PORTAL_STATE_KEY, JSON.stringify({coinId, nonces, lastUsedChainAndNonces}))
+  const mempoolPendingItems = await getMempoolItemsByCoinName(rpcUrl, coinId);
+  let mempoolSb = null;
+  let mempoolPendingThings: [RawMessage, number][] = [];
+  let mempoolSbCost = GreenWeb.BigNumber.from(0);
+  let mempoolSbFee = GreenWeb.BigNumber.from(0);
+
+  if(mempoolPendingItems.length > 0) {
+    const mempoolPendingSbRaw = mempoolPendingItems[0].spend_bundle;
+    mempoolSbCost = GreenWeb.BigNumber.from(mempoolPendingItems[0].cost);
+    mempoolSbFee = GreenWeb.BigNumber.from(mempoolPendingItems[0].fee);
+
+    mempoolSb = new GreenWeb.util.serializer.types.SpendBundle();
+    mempoolSb.aggregatedSignature = mempoolPendingSbRaw.aggregated_signature.replace("0x", "");
+    mempoolSb.coinSpends = mempoolPendingSbRaw.coin_spends.map((coin_spend: any) => {
+      const coin = new GreenWeb.Coin();
+      coin.parentCoinInfo = coin_spend.coin.parent_coin_info.replace("0x", "");
+      coin.puzzleHash = coin_spend.coin.puzzle_hash.replace("0x", "");
+      coin.amount = GreenWeb.BigNumber.from(coin_spend.coin.amount);
+
+      const coinSpend = new GreenWeb.util.serializer.types.CoinSpend();
+      coinSpend.coin = coin;
+      coinSpend.puzzleReveal = GreenWeb.util.sexp.fromHex(coin_spend.puzzle_reveal.replace("0x", ""));
+      coinSpend.solution = GreenWeb.util.sexp.fromHex(coin_spend.solution.replace("0x", ""));
+
+      return coinSpend;
+    });
+
+    const portalSpend = mempoolSb.coinSpends.find((coinSpend) => GreenWeb.util.coin.getName(coinSpend.coin) === coinId)!;
+    mempoolPendingThings = getInfoFromSolution(messageDestinationChainHex, portalSpend.solution);
+    console.log({ mempoolPendingThings })
+  }
 
   return {
     coinId,
-    nonces,
-    lastUsedChainAndNonces
+    messageCoinAlreadyCreated: false,
+    mempoolPendingThings,
+    mempoolSb,
+    mempoolSbCost,
+    mempoolSbFee
   };
 }
 
@@ -467,6 +574,7 @@ export type RawMessage = {
 
 
 export async function receiveMessageAndSpendMessageCoin(
+  portalBootstrapId: string,
   network: Network,
   message: RawMessage,
   messageReceiverCoin: InstanceType<typeof GreenWeb.Coin>,
@@ -478,15 +586,50 @@ export async function receiveMessageAndSpendMessageCoin(
 ]> {
   const coinSpends = [];
 
-  updateStatus("Syncing portal...");
-  const portalBootstrapId = network.portalLauncherId!;
-  const {
-    coinId: portalCoinId,
-    nonces,
-    lastUsedChainAndNonces
-  } = await findLatestPortalState(network.rpcUrl, portalBootstrapId);
+  updateStatus("Fetching portal info...");
+  let portalInfo = await findLatestPortalState(
+    network.rpcUrl,
+    message.nonce,
+    message.sourceChainHex,
+    message.destinationChainHex,
+    portalBootstrapId
+  );
+
+  updateStatus(`Collecting signatures (0/${network.signatureThreshold})`);
+  let [sigStrings, sigSwitches] = await getSigsAndSelectors(
+    message.sourceChainHex,
+    message.destinationChainHex,
+    message.nonce,
+    portalInfo.coinId,
+    network.signatureThreshold
+  );
+
+  while(sigStrings.length < network.signatureThreshold) {
+    await new Promise(r => setTimeout(r, 10000));
+
+    portalInfo = await findLatestPortalState(
+      network.rpcUrl,
+      message.nonce,
+      message.sourceChainHex,
+      message.destinationChainHex,
+      portalInfo.coinId
+    );
+
+    [sigStrings, sigSwitches] = await getSigsAndSelectors(
+      message.sourceChainHex,
+      message.destinationChainHex,
+      message.nonce,
+      portalInfo.coinId,
+      network.signatureThreshold
+    );
+    updateStatus(`Collecting signatures (${sigStrings.length}/${network.signatureThreshold})`);
+  }
+
+  const sigs = sigStrings.map((sigString) => decodeSignature(sigString)[4]);
   
-  const portalCoinRecord = await getCoinRecordByName(network.rpcUrl, portalCoinId);
+  updateStatus("Building portal spend...");
+
+  const portalCoinRecord = await getCoinRecordByName(network.rpcUrl, portalInfo.coinId);
   const portalCoin = GreenWeb.util.goby.parseGobyCoin({
     amount: 1,
     parent_coin_info: GreenWeb.util.unhexlify(portalCoinRecord.coin.parent_coin_info),
@@ -496,34 +639,9 @@ export async function receiveMessageAndSpendMessageCoin(
   const portalParentSpend = await getPuzzleAndSolution(
     network.rpcUrl, portalCoin.parentCoinInfo, portalCoinRecord.confirmed_block_index
   );
-  
-  let sigStrings: string[] = [];
-  let sigSwitches: boolean[] = [];
-
-  updateStatus(`Collecting signatures (0/${network.signatureThreshold})`);
-  [sigStrings, sigSwitches] = await getSigsAndSelectors(
-    message.sourceChainHex,
-    message.destinationChainHex,
-    message.nonce,
-    portalCoinId,
-    network.signatureThreshold
+  const lastUsedChainAndNonces = getChainsAndNoncesFromSolution(
+    GreenWeb.util.sexp.fromHex(portalParentSpend.solution.replace("0x", ""))
   );
-
-  while(sigStrings.length < network.signatureThreshold) {
-    await new Promise(r => setTimeout(r, 10000));
-    [sigStrings, sigSwitches] = await getSigsAndSelectors(
-      message.sourceChainHex,
-      message.destinationChainHex,
-      message.nonce,
-      portalCoinId,
-      network.signatureThreshold
-    );
-    updateStatus(`Collecting signatures (${sigStrings.length}/${network.signatureThreshold})`);
-  }
-
-  const sigs = sigStrings.map((sigString) => decodeSignature(sigString)[4]);
-  
-  updateStatus("Building portal spend...");
 
   const updatePuzzle = getMOfNDelegateDirectPuzzle(
     GreenWeb.BigNumber.from(network.multisigThreshold!),
@@ -558,14 +676,10 @@ export async function receiveMessageAndSpendMessageCoin(
     Bytes.from("01", "hex"),
   ]);
 
-  const portalInnerSolution = getPortalReceiverInnerSolution(
-    sigSwitches,
-    message.nonce,
-    message.sourceChainHex,
-    message.sourceHex,
-    message.destinationHex,
-    message.contents
-  );
+  const messageInfos: [RawMessage, number][] = portalInfo.mempoolPendingThings;
+  messageInfos.push([message, getSigsSwitch(sigSwitches)]);
+
+  const portalInnerSolution = getPortalReceiverInnerSolution(messageInfos);
   const portalSolution = GreenWeb.util.sexp.singletonSolution(
     portalLineageProof,
     1,
@@ -607,6 +721,18 @@ export async function receiveMessageAndSpendMessageCoin(
   messageCoinSpend.puzzleReveal = messageCoinPuzzle;
   messageCoinSpend.solution = messageCoinSolution;
   coinSpends.push(messageCoinSpend);
+
+  /* if pending, make sure to aggregate the pending spend bundle */
+  /* this is what limited tibetswap to 1tx/block for a while */
+  /* and no, I have no idea why it took so long to find that bug */
+  if(portalInfo.mempoolSb !== null) {
+    sigs.push(portalInfo.mempoolSb!.aggregatedSignature);
+    portalInfo.mempoolSb!.coinSpends.forEach((coinSpend) => {
+      if(GreenWeb.util.coin.getName(coinSpend.coin) !== portalInfo.coinId) {
+        coinSpends.push(coinSpend);
+      }
+    });
+  }
 
   return [
     coinSpends,
@@ -708,4 +834,58 @@ export async function getMessageSentFromXCHStepThreeData(
   }
 
   return null;
+}
+
+export type PortalInfo = {
+  coinId: string; // either last spent coin id on-chain or the parent coin id if the message coin was already created
+  messageCoinAlreadyCreated: boolean;
+  mempoolPendingThings: [RawMessage, number][];
+  mempoolSb: InstanceType<typeof GreenWeb.util.serializer.types.SpendBundle> | null;
+  mempoolSbCost: GreenWeb.BigNumber;
+  mempoolSbFee: GreenWeb.BigNumber;
+}
+
+export async function bootstrapPortal(
+  currentPortalInfo: PortalInfo | null,
+  xchNetwork: Network,
+  message: RawMessage,
+  updateStatus: (status: string) => void
+): Promise<PortalInfo> {
+  let bootstrapCoinId = "";
+
+  if(currentPortalInfo === null) {
+    updateStatus("Fetching portal bootstrap coin id...");
+    let sigStrings: string[] = [];
+    let _;
+    while(sigStrings.length < 1) {
+      [sigStrings, _] = await getSigsAndSelectors(
+        message.sourceChainHex,
+        message.destinationChainHex,
+        message.nonce,
+        "",
+        1
+      );
+    }
+    const [__, ___, ____, coinId, _____] = decodeSignature(sigStrings[0]);
+    const coinRecord = await getCoinRecordByName(xchNetwork.rpcUrl, coinId);
+
+    bootstrapCoinId = GreenWeb.util.coin.getName(
+      GreenWeb.util.goby.parseGobyCoin({
+        amount: 1,
+        parent_coin_info: GreenWeb.util.unhexlify(coinRecord.coin.parent_coin_info),
+        puzzle_hash: GreenWeb.util.unhexlify(coinRecord.coin.puzzle_hash)
+      })!
+    );
+  } else {
+    bootstrapCoinId = currentPortalInfo!.coinId;
+  }
+
+  updateStatus("Syncing portal singleton...");
+  return await findLatestPortalState(
+    xchNetwork.rpcUrl,
+    message.nonce,
+    message.sourceChainHex,
+    message.destinationChainHex,
+    bootstrapCoinId
+  );
 }

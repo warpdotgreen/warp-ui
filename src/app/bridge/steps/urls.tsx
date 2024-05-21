@@ -54,6 +54,7 @@ export function getStepThreeURL({
   contents,
   destTransactionId,
   offer,
+  portalBootstrapId
 }: {
   sourceNetworkId: string,
   destinationNetworkId: string,
@@ -63,6 +64,7 @@ export function getStepThreeURL({
   contents?: any,
   destTransactionId?: string,
   offer?: string,
+  portalBootstrapId?: string
 }): string {
   var params: any = {
     step: "3",
@@ -89,6 +91,7 @@ export function getStepThreeURL({
     params = {
       ...params,
       offer,
+      portal_bootstrap_id: portalBootstrapId!
     };
   }
   

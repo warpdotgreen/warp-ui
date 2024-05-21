@@ -59,7 +59,18 @@ if (canvas) {
   window.addEventListener('scroll', updateSlideState);
 
 
-
+    const bridgeButton = document.querySelector('a[href="/bridge"]');
+    console.log({ bridgeButton })
+    if (bridgeButton) {
+        console.log("refreshing page to get rid of listeners")
+        bridgeButton.addEventListener('click', function (event) {
+        event.preventDefault(); // Prevent the default link behavior
+        window.removeEventListener('resize', updateSlideState);
+        window.removeEventListener('scroll', updateSlideState);
+        window.location.href = '/bridge'; // Change the URL
+        // window.location.reload(); // Refresh the page
+        });
+    }
 
     // special thanks to:
     // https://stackoverflow.com/questions/46436270/hyperdrive-effect-in-canvas-across-randomly-placed-circles
