@@ -290,13 +290,12 @@ export function decodeSignature(sig: string): [
 }
 
 export async function getSigsAndSelectors(
-  sourceChainHex: string,
-  destinationChainHex: string,
-  nonce: string,
+  rawMessage: RawMessage,
   coinId: string | null,
-  sigLimit: number
+  sigLimit: number,
+  targetEVMNetwork?: Network
 ): Promise<[string[], boolean[]]> {
-  const routingDataBuff = Buffer.from(sourceChainHex + destinationChainHex + nonce.replace("0x", ""), "hex");
+  const routingDataBuff = Buffer.from(rawMessage.sourceChainHex + rawMessage.destinationChainHex + rawMessage.nonce, "hex");
   const routingData = bech32m.encode("r", bech32m.toWords(routingDataBuff));
 
   var coinData = "";
@@ -340,13 +339,57 @@ export async function getSigsAndSelectors(
 
   if(coinId === null) {
     // We're getting sigs for eth; need to order by respective validator hot address
-    const destinationNetworkId = hexToString(destinationChainHex);
+    const destinationNetworkId = hexToString(rawMessage.destinationChainHex);
     const destinationNetwork = NETWORKS.filter((network) => network.id === destinationNetworkId)[0];
 
     let sigStrings = events.filter((e) => 
       NOSTR_CONFIG.validatorKeys.includes(e.pubkey)
-    ).sort((a, b) => {
+    ).filter((sigEvent) => {
+      if(targetEVMNetwork === undefined) { return true; }
 
+      const index = NOSTR_CONFIG.validatorKeys.findIndex(key => key === sigEvent.pubkey);
+      const address = destinationNetwork.validatorInfos[index];
+      const decodedSignature = GreenWeb.util.address.addressToPuzzleHash(sigEvent.content, 96 * 2);
+
+      const v = decodedSignature.slice(0, 1 * 2);
+      const r = decodedSignature.slice(1 * 2, 33 * 2);
+      const s = decodedSignature.slice(33 * 2, 65 * 2);
+
+      const signature = '0x' + r + s + v;
+
+      const domain: ethers.TypedDataDomain = {
+        name: "warp.green Portal",
+        version: "1",
+        chainId: targetEVMNetwork.chainId!,
+        verifyingContract: targetEVMNetwork.portalAddress!,
+      };
+
+      const types: Record<string, Array<ethers.TypedDataField>> = {
+        Message: [
+          { name: "nonce", type: "bytes32" },
+          { name: "source_chain", type: "bytes3" },
+          { name: "source", type: "bytes32" },
+          { name: "destination", type: "address" },
+          { name: "contents", type: "bytes32[]" },
+        ],
+      };
+
+      const messageNotRaw = {
+        nonce: '0x' + rawMessage.nonce,
+        source_chain: '0x' + rawMessage.sourceChainHex,
+        source: '0x' + rawMessage.sourceHex,
+        destination: ethers.getAddress('0x' + rawMessage.destinationHex),
+        contents: rawMessage.contents.map(c => '0x' + c),
+      };
+
+      const recoveredAddress = ethers.verifyTypedData(domain, types, messageNotRaw, signature);
+
+      if(address != recoveredAddress) {
+        console.log(`Invalid EVM signature from Nostr: recovered address if ${recoveredAddress}, expected ${address} for pubkey ${sigEvent.pubkey} on chain ${destinationNetworkId}`);
+        return false;
+      }
+      return true;
+    }).sort((a, b) => {
         const indexA = NOSTR_CONFIG.validatorKeys.findIndex(key => key === a.pubkey);
         const indexB = NOSTR_CONFIG.validatorKeys.findIndex(key => key === b.pubkey);
 
@@ -601,9 +644,7 @@ export async function receiveMessageAndSpendMessageCoin(
 
   updateStatus(`Collecting signatures (0/${network.signatureThreshold})`);
   let [sigStrings, sigSwitches] = await getSigsAndSelectors(
-    message.sourceChainHex,
-    message.destinationChainHex,
-    message.nonce,
+    message,
     portalInfo.coinId,
     network.signatureThreshold
   );
@@ -620,9 +661,7 @@ export async function receiveMessageAndSpendMessageCoin(
     );
 
     [sigStrings, sigSwitches] = await getSigsAndSelectors(
-      message.sourceChainHex,
-      message.destinationChainHex,
-      message.nonce,
+      message,
       portalInfo.coinId,
       network.signatureThreshold
     );
@@ -863,9 +902,7 @@ export async function bootstrapPortal(
     let _;
     while(sigStrings.length < 1) {
       [sigStrings, _] = await getSigsAndSelectors(
-        message.sourceChainHex,
-        message.destinationChainHex,
-        message.nonce,
+        message,
         "",
         1
       );
