@@ -52,16 +52,35 @@ export default function StepOne({
     return <></>
   }
 
-  let feeMojo = amountMojo * BigInt(30) / BigInt(10000);
-  if(feeMojo < BigInt(1)) {
-    feeMojo = BigInt(1);
-  }
-  const amountMojoAfterFee = amountMojo - feeMojo;
+  let outputAmountStr = "";
+  if(token.sourceNetworkType == NetworkType.EVM || destinationChain.type === NetworkType.COINSET) {
+    let feeMojo = amountMojo * BigInt(30) / BigInt(10000);
+    if(feeMojo < BigInt(1)) {
+      feeMojo = BigInt(1);
+    }
+    const amountMojoAfterFee = amountMojo - feeMojo;
 
-  if(amountMojoAfterFee < BigInt(1)) {
-     toast.error("Amount too low", { description: "Your bridging amount is too low. The minimum total amount is 2 mojos - one for fees, and one to be transferred to the recipient.", duration: 10000, id: "amount-too-low" })
-    router.push("/bridge")
-    return <></>
+    if(amountMojoAfterFee < BigInt(1)) {
+      toast.error("Amount too low", { description: "Your bridging amount is too low. The minimum total amount is 2 mojos - one for fees, and one to be transferred to the recipient.", duration: 10000, id: "amount-too-low" })
+      router.push("/bridge")
+      return <></>
+    }
+
+    outputAmountStr = ethers.formatUnits(amountMojoAfterFee, decimals);
+  } else {
+    const amountInt = ethers.parseUnits(amount, decimals);
+    const amountWei = GreenWeb.BigNumber.from(
+      token.symbol === "XCH" ? "1000000" : "1000000000000000"
+    ).mul(amountInt);
+
+    const feeWei = amountWei.mul(30).div(10000);
+    if(amountWei.lt(2) || feeWei.lt(1)) {
+      toast.error("Amount too low", { description: "Your bridging amount is too low.", duration: 10000, id: "amount-too-low" })
+      router.push("/bridge")
+      return <></>
+    }
+
+    outputAmountStr = ethers.formatUnits(amountWei.sub(feeWei).toString(), 18);
   }
 
   const chainIcons = (() => {
@@ -128,12 +147,14 @@ export default function StepOne({
         <div className="flex gap-4">
           {chainIcons.destinationChainIcon}
           {sourceChain.type == NetworkType.COINSET && token.symbol == "ETH" ? (
-            <p className="text-xl">{ethers.formatUnits(amountMojoAfterFee, 6)} ETH</p>
+            <p className="text-xl">{outputAmountStr} ETH</p>
           ) : (
             token.symbol == "XCH" ? (
-              <p className="text-xl">{ethers.formatUnits(amountMojoAfterFee, 12)} {token.sourceNetworkType !== destinationChain.type ? `${sourceChain.displayName} Warped` : ''} XCH</p>
+              <p className="text-xl">{outputAmountStr} {token.sourceNetworkType !== destinationChain.type ? `${sourceChain.displayName} Warped` : ''} XCH</p>
             ) : (
-              <p className="text-xl flex items-center gap-2">{ethers.formatUnits(amountMojoAfterFee, 3)} {token.symbol === "ETH" ? <>{sourceChain.displayName} Warped milliETH {withToolTip(<div className="group-hover:opacity-80 h-5 flex justify-center items-center shadow-sm shadow-white/50 border rounded-full aspect-square bg-accent text-sm font-normal text-primary/80 w-auto">?</div>, 'Ether is automatically converted to milliETH at a 1:1000 ratio.')}</> : `${token.sourceNetworkType !== destinationChain.type ? `${sourceChain.displayName} Warped` : ''} ${token.symbol}`}</p>
+              <p className="text-xl flex items-center gap-2">{outputAmountStr} {token.symbol === "ETH" ?
+                <>{sourceChain.displayName} Warped milliETH {withToolTip(<div className="group-hover:opacity-80 h-5 flex justify-center items-center shadow-sm shadow-white/50 border rounded-full aspect-square bg-accent text-sm font-normal text-primary/80 w-auto">?</div>, 'Ether is automatically converted to milliETH at a 1:1000 ratio.')}</> :
+                `${token.sourceNetworkType !== destinationChain.type ? `${sourceChain.displayName} Warped` : ''} ${token.symbol}`}</p>
             )
           )
           }
