@@ -1,3 +1,5 @@
+import { STATUS_URL } from "../../config"
+
 interface NavConfig {
   name: string
   link: string
@@ -25,7 +27,7 @@ export const navConfig: NavConfig[] = [
   },
   {
     name: 'Status',
-    link: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    link: STATUS_URL,
     isExternalLink: true
   }
 ]

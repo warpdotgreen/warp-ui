@@ -4,7 +4,10 @@ import { http, createConfig } from 'wagmi'
 import { sepolia, baseSepolia } from 'wagmi/chains'
 import { getWrappedERC20AssetID } from "./drivers/erc20bridge"
 
-export const TESTNET = true
+export const TESTNET = process.env.NEXT_PUBLIC_TESTNET
+
+export const WATCHER_API_ROOT = 'https://test-watcher.fireacademy.io/';
+export const STATUS_URL ='https://www.youtube.com/watch?v=dQw4w9WgXcQ';
 
 export enum NetworkType {
   COINSET = 'coinset',

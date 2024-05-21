@@ -1,6 +1,7 @@
 "use client"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useQuery } from "@tanstack/react-query"
+import { WATCHER_API_ROOT } from "../bridge/config"
 
 interface StatsResponse {
   total_messages: number
@@ -19,7 +20,7 @@ function MessagesDelivered() {
 
   const { data, isLoading } = useQuery<StatsResponse>({
     queryKey: ['landingPage_stats'],
-    queryFn: () => fetch(`${process.env.NEXT_PUBLIC_WATCHER_API_ROOT}stats`).then(res => res.json())
+    queryFn: () => fetch(`${WATCHER_API_ROOT}stats`).then(res => res.json())
   })
 
   if (isLoading || !data) return (

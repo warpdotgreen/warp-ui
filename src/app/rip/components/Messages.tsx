@@ -1,7 +1,7 @@
 "use client"
 import { useQuery } from "@tanstack/react-query"
 import { formatDistanceToNow } from 'date-fns'
-import { NETWORKS } from "../../bridge/config"
+import { NETWORKS, WATCHER_API_ROOT } from "../../bridge/config"
 import { cn, getChainIcon } from "@/lib/utils"
 import { Skeleton } from "@/components/ui/skeleton"
 import { CopyableLongHexString } from "@/components/CopyableHexString"
@@ -45,7 +45,7 @@ const NUM_OF_MESSAGES = 6
 function Messages() {
   const { data: messages, isLoading } = useQuery<MessageResponse[]>({
     queryKey: ['landingPage_latest-messages'],
-    queryFn: () => fetch(`${process.env.NEXT_PUBLIC_WATCHER_API_ROOT}latest-messages?limit=${NUM_OF_MESSAGES}`).then(res => res.json()),
+    queryFn: () => fetch(`${WATCHER_API_ROOT}latest-messages?limit=${NUM_OF_MESSAGES}`).then(res => res.json()),
     refetchInterval: 10000
   })
 

@@ -1,4 +1,5 @@
 "use client"
+import { WATCHER_API_ROOT } from "@/app/bridge/config"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useQuery } from "@tanstack/react-query"
 import { Lock } from "lucide-react"
@@ -73,7 +74,7 @@ const formatNumber = (num: number, decimals: number) => {
 function LiveApps() {
   const { data, isLoading } = useQuery<StatsResponse>({
     queryKey: ['landingPage_stats'],
-    queryFn: () => fetch(`${process.env.NEXT_PUBLIC_WATCHER_API_ROOT}stats`).then(res => res.json())
+    queryFn: () => fetch(`${WATCHER_API_ROOT}stats`).then(res => res.json())
   })
 
 

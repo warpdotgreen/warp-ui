@@ -1,4 +1,4 @@
-import { TOKENS, WALLETCONNECT_PROJECT_ID, WcMetadata } from '../../config'
+import { TESTNET, TOKENS, WALLETCONNECT_PROJECT_ID, WcMetadata } from '../../config'
 import SignClient from '@walletconnect/sign-client'
 import { SessionTypes } from '@walletconnect/types'
 import { addCATParams, createOfferParams } from './types'
@@ -6,7 +6,7 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 
-const chain = process.env.NEXT_PUBLIC_TESTNET ? 'chia:testnet' : 'chia:mainnet'
+const chain = TESTNET ? 'chia:testnet' : 'chia:mainnet'
 
 // Wallet 1 specific logic
 export async function connect(ispersistenceConnect: boolean, setWalletConnectUri: (uri: string) => void): Promise<string> {
