@@ -307,6 +307,9 @@ export async function getSigsAndSelectors(
   const relays = [];
   if (TESTNET) {
     relays.push(NOSTR_CONFIG.relays[0]);
+  } else {
+    relays.push(NOSTR_CONFIG.relays[0]);
+    relays.push(NOSTR_CONFIG.relays[1]);
   }
   const remainingRelays = NOSTR_CONFIG.relays.slice(TESTNET ? 1 : 0);
   while (relays.length < 4) {
