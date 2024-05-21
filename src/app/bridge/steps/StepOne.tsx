@@ -323,7 +323,7 @@ function EthereumButton({
       functionName: "approve",
       args: [
         sourceChain.erc20BridgeAddress as `0x${string}`,
-        ethers.parseEther(amount)
+        ethers.parseUnits(amount, tokenDecimalsFromContract ?? (token.sourceNetworkType === NetworkType.EVM ? 6 : 18))
       ]
     })
   }
