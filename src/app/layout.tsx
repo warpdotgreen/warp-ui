@@ -1,4 +1,5 @@
 import { Toaster } from "@/components/ui/sonner"
+import { Analytics } from '@vercel/analytics/react'
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
@@ -28,6 +29,7 @@ export default function UILayout({ children }: { children: React.ReactNode }) {
             }
           }}
         />
+        <Analytics />
       </body>
     </html>
   )

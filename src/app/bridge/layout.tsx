@@ -21,7 +21,6 @@ export default function BridgeUILayout({
             {children}
           </main>
         </Suspense>
-
         <Footer />
       </div>
     </ClientProvider>

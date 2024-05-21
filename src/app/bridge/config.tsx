@@ -1,10 +1,10 @@
 import { defaultWagmiConfig } from "@web3modal/wagmi"
 import { ethers } from "ethers"
-import { http, createConfig } from 'wagmi'
+import { http } from 'wagmi'
 import { sepolia, baseSepolia } from 'wagmi/chains'
 import { getWrappedERC20AssetID } from "./drivers/erc20bridge"
 
-export const TESTNET = process.env.NEXT_PUBLIC_TESTNET
+export const TESTNET = process.env.NEXT_PUBLIC_TESTNET === "true";
 
 export const WATCHER_API_ROOT = 'https://test-watcher.fireacademy.io/';
 export const STATUS_URL ='https://www.youtube.com/watch?v=dQw4w9WgXcQ';
