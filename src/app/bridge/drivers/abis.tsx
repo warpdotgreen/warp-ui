@@ -74,6 +74,11 @@ export const ERC20BridgeABI = [
           "internalType": "bytes32",
           "name": "_receiver",
           "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_maxMessageToll",
+          "type": "uint256"
         }
       ],
       "name": "bridgeEtherToChia",
@@ -317,6 +322,33 @@ export const PortalABI = [
     },
     {
       "inputs": [],
+      "name": "ECDSAInvalidSignature",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "length",
+          "type": "uint256"
+        }
+      ],
+      "name": "ECDSAInvalidSignatureLength",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "s",
+          "type": "bytes32"
+        }
+      ],
+      "name": "ECDSAInvalidSignatureS",
+      "type": "error"
+    },
+    {
+      "inputs": [],
       "name": "FailedInnerCall",
       "type": "error"
     },
@@ -362,6 +394,12 @@ export const PortalABI = [
       ],
       "name": "SafeERC20FailedOperation",
       "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [],
+      "name": "EIP712DomainChanged",
+      "type": "event"
     },
     {
       "anonymous": false,
@@ -515,6 +553,68 @@ export const PortalABI = [
       "type": "event"
     },
     {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "bytes3",
+          "name": "chainId",
+          "type": "bytes3"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "supported",
+          "type": "bool"
+        }
+      ],
+      "name": "SupportedChainUpdated",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "eip712Domain",
+      "outputs": [
+        {
+          "internalType": "bytes1",
+          "name": "fields",
+          "type": "bytes1"
+        },
+        {
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "version",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "chainId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "verifyingContract",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "salt",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "extensions",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [],
       "name": "ethNonce",
       "outputs": [
@@ -548,6 +648,11 @@ export const PortalABI = [
           "internalType": "uint256",
           "name": "_signatureThreshold",
           "type": "uint256"
+        },
+        {
+          "internalType": "bytes3[]",
+          "name": "_supportedChains",
+          "type": "bytes3[]"
         }
       ],
       "name": "initialize",
@@ -725,6 +830,25 @@ export const PortalABI = [
     {
       "inputs": [
         {
+          "internalType": "bytes3",
+          "name": "",
+          "type": "bytes3"
+        }
+      ],
+      "name": "supportedChains",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "address",
           "name": "newOwner",
           "type": "address"
@@ -775,6 +899,24 @@ export const PortalABI = [
         }
       ],
       "name": "updateSigner",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes3",
+          "name": "_chainId",
+          "type": "bytes3"
+        },
+        {
+          "internalType": "bool",
+          "name": "_supported",
+          "type": "bool"
+        }
+      ],
+      "name": "updateSupportedChain",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

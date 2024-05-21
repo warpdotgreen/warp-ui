@@ -47,12 +47,22 @@ export default function StepOne({
   try {
     amountMojo = ethers.parseUnits(amount, decimals)
   } catch (_) {
-    toast.error("Invalid amount", { description: "3 decimal places allowed for any token, except for ETH (6 decimal places) and XCH (12 decimal places)", duration: 20000, id: "invalid-amount" })
+    toast.error("Invalid amount", { description: "3 decimal places allowed for any token, except for ETH (6 decimal places) and XCH (12 decimal places)", duration: 10000, id: "invalid-amount" })
     router.push("/bridge")
     return <></>
   }
 
-  const amountMojoAfterFee = amountMojo - amountMojo * BigInt(30) / BigInt(10000)
+  let feeMojo = amountMojo * BigInt(30) / BigInt(10000);
+  if(feeMojo < BigInt(1)) {
+    feeMojo = BigInt(1);
+  }
+  const amountMojoAfterFee = amountMojo - feeMojo;
+
+  if(amountMojoAfterFee < BigInt(1)) {
+     toast.error("Amount too low", { description: "Your bridging amount is too low. The minimum total amount is 2 mojos - one for fees, and one to be transferred to the recipient.", duration: 10000, id: "amount-too-low" })
+    router.push("/bridge")
+    return <></>
+  }
 
   const chainIcons = (() => {
     let sourceChainIcon = <></>
@@ -248,6 +258,7 @@ function EthereumButton({
         functionName: "bridgeEtherToChia",
         args: [
           ("0x" + receiver) as `0x${string}`,
+          sourceChain.messageToll
         ],
         value: ethers.parseEther(amount) + sourceChain.messageToll,
         chainId: sourceChain.chainId
