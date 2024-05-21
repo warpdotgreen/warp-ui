@@ -68,12 +68,12 @@ export default function StepOne({
 
     outputAmountStr = ethers.formatUnits(amountMojoAfterFee, decimals);
     if(token.symbol === "ETH") {
-      if(destinationChain.type === NetworkType.COINSET) { 
+      if(destinationChain.type === NetworkType.COINSET) {
         outputAmountStr = ethers.formatUnits(amountMojoAfterFee, decimals - 3);
       } else {
         outputAmountStr = ethers.formatUnits(amountMojoAfterFee, decimals + 3);
       }
-    }  
+    }
   } else {
     const amountInt = ethers.parseUnits(amount, decimals);
     const amountWei = GreenWeb.BigNumber.from(
