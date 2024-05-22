@@ -17,7 +17,6 @@ import { useWallet } from "../ChiaWalletManager/WalletContext"
 import { BaseIcon, ChiaIcon, ETHIcon } from "../components/Icons/ChainIcons"
 import { cn, withToolTip } from "@/lib/utils"
 import { useWalletInfo, useWeb3Modal, useWeb3ModalState } from "@web3modal/wagmi/react"
-import { CircleAlertIcon } from "lucide-react"
 import { erc20Abi } from "viem"
 
 export default function StepOne({
@@ -53,7 +52,46 @@ export default function StepOne({
   }
 
   let outputAmountStr = "";
-  if(token.sourceNetworkType == NetworkType.EVM || destinationChain.type === NetworkType.COINSET) {
+  if(token.sourceNetworkType === NetworkType.EVM) {
+    if(destinationChain.type === NetworkType.COINSET) {
+      // EVM token warped to Chia
+      let feeMojo = amountMojo * BigInt(30) / BigInt(10000);
+      if(feeMojo < BigInt(1)) {
+        feeMojo = BigInt(1);
+      }
+      const amountMojoAfterFee = amountMojo - feeMojo;
+
+      if(amountMojoAfterFee < BigInt(1)) {
+        toast.error("Amount too low", { description: "Your bridging amount is too low. The minimum total amount is 2 mojos - one for fees, and one to be transferred to the recipient.", duration: 10000, id: "amount-too-low" })
+        router.push("/bridge")
+        return <></>
+      }
+
+      outputAmountStr = ethers.formatUnits(amountMojoAfterFee, decimals);
+      if(token.symbol === "ETH") {
+        outputAmountStr = ethers.formatUnits(amountMojoAfterFee, decimals - 3);
+      }
+    } else {
+      // EVM token returning to origin chain
+      const ethSideDecimals = token.symbol == "ETH" ? 18 : 6;
+      let amountWei = ethers.parseUnits(amount, ethSideDecimals);
+      if(token.symbol === "ETH") {
+        amountWei = amountWei / BigInt(1000);
+      }
+
+      const feeWei = amountWei * BigInt(30) / BigInt(10000);
+
+      if(feeWei < 1 || amountWei - feeWei < 0) {
+        toast.error("Amount too low", { description: "Your bridging amount is too low.", duration: 10000, id: "amount-too-low" })
+        router.push("/bridge")
+        return <></>
+      }
+
+      console.log({ ethSideDecimals })
+      outputAmountStr = ethers.formatUnits(amountWei - feeWei, ethSideDecimals);
+    }
+  } else {
+    // Chia token returning to origin chain or EVM token briged to Chia
     let feeMojo = amountMojo * BigInt(30) / BigInt(10000);
     if(feeMojo < BigInt(1)) {
       feeMojo = BigInt(1);
@@ -68,26 +106,8 @@ export default function StepOne({
 
     outputAmountStr = ethers.formatUnits(amountMojoAfterFee, decimals);
     if(token.symbol === "ETH") {
-      if(destinationChain.type === NetworkType.COINSET) {
-        outputAmountStr = ethers.formatUnits(amountMojoAfterFee, decimals - 3);
-      } else {
-        outputAmountStr = ethers.formatUnits(amountMojoAfterFee, decimals + 3);
-      }
+      outputAmountStr = ethers.formatUnits(amountMojoAfterFee, decimals + 3);
     }
-  } else {
-    const amountInt = ethers.parseUnits(amount, decimals);
-    const amountWei = GreenWeb.BigNumber.from(
-      token.symbol === "XCH" ? "1000000" : "1000000000000000"
-    ).mul(amountInt);
-
-    const feeWei = amountWei.mul(30).div(10000);
-    if(amountWei.lt(2) || feeWei.lt(1)) {
-      toast.error("Amount too low", { description: "Your bridging amount is too low.", duration: 10000, id: "amount-too-low" })
-      router.push("/bridge")
-      return <></>
-    }
-
-    outputAmountStr = ethers.formatUnits(amountWei.sub(feeWei).toString(), 18);
   }
 
   const chainIcons = (() => {
