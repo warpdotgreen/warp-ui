@@ -18,6 +18,7 @@ import { BaseIcon, ChiaIcon, ETHIcon } from "../components/Icons/ChainIcons"
 import { cn, withToolTip } from "@/lib/utils"
 import { useWalletInfo, useWeb3Modal, useWeb3ModalState } from "@web3modal/wagmi/react"
 import { erc20Abi } from "viem"
+import OrPasteOffer from "./OrOffer"
 
 export default function StepOne({
   sourceChain,
@@ -192,7 +193,7 @@ export default function StepOne({
       <div className="p-6 mt-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-[delayed-fade-in_0.7s_ease_forwards]">
         <p className="mb-2 font-extralight opacity-80">Recipient address</p>
         <p className="text-xl mb-4">{recipient}</p>
-        <div className="flex">
+        <div className="w-full">
           {sourceChain.type == NetworkType.COINSET ? (
             <ChiaButton
               token={token}
@@ -403,49 +404,39 @@ function ChiaButton({
 }) {
   const router = useRouter()
   const [status, setStatus] = useState("")
-  const { walletConnected, createOffer } = useWallet()
+  const { createOffer } = useWallet()
 
-  const initiateBridgingFromChiaToEVM = async () => {
-    const tokenInfo = token.supported.find((supported) => supported.coinsetNetworkId === sourceChain.id && supported.evmNetworkId === destinationChain.id)!
+  const tokenInfo = token.supported.find((supported) => supported.coinsetNetworkId === sourceChain.id && supported.evmNetworkId === destinationChain.id)!
 
-    var offerMojoAmount = BigInt(sourceChain.messageToll)
-    if (token.sourceNetworkType == NetworkType.EVM) {
-      // We'll melt CAT mojos and use them as a fee as well
-      offerMojoAmount -= amountMojo
-    }
-    var offer = null
+  var offerMojoAmount = BigInt(sourceChain.messageToll)
+  if (token.sourceNetworkType == NetworkType.EVM) {
+    // We'll melt CAT mojos and use them as a fee as well
+    offerMojoAmount -= amountMojo
+  }
 
-    // either requesting XCH (toll) + asset or just XCH (toll + asset)
-    var xchAmount = parseInt(offerMojoAmount.toString())
-    var offerAssets = []
-    if (tokenInfo.assetId === "00".repeat(32)) {
-      xchAmount += parseInt(amountMojo.toString())
-    } else {
-      offerAssets.push({
-        assetId: tokenInfo.assetId,
-        amount: parseInt(amountMojo.toString())
-      })
-    }
+  // either requesting XCH (toll) + asset or just XCH (toll + asset)
+  var xchAmount = parseInt(offerMojoAmount.toString())
+
+  var offerAssets: any[] = []
+  var offerReqString = "";
+
+  if (tokenInfo.assetId === "00".repeat(32)) {
+    xchAmount += parseInt(amountMojo.toString())
+  } else {
     offerAssets.push({
-      assetId: "",
-      amount: xchAmount
+      assetId: tokenInfo.assetId,
+      amount: parseInt(amountMojo.toString())
     })
+    offerReqString += `${ethers.formatUnits(amountMojo, 3)} ${token.symbol} and `;
+  }
 
-    try {
-      const params = {
-        offerAssets: offerAssets,
-        requestAssets: []
-      }
-      offer = await createOffer(params)
-    } catch (e) {
-      console.error(e)
-    }
+  offerAssets.push({
+    assetId: "",
+    amount: xchAmount
+  })
+  offerReqString += `${ethers.formatUnits(offerMojoAmount, 12)} XCH`;
 
-    if (!offer) {
-      setStatus("")
-      return
-    }
-
+  const doStuffWithOffer = async (offer: any) => {
     const [sb, nonce] = await (token.sourceNetworkType == NetworkType.EVM ? burnCATs(
       offer,
       sourceChain,
@@ -484,6 +475,27 @@ function ChiaButton({
     }
   }
 
+  const initiateBridgingFromChiaToEVM = async () => {
+    var offer = null
+
+    try {
+      const params = {
+        offerAssets: offerAssets,
+        requestAssets: []
+      }
+      offer = await createOffer(params)
+    } catch (e) {
+      console.error(e)
+    }
+
+    if (!offer) {
+      setStatus("")
+      return
+    }
+
+    await doStuffWithOffer(offer);
+  }
+
   if (status.length > 0) {
     return (
       <LoadingButton text={status} />
@@ -491,10 +503,16 @@ function ChiaButton({
   }
 
   return (
-    <ActionButton
-      text="Initiate Bridging"
-      onClick={initiateBridgingFromChiaToEVM}
-    />
+    <>
+      <ActionButton
+        text="Initiate Bridging via Wallet"
+        onClick={initiateBridgingFromChiaToEVM}
+      />
+      <OrPasteOffer
+        requiredAssetsStr={offerReqString}
+        onOfferSubmitted={doStuffWithOffer}
+      />
+    </>
   )
 }
 

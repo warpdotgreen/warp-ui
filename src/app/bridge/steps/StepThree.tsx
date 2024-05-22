@@ -21,6 +21,7 @@ import { useWallet } from "../ChiaWalletManager/WalletContext"
 import AddERCTokenButton from "../assets/components/AddERCTokenButton"
 import { cn } from "@/lib/utils"
 import { ethers } from "ethers"
+import OrPasteOffer from "./OrOffer";
 
 export default function StepThree({
   sourceChain,
@@ -407,15 +408,21 @@ function GenerateOfferPrompt({
           Click the button below to create an offer for minting assets on {destinationChain.displayName}.
           Note that using lower fees will result in slower confirmations.
         </p>
-        <div className="flex mt-6">
+        <div className="w-full mt-6">
           {!waitingForTx ? (
-            <Button
-              disabled={!isConnectedToChiaWallet}
-              className="w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl"
-              onClick={isConnectedToChiaWallet ? generateOfferPls : () => { }}
-            >
-              {isConnectedToChiaWallet ? 'Generate Offer' : 'Connect Chia Wallet'}
-            </Button>
+            <>
+              <Button
+                disabled={!isConnectedToChiaWallet}
+                className="w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl"
+                onClick={isConnectedToChiaWallet ? generateOfferPls : () => { }}
+              >
+                {isConnectedToChiaWallet ? 'Generate Offer via Wallet' : 'Connect Chia Wallet'}
+              </Button>
+              <OrPasteOffer
+                onOfferSubmitted={(manualOffer: string) => onOfferGenerated(portalInfo?.coinId ?? "", manualOffer)}
+                requiredAssetsStr={`${ethers.formatUnits(amount, 12)} XCH`}
+              />
+            </>
           ) : (
             <Button
               className="relative flex items-center gap-2 w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl"
