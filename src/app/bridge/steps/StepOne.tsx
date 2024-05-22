@@ -7,7 +7,7 @@ import { useAccount, useReadContract, useTransactionConfirmations, useWriteContr
 import * as GreenWeb from 'greenwebjs'
 import { useEffect, useState } from "react"
 import { getStepTwoURL } from "./urls"
-import { erc20ABI, ERC20BridgeABI, WrappedCATABI } from "../drivers/abis"
+import { USDTABI, erc20ABI, ERC20BridgeABI, WrappedCATABI } from "../drivers/abis"
 import { burnCATs } from "../drivers/erc20bridge"
 import { lockCATs } from "../drivers/catbridge"
 import { pushTx, sbToJSON } from "../drivers/rpc"
@@ -327,7 +327,7 @@ function EthereumButton({
     })
     writeContractForApproval({
       address: tokenInfo.contractAddress,
-      abi: erc20ABI,
+      abi: token.symbol === "USDT" ? USDTABI : erc20ABI,
       functionName: "approve",
       args: [
         sourceChain.erc20BridgeAddress as `0x${string}`,

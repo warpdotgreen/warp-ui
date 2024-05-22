@@ -179,7 +179,7 @@ export function getSigsSwitch(
   sigSwitches: boolean[]
 ): number {
   return parseInt(
-    sigSwitches.map((x) => x ? "1" : "0").join("").split("").reverse().join(""),
+    sigSwitches.map((x) => x ? "1" : "0").reverse().join(""),
     2
   );
 }
@@ -333,7 +333,7 @@ export async function getSigsAndSelectors(
   pool.close(relays);
 
   if(events.length === 0) {
-    console.log("No Nostr events found for this nonce (yet)"); // todo: debug
+    console.log("No Nostr events found for this nonce (yet)");
     return [[], []];
   }
 
@@ -414,7 +414,9 @@ export async function getSigsAndSelectors(
 
   // We're getting sigs for XCH
   // Order doesn't matter but we need to generate the 'selectors' array
-  let sigStrings = events.map((event) => routingData + "-" + (event.tags.find(e => e[0] == 'c')??["", ""])[1] + "-" + event.content);
+  let sigStrings = events
+    .filter((e) => NOSTR_CONFIG.validatorKeys.includes(e.pubkey))
+    .map((event) => routingData + "-" + (event.tags.find(e => e[0] == 'c')??["", ""])[1] + "-" + event.content)
   if(sigStrings.length > sigLimit) {
     sigStrings = sigStrings.slice(0, sigLimit);
   }
@@ -648,6 +650,9 @@ export async function receiveMessageAndSpendMessageCoin(
     portalInfo.coinId,
     network.signatureThreshold
   );
+  if(sigStrings.length > 0) {
+    updateStatus(`Collecting signatures (${sigStrings.length}/${network.signatureThreshold})`);
+  }
 
   while(sigStrings.length < network.signatureThreshold) {
     await new Promise(r => setTimeout(r, 10000));
