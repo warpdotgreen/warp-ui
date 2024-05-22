@@ -272,7 +272,7 @@ function StepThreeCoinsetDestination({
         destinationChain={destinationChain}
         amount={isNativeCAT ? 1 : amount}
         rawMessage={rawMessage}
-        onOfferGenerated={(portalBootstrapId, offer) => {
+        onOfferGenerated={async (portalBootstrapId, offer) => {
           router.push(getStepThreeURL({
             sourceNetworkId: sourceChain.id,
             destinationNetworkId: destinationChain.id,
@@ -342,7 +342,7 @@ function GenerateOfferPrompt({
   destinationChain: Network,
   rawMessage: RawMessage,
   amount: number,
-  onOfferGenerated: (portalInfo: string, offer: string) => void
+  onOfferGenerated: (portalInfo: string, offer: string) => Promise<void>
 }) {
   const [portalInfo, setPortalInfo] = useState<PortalInfo | null>(null)
   const [status, setStatus] = useState("Fetching portal bootstrap coin id...")
@@ -419,7 +419,7 @@ function GenerateOfferPrompt({
                 {isConnectedToChiaWallet ? 'Generate Offer via Wallet' : 'Connect Chia Wallet'}
               </Button>
               <OrPasteOffer
-                onOfferSubmitted={(manualOffer: string) => onOfferGenerated(portalInfo?.coinId ?? "", manualOffer)}
+                onOfferSubmitted={async (manualOffer: string) => await onOfferGenerated(portalInfo?.coinId ?? "", manualOffer)}
                 requiredAssetsStr={`${ethers.formatUnits(amount, 12)} XCH`}
               />
             </>
