@@ -131,7 +131,7 @@ function XCHBlockConfirmer({
   }, [confirmations, confirmationMinHeight, onConfirmation])
 
   return (
-    <p className="animate-in fade-in slide-in-from-bottom-2 duration-500">Confirming transaction ({Math.min(confirmations, confirmationMinHeight).toString()}/{confirmationMinHeight})</p>
+    <p className="animate-in fade-in slide-in-from-bottom-2 duration-500">Confirming transaction ({Math.max(Math.min(confirmations, confirmationMinHeight), 0).toString()}/{confirmationMinHeight})</p>
   )
 }
 
@@ -246,7 +246,7 @@ function EthereumValidationTextElement({
   ])
 
   return (
-    <span className="animate-in fade-in slide-in-from-bottom-2 duration-500">Confirming transaction ({Math.min(parseInt(currentConfirmations.toString()), sourceChain.confirmationMinHeight)}/{sourceChain.confirmationMinHeight})</span>
+    <span className="animate-in fade-in slide-in-from-bottom-2 duration-500">Confirming transaction ({Math.max(Math.min(parseInt(currentConfirmations.toString()), sourceChain.confirmationMinHeight), 0)}/{sourceChain.confirmationMinHeight})</span>
   )
 }
 
@@ -289,6 +289,6 @@ function BaseValidationTextElement({
   ])
 
   return (
-    <span className="animate-in fade-in slide-in-from-bottom-2 duration-500">Confirming transaction ({Math.min(parseInt(currentConfirmations.toString()), sourceChain.confirmationMinHeight)}/{sourceChain.confirmationMinHeight})</span>
+    <span className="animate-in fade-in slide-in-from-bottom-2 duration-500">Confirming transaction ({Math.max(Math.min(parseInt(currentConfirmations.toString()), sourceChain.confirmationMinHeight), 0)}/{sourceChain.confirmationMinHeight})</span>
   )
 }
