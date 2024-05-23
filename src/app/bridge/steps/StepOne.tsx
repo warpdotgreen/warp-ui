@@ -33,6 +33,12 @@ export default function StepOne({
   const recipient = searchParams.get('recipient')!
   const amount = searchParams.get('amount') ?? ""
 
+  if(recipient.includes("00".repeat(20))){
+    toast.error("Invalid recipient address", { description: "Please reconnect your Ethereum wallet.", duration: 7000, id: "invalid-recipient" })
+    router.push("/bridge")
+    return <></>
+  }
+
   const token: Token = TOKENS.find((token) => token.symbol === searchParams.get("token"))!
 
   var decimals = 3
@@ -405,6 +411,13 @@ function ChiaButton({
   const router = useRouter()
   const [status, setStatus] = useState("")
   const { createOffer } = useWallet()
+
+  console.log({ recipient })
+  if(recipient.includes("00".repeat(20)) || recipient === undefined || recipient === null || recipient.length !== 42) {
+    toast.error("Invalid recipient address", { description: "Please reconnect your Ethereum wallet.", duration: 7000, id: "invalid-recipient" })
+    router.push("/bridge")
+    return <></>
+  }
 
   const tokenInfo = token.supported.find((supported) => supported.coinsetNetworkId === sourceChain.id && supported.evmNetworkId === destinationChain.id)!
 

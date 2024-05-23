@@ -588,6 +588,16 @@ export async function burnCATs(
 
   ethTokenReceiverAddress = GreenWeb.util.unhexlify(ethTokenReceiverAddress)!;
 
+  if(
+    ethTokenReceiverAddress === null ||
+    ethTokenReceiverAddress === undefined ||
+    ethTokenReceiverAddress.length !== 40 ||
+    ethTokenReceiverAddress === "00".repeat(20)
+  ) {
+    alert("Did not correctly fetch address - please reconnect Ethereum wallet. Resetting...");
+    return [new GreenWeb.util.serializer.types.SpendBundle(), ""];
+  }
+
   updateStatus("Initializing BLS...");
   await initializeBLS();
 
