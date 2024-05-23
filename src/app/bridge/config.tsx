@@ -384,6 +384,22 @@ export const SBX_TOKEN_MAINNET_ONLY: Token = {
   ]
 }
 
+const HOA_ASSET_ID_MAINNET = 'e816ee18ce2337c4128449bc539fbbe2ecfdd2098c4e7cab4667e223c3bdc23d'
+const HOA_ADDRESS_BASE_MAINNET = '0xee642384091f4bb9ab457b875E4e209b5a0BD147'
+
+export const HOA_TOKEN_BASE_ONLY: Token = {
+  symbol: 'HOA',
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: HOA_ASSET_ID_MAINNET,
+      contractAddress: HOA_ADDRESS_BASE_MAINNET
+    },
+  ]
+}
+
 export const TOKENS = TESTNET ? [
   ETH_TOKEN,
   USDT_TOKEN,
@@ -395,7 +411,8 @@ export const TOKENS = TESTNET ? [
   XCH_TOKEN,
   DBX_TOKEN,
   SBX_TOKEN_MAINNET_ONLY,
-  USDT_TOKEN
+  USDT_TOKEN,
+  HOA_TOKEN_BASE_ONLY
 ]
 
 declare module 'wagmi' {
