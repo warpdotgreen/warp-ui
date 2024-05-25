@@ -36,18 +36,18 @@ export default function LandingPage() {
         <section id="slide2" className="max-w-[130rem] mx-auto slide 2xl:h-[max(100svh,60rem)] my-auto 2xl:snap-start grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-y-24 2xl:gap-y-4 grow-rows-3 p-0 sm:p-8 !pt-[144px] gap-4">
 
           {/* Col 1 */}
-          <div className="flex flex-col gap-4 max-h-[51.5rem]">
+          <div className="flex flex-col max-h-[51.5rem]">
 
-            <div className="flex flex-col gap-4 justify-center items-center">
+            <div className="flex flex-col gap-4 justify-center items-center pb-4">
               <h3 className="text-4xl sm:text-6xl font-light">At a Glance</h3>
               <h4 className="text-xl opacity-80">A few points about warp.green</h4>
             </div>
 
-            <div className="h-full row-span-1">
+            <div className="row-span-1">
               <MessagesDelivered />
             </div>
 
-            <div className="flex flex-col gap-4 justify-center bg-accent/50 hover:bg-accent/90 transition-colors border rounded-md p-6 z-10 overflow-hidden h-full row-span-1">
+            <div className="flex flex-col justify-center bg-accent/50 hover:bg-accent/90 transition-colors border rounded-md p-6 mt-4 z-10 overflow-hidden h-full row-span-1">
               <p className="text-xl text-center">Supported Chains</p>
               <div className="flex w-full h-full justify-end gap-4 animate-in fade-in slide-in-from-bottom-16 duration-500">
                 <SupportedNetworksCard />

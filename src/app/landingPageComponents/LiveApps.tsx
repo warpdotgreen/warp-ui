@@ -36,7 +36,7 @@ const liveAppsConfig = [
         symbol: "USDT",
         accessorPrefixKey: "USDT",
         decimals: 3
-      },
+      }
     ]
   },
   {
@@ -55,6 +55,11 @@ const liveAppsConfig = [
       {
         symbol: "DBX",
         accessorPrefixKey: "DBX",
+        decimals: 3
+      },
+      {
+        symbol: "HOA",
+        accessorPrefixKey: "HOA",
         decimals: 3
       }
     ]
