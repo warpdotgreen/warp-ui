@@ -30,12 +30,14 @@ const ChiaWalletButtons: React.FC = () => {
   if (walletConnectUri) {
     return (
       <div className='h-auto mx-auto w-full max-w-full flex flex-col gap-6'>
-        <QRCode
-          size={256}
-          className='h-auto max-w-full w-full border-accent border-2 rounded-lg p-2 animate-in fade-in slide-in-from-bottom-2 duration-500'
-          value={walletConnectUri}
-          viewBox={`0 0 256 256`}
-        />
+        <div className='p-4 bg-white rounded-md'>
+          <QRCode
+            size={256}
+            className='h-auto max-w-full w-full border-accent border-2 rounded-lg p-2 animate-in fade-in slide-in-from-bottom-2 duration-500'
+            value={walletConnectUri}
+            viewBox={`0 0 256 256`}
+          />
+        </div>
         <div className='grid grid-cols-2 gap-2'>
           <Button variant="ghost" className='flex gap-1 border-accent' onClick={onClose}>Cancel</Button>
           <CopyButton copyText={walletConnectUri}>Copy Link</CopyButton>
