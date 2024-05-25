@@ -219,7 +219,7 @@ function StepThreeCoinsetDestination({
         var assetId: string = "00".repeat(32)
         TOKENS.forEach((token) => {
           token.supported.forEach((tokenInfo) => {
-            if (tokenInfo.contractAddress === source) {
+            if (tokenInfo.contractAddress.toLowerCase() === source.toLowerCase()) {
               assetId = tokenInfo.assetId
             }
           })

@@ -528,7 +528,9 @@ export async function unlockCATs(
   if(tokenTailHash !== null) {
     updateStatus("Getting proofs...");
 
-    await coinRecords.forEach(async (coinRecord: any) => {
+    for(let i = 0; i < coinRecords.length; ++i) {
+      const coinRecord = coinRecords[i];
+
       const parentSpend = await getPuzzleAndSolution(
         coinsetNetwork.rpcUrl,
         coinRecord.coin.parent_coin_info,
@@ -542,16 +544,15 @@ export async function unlockCATs(
       );
       if(uncurryRes === null) {
         alert('error in getting lineage proof :|');
-        return;
       }
-      const [_, args] = uncurryRes;
+      const [_, args] = uncurryRes!;
 
       lockedCoinProofs.push(GreenWeb.util.goby.parseGobyCoin({
-        parent_coin_info: parentSpend.coin.parent_coin_info,
+        parent_coin_info: GreenWeb.util.unhexlify(parentSpend.coin.parent_coin_info),
         puzzle_hash: GreenWeb.util.sexp.sha256tree(args[2]), // inner puzzle hash
         amount: parentSpend.coin.amount,
       })!);
-    });
+    }
   }
 
   /* get and spend message coin & associated thingies */
