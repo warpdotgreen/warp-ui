@@ -24,21 +24,21 @@ function MessagesDelivered() {
   })
 
   if (isLoading || !data) return (
-    <div className="relative z-10 bg-accent/50 border rounded-md min-h-40 flex gap-4 p-2 justify-between overflow-hidden">
+    <div className="relative z-10 bg-accent/50 border rounded-md min-h-40 h-[20rem] flex gap-4 p-2 justify-between overflow-hidden">
       <Skeleton className="w-full bg-transparent" />
     </div>
   )
 
   return (
-    <div className="rounded-lg border p-6 pb-4 mb-0.5 bg-accent/50 hover:bg-accent/90 transition-colors flex flex-col">
+    <div className="rounded-lg border p-6 pt-6 pb-8 row-span-1 bg-accent/50 hover:bg-accent/90 transition-colors flex flex-col">
       <p className="text-center text-xl">Stats</p>
       <div className="flex flex-col mt-6 mx-4 pb-2">
         <div className="flex flex-col justify-center items-center pb-4 border-b">
-          <div className="text-6xl font-light">{formatNumber(data.total_messages)}</div>
+          <div className="text-7xl font-light">{formatNumber(data.total_messages)}</div>
           <div className="text-lg opacity-50">delivered messages</div>
         </div>
 
-        <div className="flex w-full rounded-lg">
+        <div className="flex w-full rounded-lg pb-1 mt-0.5">
           <div className="flex-1 flex flex-col justify-left py-4 items-center">
             <div className="text-2xl">{formatNumber(data.messages_to_chia)}</div>
             <div className="text-lg opacity-50">to Chia</div>

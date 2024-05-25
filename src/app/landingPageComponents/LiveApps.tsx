@@ -23,14 +23,14 @@ const liveAppsConfig = [
     name: "ERC-20 Bridge",
     tokens: [
       {
-        symbol: "ETH",
-        accessorPrefixKey: "milliETH",
-        decimals: 6
-      },
-      {
         symbol: "USDC",
         accessorPrefixKey: "USDC",
         decimals: 3
+      },
+      {
+        symbol: "ETH",
+        accessorPrefixKey: "milliETH",
+        decimals: 6
       },
       {
         symbol: "USDT",
@@ -48,8 +48,8 @@ const liveAppsConfig = [
         decimals: 12
       },
       {
-        symbol: "SBX",
-        accessorPrefixKey: "SBX",
+        symbol: "HOA",
+        accessorPrefixKey: "HOA",
         decimals: 3
       },
       {
@@ -58,8 +58,8 @@ const liveAppsConfig = [
         decimals: 3
       },
       {
-        symbol: "HOA",
-        accessorPrefixKey: "HOA",
+        symbol: "SBX",
+        accessorPrefixKey: "SBX",
         decimals: 3
       }
     ]
@@ -83,7 +83,7 @@ function LiveApps() {
   })
 
 
-  if (isLoading || !data) return <>{liveAppsConfig.map((_, i) => <Skeleton key={i} className="h-[170px] bg-background" />)}</>
+  if (isLoading || !data) return <>{liveAppsConfig.map((_, i) => <Skeleton key={i} className="h-[475px] bg-background" />)}</>
 
 
   const getTokenTableRow = (token: typeof liveAppsConfig[0]["tokens"][0]) => {
