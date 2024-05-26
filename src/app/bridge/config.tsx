@@ -421,7 +421,8 @@ declare module 'wagmi' {
   }
 }
 
-export const WALLETCONNECT_PROJECT_ID = 'e47a64f2fc7214f6c9f71b8b71e5e786'
+export const WALLETCONNECT_PROJECT_ID_ETH = 'e47a64f2fc7214f6c9f71b8b71e5e786'
+export const WALLETCONNECT_PROJECT_ID_XCH = '777b63154ba9ec11877caf45a17b523e'
 
 export const WcMetadata = {
   name: 'warp.green Bridge Interface',
@@ -435,7 +436,7 @@ export const wagmiConfig = defaultWagmiConfig({
     TESTNET ? baseSepolia : base,
     TESTNET ? sepolia : mainnet,
   ],
-  projectId: WALLETCONNECT_PROJECT_ID,
+  projectId: WALLETCONNECT_PROJECT_ID_ETH,
   ssr: true,
   metadata: WcMetadata,
   transports: {

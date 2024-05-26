@@ -1,10 +1,11 @@
-import { TESTNET, TOKENS, WALLETCONNECT_PROJECT_ID, WcMetadata } from '../../config'
+import { TESTNET, TOKENS, WALLETCONNECT_PROJECT_ID_XCH, WcMetadata } from '../../config'
 import SignClient from '@walletconnect/sign-client'
 import { SessionTypes } from '@walletconnect/types'
 import { addCATParams, createOfferParams } from './types'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
+import IKeyValueStorage from "@walletconnect/keyvaluestorage"
 
 const chain = TESTNET ? 'chia:testnet' : 'chia:mainnet'
 
@@ -30,6 +31,62 @@ export async function addCAT(params: addCATParams): Promise<void> {
   await addAssetWC(params)
 }
 
+/* Custom storage for Wallet Connect connection info */
+
+// https://github.com/WalletConnect/walletconnect-monorepo/issues/2493
+export class CustomWalletConnectStorage extends IKeyValueStorage {
+    private prefix: string;
+
+    constructor(prefix: string) {
+        super();
+        this.prefix = prefix;
+    }
+
+    private getPrefixedKey(key: string): string {
+        return `${this.prefix}:${key}`;
+    }
+
+    async getKeys(): Promise<string[]> {
+        const keys: string[] = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith(this.prefix + ':')) {
+                keys.push(key.substring(this.prefix.length + 1));
+            }
+        }
+        return keys;
+    }
+
+    async getEntries<T = any>(): Promise<[string, T][]> {
+        const entries: [string, T][] = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith(this.prefix + ':')) {
+                const rawValue = localStorage.getItem(key);
+                const value = rawValue ? JSON.parse(rawValue) : undefined;
+                entries.push([key.substring(this.prefix.length + 1), value]);
+            }
+        }
+        return entries;
+    }
+
+    async getItem<T = any>(key: string): Promise<T | undefined> {
+        const prefixedKey = this.getPrefixedKey(key);
+        const rawValue = localStorage.getItem(prefixedKey);
+        return rawValue ? JSON.parse(rawValue) : undefined;
+    }
+
+    async setItem<T = any>(key: string, value: T): Promise<void> {
+        const prefixedKey = this.getPrefixedKey(key);
+        localStorage.setItem(prefixedKey, JSON.stringify(value));
+    }
+
+    async removeItem(key: string): Promise<void> {
+        const prefixedKey = this.getPrefixedKey(key);
+        localStorage.removeItem(prefixedKey);
+    }
+}
+
 /*
  *
  * WalletConnect Functions
@@ -49,8 +106,9 @@ function getFingerprint(session: SessionTypes.Struct) {
 
 async function getClient() {
   const signClient = await SignClient.init({
-    projectId: WALLETCONNECT_PROJECT_ID,
-    metadata: WcMetadata
+    projectId: WALLETCONNECT_PROJECT_ID_XCH,
+    metadata: WcMetadata,
+    storage: new CustomWalletConnectStorage("chia-wc-data")
   })
   return signClient
 }

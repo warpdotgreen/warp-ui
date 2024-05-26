@@ -1,13 +1,13 @@
 "use client"
 import { WagmiProvider } from "wagmi"
-import { wagmiConfig, WALLETCONNECT_PROJECT_ID } from "./config"
+import { wagmiConfig, WALLETCONNECT_PROJECT_ID_ETH } from "./config"
 import { createWeb3Modal } from "@web3modal/wagmi/react"
 import { useEffect } from "react"
 import { ChiaWalletProvider } from "./ChiaWalletManager/WalletContext"
 
 createWeb3Modal({
   wagmiConfig: wagmiConfig,
-  projectId: WALLETCONNECT_PROJECT_ID,
+  projectId: WALLETCONNECT_PROJECT_ID_ETH,
   enableOnramp: true,
   themeMode: 'dark',
   themeVariables: {
