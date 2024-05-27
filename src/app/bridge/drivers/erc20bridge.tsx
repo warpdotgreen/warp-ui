@@ -4,8 +4,8 @@ import { CAT_MOD_HASH, getCATPuzzle, getCATSolution } from './cat';
 import { BRIDGING_PUZZLE_HASH, getMessageCoinPuzzle1stCurry, getSecurityCoinSig, messageContentsAsSexp, RawMessage, receiveMessageAndSpendMessageCoin, spendOutgoingMessageCoin } from './portal';
 import { CHIA_NETWORK, Network } from '../config';
 import { OFFER_MOD, OFFER_MOD_HASH, parseXCHAndCATOffer, parseXCHOffer } from './offer';
-import { initializeBLS } from "clvm";
-import { buildSpendBundle, stringToHex } from './util';
+import { buildSpendBundle, initializeBLSWithRetries, stringToHex } from './util';
+import { toast } from 'sonner';
 
 /*
 >>> from drivers.wrapped_assets import CAT_BURNER_MOD
@@ -420,7 +420,12 @@ export async function mintCATs(
   const sigs: string[] = []
 
   updateStatus("Initializing BLS...");
-  await initializeBLS();
+  const blsInitialized = await initializeBLSWithRetries();
+  if(!blsInitialized) {
+    updateStatus("Failed to initialize BLS");
+    toast.error("Failed to initialize BLS - please delete your offer, click the back button, and restart the process.", { duration: 20000, id: "failed-to-initialize-bls" })
+    throw new Error("Failed to initialize BLS");
+  }
   
   updateStatus("Parsing offer...");
   const [
@@ -599,7 +604,12 @@ export async function burnCATs(
   }
 
   updateStatus("Initializing BLS...");
-  await initializeBLS();
+  const blsInitialized = await initializeBLSWithRetries();
+  if(!blsInitialized) {
+    updateStatus("Failed to initialize BLS");
+    toast.error("Failed to initialize BLS - please delete your offer, click the back button, and restart the process.", { duration: 20000, id: "failed-to-initialize-bls" })
+    throw new Error("Failed to initialize BLS");
+  }
 
   const coinSpends: InstanceType<typeof GreenWeb.CoinSpend>[] = [];
   const sigs: string[] = [];

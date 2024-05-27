@@ -1,5 +1,6 @@
 import * as GreenWeb from 'greenwebjs';
 import { getBLSModule } from "clvm";
+import { initializeBLS } from "clvm";
 
 export function stringToHex(str: string): string {
     return str.split('').map(c => c.charCodeAt(0).toString(16).padStart(2, '0')).join('');
@@ -30,4 +31,20 @@ export async function buildSpendBundle(
   ).toString("hex");
 
   return sb;
+}
+
+export async function initializeBLSWithRetries(): Promise<boolean> {
+  let retries = 0;
+  while (retries < 7) {
+    try {
+      await initializeBLS();
+      break;
+    } catch (e) {
+      console.error("Error initializing BLS", e);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      retries += 1;
+    }
+  }
+
+  return retries < 7;
 }
