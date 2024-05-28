@@ -22,7 +22,9 @@ export function MessageTableBody({
     queryKey: [`explorer_messages_${limit}_${sent}`],
     queryFn: () => fetch(`${WATCHER_API_ROOT}messages?limit=${limit}&status=${status}`).then(res => res.json()).then(
       (msgs) => msgs.filter((msg: MessageResponse) => msg.contents[0] !== "0000000000000000000000000000000000000000000000000000000000000000")
-    ),
+    ).then((msgs) => msgs.filter(
+      (msg: MessageResponse) => !(msg.parsed.token_symbol === 'milliETH' && msg.parsed.amount_mojo === 1)
+    )),
     refetchInterval: 10000
   })
 
