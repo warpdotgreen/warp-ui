@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
 
-interface MessageResponse {
+export interface MessageResponse {
   id: number
   nonce: string
   source_chain: string
@@ -36,7 +36,7 @@ interface Parsed {
   receiver: string
 }
 
-const typeToDisplayName = new Map([
+export const typeToDisplayName = new Map([
   ["cat_bridge", "CAT Bridge"],
   ["erc20_bridge", "ERC-20 Bridge"],
 ])

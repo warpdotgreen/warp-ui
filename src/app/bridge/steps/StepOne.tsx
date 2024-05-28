@@ -80,22 +80,21 @@ export default function StepOne({
       }
     } else {
       // EVM token returning to origin chain
-      const ethSideDecimals = token.symbol == "ETH" ? 18 : 6;
+      const ethSideDecimals = token.symbol == "ETH" ? 3 : 6;
       let amountWei = ethers.parseUnits(amount, ethSideDecimals);
-      if(token.symbol === "ETH") {
-        amountWei = amountWei / BigInt(1000);
+      
+      let feeWei = amountWei * BigInt(30) / BigInt(10000);
+      if(feeWei < 1) {
+        feeWei = BigInt(1);
       }
 
-      const feeWei = amountWei * BigInt(30) / BigInt(10000);
-
-      if(feeWei < 1 || amountWei - feeWei < 0) {
+      if(feeWei < 1 || amountWei - feeWei < 1) {
         toast.error("Amount too low", { description: "Your bridging amount is too low.", duration: 10000, id: "amount-too-low" })
         router.push("/bridge")
         return <></>
       }
 
-      console.log({ ethSideDecimals })
-      outputAmountStr = ethers.formatUnits(amountWei - feeWei, ethSideDecimals);
+      outputAmountStr = ethers.formatUnits(amountWei - feeWei, token.symbol == "ETH" ? 6 : ethSideDecimals);
     }
   } else {
     // Chia token returning to origin chain or EVM token briged to Chia
@@ -148,8 +147,8 @@ export default function StepOne({
         break
     }
     return {
-      sourceChainIcon: withToolTip(sourceChainIcon, `${sourceChain.displayName} Chain`),
-      destinationChainIcon: withToolTip(destinationChainIcon, `${destinationChain.displayName} Chain`)
+      sourceChainIcon: withToolTip(sourceChainIcon, sourceChain.displayName),
+      destinationChainIcon: withToolTip(destinationChainIcon, destinationChain.displayName)
     }
   })()
 
@@ -412,7 +411,6 @@ function ChiaButton({
   const [status, setStatus] = useState("")
   const { createOffer } = useWallet()
 
-  console.log({ recipient })
   if(recipient.includes("00".repeat(20)) || recipient === undefined || recipient === null || recipient.length !== 42) {
     toast.error("Invalid recipient address", { description: "Please reconnect your Ethereum wallet.", duration: 7000, id: "invalid-recipient" })
     router.push("/bridge")
