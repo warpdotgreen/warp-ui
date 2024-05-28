@@ -5,6 +5,8 @@ import { NETWORKS, WATCHER_API_ROOT } from "../bridge/config"
 import { cn, getChainIcon } from "@/lib/utils"
 import { Skeleton } from "@/components/ui/skeleton"
 import { CopyableLongHexString } from "@/components/CopyableHexString"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
 
 interface MessageResponse {
@@ -88,7 +90,14 @@ function Messages() {
     return <>{Array.from({ length: NUM_OF_MESSAGES }, (_, i) => <Skeleton key={i} className="w-full h-[192px] bg-transparent animate-none" />)}</>
   }
 
-  return <>{messages.map(formatMessage)}</>
+  return (
+    <>
+      {messages.map(formatMessage)}
+      <Button variant="outline" className="mb-2 2xl:mb-32 w-full py-4" asChild>
+        <Link href="/explorer">See more</Link>
+      </Button>
+    </>
+  );
 }
 
 export default Messages
