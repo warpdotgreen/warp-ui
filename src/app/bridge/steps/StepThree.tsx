@@ -143,7 +143,7 @@ function StepThreeEVMDestination({
             className={cn("w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl", status === "pending" && 'animate-pulse')}
             onClick={onClick}
           >
-            {isEthWalletConnected ? 'Generate Transaction' : 'Connect Wallet'}
+            {isEthWalletConnected ? 'Generate Transaction' : 'Connect ETH Wallet'}
           </Button>
         ) : (
           <Button
