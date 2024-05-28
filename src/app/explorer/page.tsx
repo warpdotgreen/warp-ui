@@ -20,7 +20,7 @@ export function MessageSection({
   sent: boolean
 }) {
   return (
-    <div className="max-w-7xl mx-auto px-8">
+    <div className="max-w-7xl min-w-3xl mx-auto px-8 overflow-x-auto">
       <div className="mt-4 text-xl">{sent ? 'Sent' : 'Received'} Messages</div>
       <div className="flow-root px-4">
         <table className="min-w-full divide-y divide-zinc-900 mt-4">
