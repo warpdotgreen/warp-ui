@@ -5,9 +5,11 @@ import { NETWORKS, WATCHER_API_ROOT } from "../bridge/config"
 import { cn, getChainIcon } from "@/lib/utils"
 import { Skeleton } from "@/components/ui/skeleton"
 import { CopyableLongHexString } from "@/components/CopyableHexString"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
 
-interface MessageResponse {
+export interface MessageResponse {
   id: number
   nonce: string
   source_chain: string
@@ -34,7 +36,7 @@ interface Parsed {
   receiver: string
 }
 
-const typeToDisplayName = new Map([
+export const typeToDisplayName = new Map([
   ["cat_bridge", "CAT Bridge"],
   ["erc20_bridge", "ERC-20 Bridge"],
 ])
@@ -50,7 +52,7 @@ function Messages() {
 
   const formatMessage = (m: MessageResponse, i: number) => {
     const timestamp = m.destination_timestamp ?? m.source_timestamp
-    const typeDisplayName = typeToDisplayName.get(m.parsed.type) || 'Unknown Bridge'
+    const typeDisplayName = typeToDisplayName.get(m.parsed.type) || 'Unknown App'
     const sourceChainDisplayName = NETWORKS.find(n => n.id === m.source_chain)!.displayName
     const destChainDisplayName = NETWORKS.find(n => n.id === m.destination_chain)!.displayName
     const timeSince = formatDistanceToNow(timestamp * 1000, { addSuffix: true }).replace('about ', '')
@@ -88,7 +90,14 @@ function Messages() {
     return <>{Array.from({ length: NUM_OF_MESSAGES }, (_, i) => <Skeleton key={i} className="w-full h-[192px] bg-transparent animate-none" />)}</>
   }
 
-  return <>{messages.map(formatMessage)}</>
+  return (
+    <>
+      {messages.map(formatMessage)}
+      <Button variant="outline" className="mb-2 2xl:mb-32 w-full py-4" asChild>
+        <Link href="/explorer">See more</Link>
+      </Button>
+    </>
+  );
 }
 
 export default Messages

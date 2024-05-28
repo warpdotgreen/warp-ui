@@ -45,7 +45,7 @@ function TokenItem({ token, tokenInfo, highlightedAssets }: { token: any, tokenI
     <div className='bg-accent border p-2 rounded-md flex flex-col gap-2'>
       <div className='flex flex-col p-4 bg-accent rounded-md'>
         <div className='flex gap-4 items-center w-full'>
-          {withToolTip(sourceChainIcon, `${sourceChainName} Chain`)}
+          {withToolTip(sourceChainIcon, sourceChainName)}
           <p className='text-xl font-light'>{token.symbol}</p>
         </div>
       </div>
@@ -55,7 +55,7 @@ function TokenItem({ token, tokenInfo, highlightedAssets }: { token: any, tokenI
 
       <div className={cn('flex flex-col p-4 bg-background border-background border-2 rounded-md', highlightedAssets.includes(destChainTokenAddr) && 'border-theme-purple')}>
         <div className='flex gap-4 items-center w-full -ml-[3px]'>
-          {withToolTip(destChainIcon, `${destChainName} Chain`)}
+          {withToolTip(destChainIcon, destChainName)}
           <p className='text-xl font-light'>{sourceChainName} Warped {formattedTokenSymbol}</p>
           {sourceChain.type !== "coinset" ?
             <AddCATButton params={addCATParams} className={cn(highlightedAssets.includes(destChainTokenAddr) && 'bg-theme-purple hover:bg-theme-purple hover:opacity-80 font-light hover:border-theme-purple')} />

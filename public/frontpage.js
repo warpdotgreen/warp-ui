@@ -306,7 +306,12 @@ if (canvas) {
             })
         }
         // as speed increases make lines thicker
-        ctx.lineWidth = 3 + hs * 2
+        const isMobile = window.innerWidth < 768
+        if(isMobile) {
+            ctx.lineWidth = 2 + hs * 2
+        } else {
+            ctx.lineWidth = 3 + hs * 2
+        }
         ctx.lineCap = "round"
         points.update()  // update points
         points.draw()     // draw points
