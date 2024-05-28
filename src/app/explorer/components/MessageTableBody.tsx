@@ -86,6 +86,7 @@ export function MessageTableBody({
     // - explorer link for source tx hahs, from address, to address (use network.explorerUrl - either etherscan/basescan or spacescan)
     // - realistic placeholder to be used when messages load
     // - pagination + load more?
+    // - mobile view :)
     return (
       <tr key={msgKey}>
         <td className="whitespace-nowrap px-3 py-8 text-sm text-center">
