@@ -38,6 +38,7 @@ export async function initializeBLSWithRetries(): Promise<boolean> {
   while (retries < 3) {
     try {
       await initializeBLS();
+      getBLSModule();
       break;
     } catch (e) {
       console.error("Error initializing BLS", e);
