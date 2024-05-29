@@ -38,14 +38,21 @@ export const ChiaWalletProvider: React.FC<{ children: ReactNode }> = ({ children
   const connectWallet = useCallback(async (walletId: string, isPersistenceConnect?: boolean) => {
     const wallet = walletConfigs.find(w => w.id === walletId)
     if (wallet) {
-      const addr = await wallet.connect(Boolean(isPersistenceConnect), setWalletConnectUri)
-      setWalletConnectUri(null)
-      setAddress(addr)
-      setWalletConnected(wallet.id)
-      localStorage.setItem('walletConnected', wallet.id)  // Save connected wallet ID
-      localStorage.setItem('walletAddress', addr)
-      if (!isPersistenceConnect) {
-        toast.success('Connected Wallet', { id: "connect-wallet", duration: 2000 })
+      try {
+        const addr = await wallet.connect(Boolean(isPersistenceConnect), setWalletConnectUri)
+        setWalletConnectUri(null)
+        setAddress(addr)
+        setWalletConnected(wallet.id)
+        localStorage.setItem('walletConnected', wallet.id)  // Save connected wallet ID
+        localStorage.setItem('walletAddress', addr)
+        if (!isPersistenceConnect) {
+          toast.success('Connected Wallet', { id: "connect-wallet", duration: 2000 })
+        }
+      } catch(_) {
+        if(!isPersistenceConnect) {
+          toast.error('Failed to connect wallet', { id: "failed-to-connect-wallet" })
+          console.error("Exception ocurred while connecting to wallet", _);
+        }
       }
     }
   }, [])
