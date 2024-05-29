@@ -241,6 +241,21 @@ function StepThreeCoinsetDestination({
         }
       }
 
+
+      if(txId!.length == 0) {
+        const retries = parseInt(window.localStorage.getItem("bls_retries") ?? "0")
+        if(retries < 3) {
+          window.localStorage.setItem("bls_retries", (retries + 1).toString())
+          location.reload()
+          return;
+        } else {
+          alert('Failed to initialize BLS after several retries - try restarting your browser, and contact us if this issue persists.');
+          window.localStorage.setItem("bls_retries", "0")
+          return;
+        }
+      }
+
+      window.localStorage.setItem("bls_retries", "0")
       const pushTxResp = await pushTx(destinationChain.rpcUrl, sb)
       if (!pushTxResp.success) {
         const sbJson = sbToJSON(sb)
