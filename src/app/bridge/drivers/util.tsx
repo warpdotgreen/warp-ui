@@ -51,5 +51,5 @@ export async function initializeBLSWithRetries(): Promise<boolean> {
     }
   }
 
-  return retries < 7;
+  return retries < 3;
 }
