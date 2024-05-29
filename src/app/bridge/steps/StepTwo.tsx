@@ -229,7 +229,7 @@ function EthereumValidationTextElement({
 }) {
   const router = useRouter()
   const chainId = useChainId()
-  const { switchChainAsync } = useSwitchChain({ config: wagmiConfig })
+  const { switchChain } = useSwitchChain({ config: wagmiConfig })
   const blockNumberResp = useBlockNumber({
     watch: true,
   })
@@ -248,10 +248,11 @@ function EthereumValidationTextElement({
   ])
 
   useEffect(() => {
+    console.log({ chainId, sourceChainChainId: sourceChain.chainId })
     if(chainId !== sourceChain.chainId) {
-      switchChainAsync({ chainId: sourceChain.chainId! })
+      switchChain({ chainId: sourceChain.chainId! })
     }
-  }, [switchChainAsync, chainId, sourceChain.chainId])
+  }, [switchChain, chainId, sourceChain.chainId])
 
   return (
     <span className="animate-in fade-in slide-in-from-bottom-2 duration-500">Confirming transaction ({Math.max(Math.min(parseInt(currentConfirmations.toString()), sourceChain.confirmationMinHeight), 0)}/{sourceChain.confirmationMinHeight})</span>
