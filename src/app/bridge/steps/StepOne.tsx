@@ -437,16 +437,24 @@ function ChiaButton({
 
       if(nonce.length == 0) {
         if(offer.length > 0) {
-          location.reload()
+          const retries = parseInt(window.localStorage.getItem("bls_retries") ?? "0")
+          if(retries < 3) {
+            window.localStorage.setItem("bls_retries", (retries + 1).toString())
+            location.reload()
+          } else {
+            alert('Failed to initialize BLS after several retries - try restarting your browser, and contact us if this issue persists.');
+            return;
+          }
         }
       }
 
+      window.localStorage.setItem("bls_retries", "0")
       const pushTxResp = await pushTx(sourceChain.rpcUrl, sb)
       if (!pushTxResp.success) {
         const sbJson = sbToJSON(sb)
         await navigator.clipboard.writeText(JSON.stringify(sbJson, null, 2))
         console.error(pushTxResp)
-        toast.error("Failed to push transaction", { description: "Please check console for more details.", duration: 20000, id: "Failed to push transaction" })
+        toast.error("Failed to push transaction", { description: "Please check console for more details. Refresh the page to try again.", duration: 20000, id: "Failed to push transaction" })
         setStatus("Failed to push tx")
         return
       } else {

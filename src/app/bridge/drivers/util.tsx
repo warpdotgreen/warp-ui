@@ -35,7 +35,7 @@ export async function buildSpendBundle(
 
 export async function initializeBLSWithRetries(): Promise<boolean> {
   let retries = 0;
-  while (retries < 3) {
+  while (retries < 2) {
     try {
       await initializeBLS();
       GreenWeb.util.key.mnemonic.privateKeyFromMnemonic(
@@ -51,5 +51,5 @@ export async function initializeBLSWithRetries(): Promise<boolean> {
     }
   }
 
-  return retries < 3;
+  return retries < 2;
 }
