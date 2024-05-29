@@ -1,7 +1,7 @@
 "use client"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Network, NetworkType, TOKENS } from "../config"
-import { useBlockNumber, useReadContract, useWaitForTransactionReceipt } from "wagmi"
+import { Network, NetworkType, TOKENS, wagmiConfig } from "../config"
+import { useBlockNumber, useChainId, useReadContract, useSwitchChain, useWaitForTransactionReceipt } from "wagmi"
 import { useEffect, useState } from "react"
 import { ethers } from "ethers"
 import { getStepThreeURL, getStepTwoURL } from "./urls"
@@ -228,6 +228,8 @@ function EthereumValidationTextElement({
   destinationChain: Network,
 }) {
   const router = useRouter()
+  const chainId = useChainId()
+  const { switchChainAsync } = useSwitchChain({ config: wagmiConfig })
   const blockNumberResp = useBlockNumber({
     watch: true,
   })
@@ -244,6 +246,12 @@ function EthereumValidationTextElement({
   }, [
     txReceipt, currentConfirmations, sourceChain.confirmationMinHeight, sourceChain.id, destinationChain.id, router
   ])
+
+  useEffect(() => {
+    if(chainId !== sourceChain.chainId) {
+      switchChainAsync({ chainId: sourceChain.chainId! })
+    }
+  }, [switchChainAsync, chainId, sourceChain.chainId])
 
   return (
     <span className="animate-in fade-in slide-in-from-bottom-2 duration-500">Confirming transaction ({Math.max(Math.min(parseInt(currentConfirmations.toString()), sourceChain.confirmationMinHeight), 0)}/{sourceChain.confirmationMinHeight})</span>

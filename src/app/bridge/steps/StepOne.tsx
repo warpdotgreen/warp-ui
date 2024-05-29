@@ -443,7 +443,8 @@ function ChiaButton({
             location.reload()
             return;
           } else {
-            alert('Failed to initialize BLS after several retries - try restarting your browser, and contact us if this issue persists.');
+            navigator.clipboard.writeText(location.href)
+            alert('Failed to initialize BLS after several retries - try restarting your browser, and contact us if this issue persists. Current URL has been copied to your clipboard so you can return to it more easily.');
             window.localStorage.setItem("bls_retries", "0")
             return;
           }
