@@ -35,13 +35,13 @@ export async function buildSpendBundle(
 
 export async function initializeBLSWithRetries(): Promise<boolean> {
   let retries = 0;
-  while (retries < 7) {
+  while (retries < 3) {
     try {
       await initializeBLS();
       break;
     } catch (e) {
       console.error("Error initializing BLS", e);
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       retries += 1;
     }
   }
