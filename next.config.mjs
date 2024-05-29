@@ -11,13 +11,13 @@ const nextConfig = {
       // Replace 'fs' with an empty module on the client-side
       config.resolve.fallback = { fs: false };
 
-      // config.plugins.push(
-      //   new CopyPlugin({
-      //     patterns: [
-      //       { from: 'public/blsjs.wasm', to: 'static/chunks' }
-      //     ],
-      //   })
-      // );
+      config.plugins.push(
+        new CopyPlugin({
+          patterns: [
+            { from: 'public/blsjs.wasm', to: 'static/chunks' }
+          ],
+        })
+      );
     }
 
     config.externals.push('pino-pretty', 'lokijs', 'encoding')
