@@ -155,6 +155,19 @@ function EVMValidationTextElement({
       }))
     },
   })
+  
+  const chainId = useChainId()
+  const { switchChain } = useSwitchChain({ config: wagmiConfig })
+  useEffect(() => {
+    if(chainId !== sourceChain.chainId) {
+      console.log({
+          message: "requesting user to switch network",
+          currentChainId: chainId,
+          tatgetChainId: sourceChain.chainId
+      })
+      switchChain({ chainId: sourceChain.chainId! })
+    }
+  }, [switchChain, chainId, sourceChain.chainId])
 
   if (!txReceipt.isSuccess) {
     return (
@@ -228,8 +241,6 @@ function EthereumValidationTextElement({
   destinationChain: Network,
 }) {
   const router = useRouter()
-  const chainId = useChainId()
-  const { switchChain } = useSwitchChain({ config: wagmiConfig })
   const blockNumberResp = useBlockNumber({
     watch: true,
   })
@@ -246,13 +257,6 @@ function EthereumValidationTextElement({
   }, [
     txReceipt, currentConfirmations, sourceChain.confirmationMinHeight, sourceChain.id, destinationChain.id, router
   ])
-
-  useEffect(() => {
-    console.log({ chainId, sourceChainChainId: sourceChain.chainId })
-    if(chainId !== sourceChain.chainId) {
-      switchChain({ chainId: sourceChain.chainId! })
-    }
-  }, [switchChain, chainId, sourceChain.chainId])
 
   return (
     <span className="animate-in fade-in slide-in-from-bottom-2 duration-500">Confirming transaction ({Math.max(Math.min(parseInt(currentConfirmations.toString()), sourceChain.confirmationMinHeight), 0)}/{sourceChain.confirmationMinHeight})</span>
