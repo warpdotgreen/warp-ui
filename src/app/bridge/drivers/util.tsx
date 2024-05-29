@@ -38,7 +38,11 @@ export async function initializeBLSWithRetries(): Promise<boolean> {
   while (retries < 3) {
     try {
       await initializeBLS();
-      getBLSModule();
+      GreenWeb.util.key.mnemonic.privateKeyFromMnemonic(
+        GreenWeb.util.key.mnemonic.bytesToMnemonic(
+          require('crypto').randomBytes(32).toString('hex')
+        )
+      ); // will throw exception if BLS was not initialized
       break;
     } catch (e) {
       console.error("Error initializing BLS", e);
