@@ -450,6 +450,12 @@ function ChiaButton({
         setStatus("Failed to push tx")
         return
       } else {
+        if(pushTxResp.status !== "SUCCESS") {
+          alert(`Transaction push failed - you might be using a fee that is too low`)
+          router.back()
+          return;
+        }
+
         router.push(getStepTwoURL({
           sourceNetworkId: sourceChain.id,
           destinationNetworkId: destinationChain.id,
@@ -457,7 +463,7 @@ function ChiaButton({
         }))
       }
     };
-    
+
     if(offer.length > 0) {
       doStuffWithOfferPls();
     }

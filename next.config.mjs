@@ -14,7 +14,7 @@ const nextConfig = {
       config.plugins.push(
         new CopyPlugin({
           patterns: [
-            { from: 'public/blsjs.wasm', to: 'static/chunks' }
+            // { from: 'public/blsjs.wasm', to: 'static/chunks' }
           ],
         })
       );

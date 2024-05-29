@@ -248,6 +248,12 @@ function StepThreeCoinsetDestination({
         toast.error("Failed to push transaction - please check console for more details.", { duration: 20000, id: "failed-to-push-transaction" })
         console.error(pushTxResp)
       } else {
+        if(pushTxResp.status !== "SUCCESS") {
+          alert(`Transaction push failed - you might be using a fee that is too low`)
+          router.back()
+          return;
+        }
+
         router.push(getStepThreeURL({
           sourceNetworkId: sourceChain.id,
           destinationNetworkId: destinationChain.id,
