@@ -441,8 +441,10 @@ function ChiaButton({
           if(retries < 3) {
             window.localStorage.setItem("bls_retries", (retries + 1).toString())
             location.reload()
+            return;
           } else {
             alert('Failed to initialize BLS after several retries - try restarting your browser, and contact us if this issue persists.');
+            window.localStorage.setItem("bls_retries", "0")
             return;
           }
         }
