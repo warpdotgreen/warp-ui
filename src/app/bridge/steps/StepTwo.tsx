@@ -1,7 +1,7 @@
 "use client"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Network, NetworkType, TOKENS } from "../config"
-import { useBlockNumber, useReadContract, useWaitForTransactionReceipt } from "wagmi"
+import { Network, NetworkType, TOKENS, wagmiConfig } from "../config"
+import { useBlockNumber, useChainId, useReadContract, useSwitchChain, useWaitForTransactionReceipt } from "wagmi"
 import { useEffect, useState } from "react"
 import { ethers } from "ethers"
 import { getStepThreeURL, getStepTwoURL } from "./urls"
@@ -155,6 +155,19 @@ function EVMValidationTextElement({
       }))
     },
   })
+  
+  const chainId = useChainId()
+  const { switchChain } = useSwitchChain({ config: wagmiConfig })
+  useEffect(() => {
+    if(chainId !== sourceChain.chainId) {
+      console.log({
+          message: "requesting user to switch network",
+          currentChainId: chainId,
+          tatgetChainId: sourceChain.chainId
+      })
+      switchChain({ chainId: sourceChain.chainId! })
+    }
+  }, [switchChain, chainId, sourceChain.chainId])
 
   if (!txReceipt.isSuccess) {
     return (

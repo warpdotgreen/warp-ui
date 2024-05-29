@@ -35,16 +35,21 @@ export async function buildSpendBundle(
 
 export async function initializeBLSWithRetries(): Promise<boolean> {
   let retries = 0;
-  while (retries < 7) {
+  while (retries < 2) {
     try {
       await initializeBLS();
+      GreenWeb.util.key.mnemonic.privateKeyFromMnemonic(
+        GreenWeb.util.key.mnemonic.bytesToMnemonic(
+          require('crypto').randomBytes(32).toString('hex')
+        )
+      ); // will throw exception if BLS was not initialized
       break;
     } catch (e) {
       console.error("Error initializing BLS", e);
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       retries += 1;
     }
   }
 
-  return retries < 7;
+  return retries < 2;
 }

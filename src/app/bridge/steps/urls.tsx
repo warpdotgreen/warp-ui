@@ -3,23 +3,33 @@ export function getStepOneURL({
   destinationNetworkId,
   tokenSymbol,
   recipient,
-  amount
+  amount,
+  offer
 }: {
   sourceNetworkId: string,
   destinationNetworkId: string,
   tokenSymbol: string,
   recipient: string,
   amount: string,
+  offer?: string
 }): string {
-  const queryString = new URLSearchParams({
+  let params: any = {
     step: "1",
     from: sourceNetworkId,
     to: destinationNetworkId,
     token: tokenSymbol,
     recipient,
     amount,
-  }).toString();
+  };
 
+  if(offer) {
+    params = {
+      ...params,
+      offer,
+    };
+  }
+
+  const queryString = new URLSearchParams(params).toString();
   return `/bridge?${queryString}`;
 }
 

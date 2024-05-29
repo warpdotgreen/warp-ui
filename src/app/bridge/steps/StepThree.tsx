@@ -241,6 +241,22 @@ function StepThreeCoinsetDestination({
         }
       }
 
+
+      if(txId!.length == 0) {
+        const retries = parseInt(window.localStorage.getItem("bls_retries") ?? "0")
+        if(retries < 3) {
+          window.localStorage.setItem("bls_retries", (retries + 1).toString())
+          location.reload()
+          return;
+        } else {
+          navigator.clipboard.writeText(location.href)
+          alert('Failed to initialize BLS after several retries - try restarting your browser, and contact us if this issue persists. Current URL has been copied to your clipboard - you can also view pending operations at warp.green/explorer');
+          window.localStorage.setItem("bls_retries", "0")
+          return;
+        }
+      }
+
+      window.localStorage.setItem("bls_retries", "0")
       const pushTxResp = await pushTx(destinationChain.rpcUrl, sb)
       if (!pushTxResp.success) {
         const sbJson = sbToJSON(sb)
@@ -248,6 +264,12 @@ function StepThreeCoinsetDestination({
         toast.error("Failed to push transaction - please check console for more details.", { duration: 20000, id: "failed-to-push-transaction" })
         console.error(pushTxResp)
       } else {
+        if(pushTxResp.status !== "SUCCESS") {
+          alert(`Transaction push failed - you might be using a fee that is too low`)
+          router.back()
+          return;
+        }
+
         router.push(getStepThreeURL({
           sourceNetworkId: sourceChain.id,
           destinationNetworkId: destinationChain.id,

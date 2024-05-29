@@ -6,7 +6,7 @@ import { ethers } from "ethers"
 import { useAccount, useReadContract, useTransactionConfirmations, useWriteContract, useChainId, useConfig, useSwitchChain, useBalance, useReadContracts } from "wagmi"
 import * as GreenWeb from 'greenwebjs'
 import { useEffect, useState } from "react"
-import { getStepTwoURL } from "./urls"
+import { getStepOneURL, getStepTwoURL } from "./urls"
 import { USDTABI, erc20ABI, ERC20BridgeABI, WrappedCATABI } from "../drivers/abis"
 import { burnCATs } from "../drivers/erc20bridge"
 import { lockCATs } from "../drivers/catbridge"
@@ -408,16 +408,77 @@ function ChiaButton({
   amountMojo: bigint
 }) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [status, setStatus] = useState("")
   const { createOffer } = useWallet()
 
-  if(recipient.includes("00".repeat(20)) || recipient === undefined || recipient === null || recipient.length !== 42) {
-    toast.error("Invalid recipient address", { description: "Please reconnect your Ethereum wallet.", duration: 7000, id: "invalid-recipient" })
-    router.push("/bridge")
-    return <></>
-  }
+  const offer = searchParams.get('offer') ?? "";
 
   const tokenInfo = token.supported.find((supported) => supported.coinsetNetworkId === sourceChain.id && supported.evmNetworkId === destinationChain.id)!
+
+  useEffect(() => {
+    const doStuffWithOfferPls = async () => {
+      const [sb, nonce] = await (token.sourceNetworkType == NetworkType.EVM ? burnCATs(
+        offer,
+        sourceChain,
+        destinationChain,
+        tokenInfo.contractAddress,
+        recipient,
+        setStatus
+      ) : lockCATs(
+        offer,
+        destinationChain,
+        sourceChain,
+        tokenInfo.assetId == "00".repeat(32) ? null : tokenInfo.assetId,
+        tokenInfo.contractAddress,
+        recipient,
+        setStatus
+      ))
+
+      if(nonce.length == 0) {
+        if(offer.length > 0) {
+          const retries = parseInt(window.localStorage.getItem("bls_retries") ?? "0")
+          if(retries < 3) {
+            window.localStorage.setItem("bls_retries", (retries + 1).toString())
+            location.reload()
+            return;
+          } else {
+            navigator.clipboard.writeText(location.href)
+            alert('Failed to initialize BLS after several retries - try restarting your browser, and contact us if this issue persists. Current URL has been copied to your clipboard so you can return to it more easily.');
+            window.localStorage.setItem("bls_retries", "0")
+            return;
+          }
+        }
+      }
+
+      window.localStorage.setItem("bls_retries", "0")
+      const pushTxResp = await pushTx(sourceChain.rpcUrl, sb)
+      if (!pushTxResp.success) {
+        const sbJson = sbToJSON(sb)
+        await navigator.clipboard.writeText(JSON.stringify(sbJson, null, 2))
+        console.error(pushTxResp)
+        toast.error("Failed to push transaction", { description: "Please check console for more details. Refresh the page to try again.", duration: 20000, id: "Failed to push transaction" })
+        setStatus("Failed to push tx")
+        return
+      } else {
+        if(pushTxResp.status !== "SUCCESS") {
+          alert(`Transaction push failed - you might be using a fee that is too low`)
+          router.back()
+          return;
+        }
+
+        router.push(getStepTwoURL({
+          sourceNetworkId: sourceChain.id,
+          destinationNetworkId: destinationChain.id,
+          txHash: nonce,
+        }))
+      }
+    };
+
+    if(offer.length > 0) {
+      doStuffWithOfferPls();
+    }
+  }, [offer, destinationChain, sourceChain, recipient, router, searchParams, token, tokenInfo])
 
   var offerMojoAmount = BigInt(sourceChain.messageToll)
   if (token.sourceNetworkType == NetworkType.EVM) {
@@ -447,43 +508,21 @@ function ChiaButton({
   })
   offerReqString += `${ethers.formatUnits(offerMojoAmount, 12)} XCH`;
 
-  const doStuffWithOffer = async (offer: any) => {
-    const [sb, nonce] = await (token.sourceNetworkType == NetworkType.EVM ? burnCATs(
-      offer,
-      sourceChain,
-      destinationChain,
-      tokenInfo.contractAddress,
+  const doStuffWithOffer = async (offer: string) => {
+    router.push(getStepOneURL({
+      sourceNetworkId: sourceChain.id,
+      destinationNetworkId: destinationChain.id,
+      tokenSymbol: token.symbol,
       recipient,
-      setStatus
-    ) : lockCATs(
-      offer,
-      destinationChain,
-      sourceChain,
-      tokenInfo.assetId == "00".repeat(32) ? null : tokenInfo.assetId,
-      tokenInfo.contractAddress,
-      recipient,
-      setStatus
-    ))
+      amount: searchParams.get('amount') as string,
+      offer
+    }))
+  }
 
-    if(nonce.length == 0) {
-      router.push("/bridge");
-    }
-
-    const pushTxResp = await pushTx(sourceChain.rpcUrl, sb)
-    if (!pushTxResp.success) {
-      const sbJson = sbToJSON(sb)
-      await navigator.clipboard.writeText(JSON.stringify(sbJson, null, 2))
-      console.error(pushTxResp)
-      toast.error("Failed to push transaction", { description: "Please check console for more details.", duration: 20000, id: "Failed to push transaction" })
-      setStatus("")
-      return
-    } else {
-      router.push(getStepTwoURL({
-        sourceNetworkId: sourceChain.id,
-        destinationNetworkId: destinationChain.id,
-        txHash: nonce,
-      }))
-    }
+  if(recipient.includes("00".repeat(20)) || recipient === undefined || recipient === null || recipient.length !== 42) {
+    toast.error("Invalid recipient address", { description: "Please reconnect your Ethereum wallet.", duration: 7000, id: "invalid-recipient" })
+    router.push("/bridge")
+    return <></>
   }
 
   const initiateBridgingFromChiaToEVM = async () => {
@@ -504,7 +543,7 @@ function ChiaButton({
       return
     }
 
-    await doStuffWithOffer(offer);
+    await doStuffWithOffer(offer)
   }
 
   if (status.length > 0) {

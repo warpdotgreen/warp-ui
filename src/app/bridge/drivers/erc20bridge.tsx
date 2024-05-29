@@ -1,11 +1,10 @@
 import * as GreenWeb from 'greenwebjs';
-import { SExp, getBLSModule } from "clvm";
+import { SExp } from "clvm";
 import { CAT_MOD_HASH, getCATPuzzle, getCATSolution } from './cat';
 import { BRIDGING_PUZZLE_HASH, getMessageCoinPuzzle1stCurry, getSecurityCoinSig, messageContentsAsSexp, RawMessage, receiveMessageAndSpendMessageCoin, spendOutgoingMessageCoin } from './portal';
 import { CHIA_NETWORK, Network } from '../config';
 import { OFFER_MOD, OFFER_MOD_HASH, parseXCHAndCATOffer, parseXCHOffer } from './offer';
 import { buildSpendBundle, initializeBLSWithRetries, stringToHex } from './util';
-import { toast } from 'sonner';
 
 /*
 >>> from drivers.wrapped_assets import CAT_BURNER_MOD
@@ -423,8 +422,7 @@ export async function mintCATs(
   const blsInitialized = await initializeBLSWithRetries();
   if(!blsInitialized) {
     updateStatus("Failed to initialize BLS");
-    toast.error("Failed to initialize BLS - please delete your offer, click the back button, and restart the process.", { duration: 20000, id: "failed-to-initialize-bls" })
-    throw new Error("Failed to initialize BLS");
+    return [new GreenWeb.util.serializer.types.SpendBundle(), ""];
   }
   
   updateStatus("Parsing offer...");
@@ -578,7 +576,7 @@ export async function burnCATs(
   evmNetwork: Network, // destination chain
   tokenContractAddress: string,
   ethTokenReceiverAddress: string,
-  updateStatus: (status: string) => void,
+  updateStatus: (status: string) => void
 ): Promise<[
   InstanceType<typeof GreenWeb.util.serializer.types.SpendBundle>, // sb
   string // txId
@@ -607,8 +605,7 @@ export async function burnCATs(
   const blsInitialized = await initializeBLSWithRetries();
   if(!blsInitialized) {
     updateStatus("Failed to initialize BLS");
-    toast.error("Failed to initialize BLS - please delete your offer, click the back button, and restart the process.", { duration: 20000, id: "failed-to-initialize-bls" })
-    throw new Error("Failed to initialize BLS");
+    return [new GreenWeb.util.serializer.types.SpendBundle(), ""];
   }
 
   const coinSpends: InstanceType<typeof GreenWeb.CoinSpend>[] = [];
