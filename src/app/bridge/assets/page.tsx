@@ -77,7 +77,7 @@ function getChainIcon(chainDisplayName: string) {
     case "Base":
       return <BaseIcon className="w-6 h-auto shrink-0" />
     case "Chia":
-      return <ChiaIcon className="w-6 h-auto shrink-0" />
+      return <ChiaIcon className="w-6 h-auto shrink-0 object-scale-down" />
     default:
       console.error("Incorrect chain name")
       return <></>

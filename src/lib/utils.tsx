@@ -31,7 +31,7 @@ export function getChainIcon(chainName: string, className?: string) {
     case "Base":
       return <BaseIcon className={cn("w-8 h-auto shrink-0", className)} />
     case "Chia":
-      return <ChiaIcon className={cn("w-8 h-auto shrink-0", className)} />
+      return <ChiaIcon className={cn("w-8 h-auto shrink-0 object-scale-down", className)} />
     case "Ethereum":
       return <ETHIcon className={cn("w-8 h-auto shrink-0", className)} />
     default:

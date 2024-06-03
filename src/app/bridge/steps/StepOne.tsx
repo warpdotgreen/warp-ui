@@ -125,7 +125,7 @@ export default function StepOne({
         sourceChainIcon = <BaseIcon className="w-6 h-auto shrink-0" />
         break
       case "Chia":
-        sourceChainIcon = <ChiaIcon className="w-6 h-auto shrink-0" />
+        sourceChainIcon = <ChiaIcon className="w-6 h-auto shrink-0 object-scale-down" />
         break
       case "Ethereum":
         sourceChainIcon = <ETHIcon className="w-6 h-auto shrink-0" />
@@ -138,7 +138,7 @@ export default function StepOne({
         destinationChainIcon = <BaseIcon className="w-6 h-auto shrink-0" />
         break
       case "Chia":
-        destinationChainIcon = <ChiaIcon className="w-6 h-auto shrink-0" />
+        destinationChainIcon = <ChiaIcon className="w-6 h-auto shrink-0 object-scale-down" />
         break
       case "Ethereum":
         destinationChainIcon = <ETHIcon className="w-6 h-auto shrink-0" />
