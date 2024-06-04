@@ -111,14 +111,14 @@ function SupportedNetworksCard() {
     <div className="flex h-full justify-between w-full items-center sm:mx-8">
       <div className="relative">
         <div className="w-20 h-20 sm:w-24 aspect-square sm:h-auto p-3 rounded-full border border-zinc-700 bg-zinc-900 bg-opacity-50 hover:bg-opacity-90 flex items-center justify-center">
-          <img src="https://raw.githubusercontent.com/base-org/brand-kit/main/logo/symbol/Base_Symbol_Blue.svg" alt="Network" className="w-full h-full rounded-full object-cover" />
+          <img src="https://raw.githubusercontent.com/base-org/brand-kit/main/logo/symbol/Base_Symbol_Blue.svg" alt="Network" className="w-full h-full rounded-full object-scale-down" />
         </div>
         <p className="text-center text-zinc-300 pt-2">Base</p>
       </div>
       <div className="w-full h-px bg-zinc-700 flex-grow relative mb-8"></div>
       <div className="relative">
         <div className="w-20 h-20 sm:w-24 aspect-square sm:h-auto p-2 rounded-full border border-zinc-700 bg-zinc-900 bg-opacity-50 hover:bg-opacity-90 flex items-center justify-center">
-          <img src="https://www.chia.net/wp-content/uploads/2023/06/chia_icon_green-hex5ECE71.svg?w=64" alt="Network" className="w-full h-full rounded-full object-cover" />
+          <img src="https://www.chia.net/wp-content/uploads/2023/06/chia_icon_green-hex5ECE71.svg?w=64" alt="Network" className="w-full h-full rounded-full object-scale-down" />
         </div>
         <p className="text-center text-zinc-300 pt-2">Chia</p>
       </div>
@@ -127,7 +127,7 @@ function SupportedNetworksCard() {
         <div className="w-20 h-20 sm:w-24 aspect-square sm:h-auto p-3 rounded-full border border-zinc-700 bg-zinc-900 bg-opacity-50 hover:bg-opacity-90 flex items-center justify-center">
           {/* <img src="https://raw.githubusercontent.com/ethereum/ethereum-org-website/dev/public/assets/eth-diamond-black-gray.png" alt="Network" className="w-full h-full rounded-full object-cover" /> */}
           {/* <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Ethereum_logo_2014.svg" alt="Network" className="w-full h-full rounded-full object-cover" /> */}
-          <svg className="w-full h-full rounded-full object-cover" width="256px" height="417px" viewBox="0 0 256 417" version="1.1" preserveAspectRatio="xMidYMid">
+          <svg className="w-full h-full rounded-full object-scale-down" width="256px" height="417px" viewBox="0 0 256 417" version="1.1" preserveAspectRatio="xMidYMid">
             <g>
               <polygon fill="#343434" points="127.9611 0 125.1661 9.5 125.1661 285.168 127.9611 287.958 255.9231 212.32" />
               <polygon fill="#8C8C8C" points="127.962 0 0 212.32 127.962 287.959 127.962 154.158" />
