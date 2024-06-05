@@ -6,7 +6,7 @@ import { getWrappedERC20AssetID } from "./drivers/erc20bridge"
 
 export const TESTNET = process.env.NEXT_PUBLIC_TESTNET === "true";
 
-export const WATCHER_API_ROOT = TESTNET ? 'https://test-watcher.fireacademy.io/' : 'https://watcher-api.warp.green/';
+export const WATCHER_API_ROOT = TESTNET ? 'https://watcher-api.testnet.warp.green/' : 'https://watcher-api.warp.green/';
 export const STATUS_URL = TESTNET ? 'https://warp-validators.bufflehead.org/' : 'https://status.warp.green/';
 
 export enum NetworkType {
@@ -53,33 +53,35 @@ export const CHIA_NETWORK: Network = TESTNET ? {
   validatorInfos: [
     "a60bffc4d51fa503ea6f12053a956de4cbb27a343453643e07eacddde06e7262e4fcd32653d61a731407a1d7e2d6ab2c",
     "89f91c357ce08b0cf4b191c1dea75917fa576a9713731f5d6623c28f421b26c6405b97f403f042100534f2546c12ba06",
-    "85e07033fd3f31e73e476e21a3723434138a865edeab36e7debaea928f88ce14a05599d2ac5dfc41860b0159e6f7efb3",
-    "a166b08281b6f29d858e1723a85ca4581740b09ad3f38f35db5038ebd06162cf45d41d13acb290b392db3b10dbb230eb",
     "944b6949e5af6bc4ecf37c858a3e1797f777528f58778aac0c2bf2ca7946273e3f2f1e90600f6fd05d68cc5747c8d9b9",
-    "ac639eb21a717dfd51b1a0a84ba6febf0d359e61f960fbfc87796303d9e0f0c5ebb277b1713391adbfb0dbc3e0eb1bbc",
-    "98fc5a235bd0880fb9f8de1fb57c67fd468ff2b1989edb1925e80ea359579a7668b6b77777b06d69c6ddfffd626407eb",
-    "a1b99088e104d9a7c5c2c5638a9ea70f0c5b8e14be9b379520b5aa7a9286ae5472789fe2ac3a96288b2fa2c3105e1ec8",
-    "aadb92c683f0e05bc75a106adfb604e1be75ab58ca10a5fe9f5e95cbd300302f213d63176f69427fbbc54d6146bd4b54",
     "97778660463afdee77fe8ff762faceefbd28b25506d26c584d9cd5a8eb77799fe5cc0b4df04c0004285868d5528aaba0",
-    "b59977c6144eb5e666c7276fda1bf15a1ee23ca57f63487ae8c5694d69a7eac24ed3036d8562749f4586f10a2d51f3eb"
+    "ac639eb21a717dfd51b1a0a84ba6febf0d359e61f960fbfc87796303d9e0f0c5ebb277b1713391adbfb0dbc3e0eb1bbc",
+    "b6e28d4b220eed803baf166de100dd4252c088e87884430ac9a6b7cbc77fd07b89e7ed312bd54c1cc4ab27c23bec7add",
+    "aadb92c683f0e05bc75a106adfb604e1be75ab58ca10a5fe9f5e95cbd300302f213d63176f69427fbbc54d6146bd4b54",
+    "85e07033fd3f31e73e476e21a3723434138a865edeab36e7debaea928f88ce14a05599d2ac5dfc41860b0159e6f7efb3",
+    "98fc5a235bd0880fb9f8de1fb57c67fd468ff2b1989edb1925e80ea359579a7668b6b77777b06d69c6ddfffd626407eb",
+    "b8322e6079ef33975028b44dae0c632396e2503982e0c8eb73d3b55343e6ffd75e49f1006db7d49b5151438c83cec351",
+    "a1b99088e104d9a7c5c2c5638a9ea70f0c5b8e14be9b379520b5aa7a9286ae5472789fe2ac3a96288b2fa2c3105e1ec8",
+    "c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
   ],
-  multisigThreshold: 3,
+  multisigThreshold: 2,
   multisigInfos: [
     "b93c773fd448927ad5a77d543aa9a2043dad8ab9d8a8ac505317d6542ffdb1b6b74e9e85e734b8ca8264de49b6231a38",
     "8a31dd7d168290b7e4ce878fb42db54bdb4fe4b0f55f0c7208b138f96b8329706a44da6adba4e92b5c3bd6251436cd98",
-    "b5bd04adb90273d97a458b5e42d4930ab35643203131c22d53ac312026da74fda64c71216fc6db263063262266c45727",
-    "836324ba44d7e1f2290a1ccf4c3c2d064c5047619981198ec4059165d85c06a1fd214da2b1b58603254f9b48637a9db1",
     "aa5ea815c1c0e70882b532bb7462a2d8ba68817a4ccfb728214382217b671fd534e19b869ad404ecd5c7852520c6f0c0",
-    "9322d4a1f8d078b81ea674947ba2420f4175f38483d7ac60dc3ff4de3d27cf33bb1c06cb7638467536ef766533a7ad79",
-    "84b00e171a571b5904e48cdf456bf2861d37f01961c8b641a66974c70f49393fc55ba4b05543ca2894e8f6c7daad0719",
-    "a56731d87b2240a9cfae3bc77e2af3c9f41fb7fca6393d721a2114041db03e58a6b986301c6281eb51d031a165ae5e1a",
-    "813dcc8c4870df68416f14253a559aa0e088db84a46b9fe3e442eb6dbc2a1cb5381e2e862927a2743a1903889aadad1b",
     "8a8b61dcb5e2a8455e4b5d7782e70f96bc7667bccb4ea4a13492eb12244df2ec30f8785d579d9b0273461510bc0c497e",
-    "a7b9970795c085979ca94b54e5c1b8e4ee96104dac690c01175b138b327c85e2537e53dc97189ecca57b629d3283bdca"
+    "9322d4a1f8d078b81ea674947ba2420f4175f38483d7ac60dc3ff4de3d27cf33bb1c06cb7638467536ef766533a7ad79",
+    "a7b9970795c085979ca94b54e5c1b8e4ee96104dac690c01175b138b327c85e2537e53dc97189ecca57b629d3283bdca",
+    "813dcc8c4870df68416f14253a559aa0e088db84a46b9fe3e442eb6dbc2a1cb5381e2e862927a2743a1903889aadad1b",
+    "b5bd04adb90273d97a458b5e42d4930ab35643203131c22d53ac312026da74fda64c71216fc6db263063262266c45727",
+    "84b00e171a571b5904e48cdf456bf2861d37f01961c8b641a66974c70f49393fc55ba4b05543ca2894e8f6c7daad0719",
+    "a0d0dc619cdca2045c2cfde7e7884d60e71c7216a21cb3a327f76767f19516069a6c4552673a48d4b14e2bc46eebc069",
+    "a56731d87b2240a9cfae3bc77e2af3c9f41fb7fca6393d721a2114041db03e58a6b986301c6281eb51d031a165ae5e1a",
+    "c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
   ],
   confirmationMinHeight: 5,
   prefix: "txch",
-  portalLauncherId: "ed3ae61bacb1479b2ab8a771b758bc551ec8ba5c930bce002f30ae8a34a06abe",
+  portalLauncherId: "eca7eca48e658d45a752d2b31ca47e5683c1c86de7f7cb5c3285ef6ec56e10f5",
   aggSigData: "37a90eb5185a9c4439a91ddc98bbadce7b4feba060d50116a067de66bf236615",
 } : { // mainnet
   displayName: 'Chia',
@@ -137,19 +139,19 @@ export const ETHEREUM_NETWORK: Network = TESTNET ? {
   validatorInfos: [
     "0x113f132a978B7679Aa72c02B0234a32569507043",
     "0xC1cF931aE32e7592fa25f5a0978B7663f20aafBd",
-    "0xE42277e12F577810e73f70b42e184dd5BcD30ce6",
-    "0x5110FB4762021ad3954Bdf2caBF4510C0ACd6d2f",
     "0x716f7ff65adcbBc68cb5bF34178C87aBC2B08ab6",
-    "0x7d325C4783F9F572Fde31Ae358e28Cc3d120Cd8A",
-    "0x92c02A599E056B2706f74421f4250951E1f736ab",
-    "0xcF46Dd34bB1B1a4c5dCC9aEed02E494180C637f1",
-    "0x144eE8FaB13Eed04b5A8F339105076B8BC51cAF2",
     "0xfB347BbC9C21CD71B0D86ffa99d2667372DBCa8B",
-    "0x9EC3559492Cd4F1109EE6467B052184F79C28fe7"
+    "0x7d325C4783F9F572Fde31Ae358e28Cc3d120Cd8A",
+    "0xEeec13CD790C47740DBcbacCA96D189962E3600F",
+    "0x144eE8FaB13Eed04b5A8F339105076B8BC51cAF2",
+    "0xE42277e12F577810e73f70b42e184dd5BcD30ce6",
+    "0x92c02A599E056B2706f74421f4250951E1f736ab",
+    "0xF187Be30D8681BF67A6a1D1c77663f0e19Fe2d7d",
+    "0xcF46Dd34bB1B1a4c5dCC9aEed02E494180C637f1"
   ],
   confirmationMinHeight: 64,
-  portalAddress: "0xB5651bA4DeaF815f5929243d6ACF99D2d7C113eb",
-  erc20BridgeAddress: "0xc733F712288f8B20201846bbE979a715Ff8F8Fcb",
+  portalAddress: "0x383D27dA16A24a2920b14aA93270Efccf32F4104",
+  erc20BridgeAddress: "0x0820a3512585dDBB720C25489DEcE6D9899C81b0",
 } : { // mainnet
   displayName: 'Ethereum',
   id: 'eth',
@@ -189,20 +191,20 @@ export const BASE_NETWORK: Network = TESTNET ? {
   validatorInfos: [
     "0x113f132a978B7679Aa72c02B0234a32569507043",
     "0xC1cF931aE32e7592fa25f5a0978B7663f20aafBd",
-    "0xE42277e12F577810e73f70b42e184dd5BcD30ce6",
-    "0x5110FB4762021ad3954Bdf2caBF4510C0ACd6d2f",
     "0x716f7ff65adcbBc68cb5bF34178C87aBC2B08ab6",
-    "0x7d325C4783F9F572Fde31Ae358e28Cc3d120Cd8A",
-    "0x92c02A599E056B2706f74421f4250951E1f736ab",
-    "0xcF46Dd34bB1B1a4c5dCC9aEed02E494180C637f1",
-    "0x144eE8FaB13Eed04b5A8F339105076B8BC51cAF2",
     "0xfB347BbC9C21CD71B0D86ffa99d2667372DBCa8B",
-    "0x9EC3559492Cd4F1109EE6467B052184F79C28fe7"
+    "0x7d325C4783F9F572Fde31Ae358e28Cc3d120Cd8A",
+    "0xEeec13CD790C47740DBcbacCA96D189962E3600F",
+    "0x144eE8FaB13Eed04b5A8F339105076B8BC51cAF2",
+    "0xE42277e12F577810e73f70b42e184dd5BcD30ce6",
+    "0x92c02A599E056B2706f74421f4250951E1f736ab",
+    "0xF187Be30D8681BF67A6a1D1c77663f0e19Fe2d7d",
+    "0xcF46Dd34bB1B1a4c5dCC9aEed02E494180C637f1"
   ],
   confirmationMinHeight: 10,
   l1BlockContractAddress: "0x4200000000000000000000000000000000000015",
-  portalAddress: "0xB0adb9dA8C730859cc659b4fda7Ec94b5884A4E1",
-  erc20BridgeAddress: "0x895bef3757f7965D8AA9Fcb30Bd1539e03E4a24E",
+  portalAddress: "0x1c14e49d74c4c8302CEFC58A08E3CE77Eb38A066",
+  erc20BridgeAddress: "0x1e15a85558042aa1378071853dA500D3A3669214",
 } : { // mainnet
   displayName: 'Base',
   id: 'bse',
@@ -251,10 +253,10 @@ export type Token = {
 }
 
 const MILLIETH_ADDRESS_ETHEREUM: `0x${string}` = TESTNET ?
- '0xFA2839748535B0eeAaCbbC932da6676DbFF45156' :
+ '0xc08Bce08391807CBa2cF76BcFD693ce82ba6d27C' :
  '0xf2D5d8eC69E2faed5eB4De90749c87ee314a4B12' // mainnet
 const MILLIETH_ADDRESS_BASE: `0x${string}` = TESTNET ?
- '0xE063EefEca08c1Ef7C42a90D39bA50A660a505C1' :
+ '0xf913766646C8E404183EbC8Ba1E3d379305CE155' :
  '0xf2D5d8eC69E2faed5eB4De90749c87ee314a4B12' // mainnet
 
 export const ETH_TOKEN: Token = {
@@ -314,8 +316,8 @@ const USDC_TOKEN_MAINNET_ONLY: Token = {
 }
 
 const XCH_ASSET_ID = "00".repeat(32)
-const WXCH_ADDRESS_BASE: `0x${string}` = TESTNET ? '0x092bA3a8CbF8126255E83f3D548085F9FB87F5C8' : '0x36be1d329444aeF5D28df3662Ec5B4F965Cd93E9'
-const WXCH_ADDRESS_ETHERUM: `0x${string}` = TESTNET ? '0xEC6a48BD01E7B031050FB1d1F4246abfd31114FA' : '0x1be362F422A862055dCFF627D33f9bD478e6C7d7'
+const WXCH_ADDRESS_BASE: `0x${string}` = TESTNET ? '0xf374cF9D090E19E8d39Db96eEDc8daf62a6C435a' : '0x36be1d329444aeF5D28df3662Ec5B4F965Cd93E9'
+const WXCH_ADDRESS_ETHERUM: `0x${string}` = TESTNET ? '0x3df856f8d94BAF6527b89Cf07fAFea447A4418CA' : '0x1be362F422A862055dCFF627D33f9bD478e6C7d7'
 export const XCH_TOKEN: Token = {
   symbol: 'XCH',
   sourceNetworkType: NetworkType.COINSET,
@@ -338,33 +340,19 @@ export const XCH_TOKEN: Token = {
 const DBX_ASSET_ID = TESTNET ? "d82dd03f8a9ad2f84353cd953c4de6b21dbaaf7de3ba3f4ddd9abe31ecba80ad" :
   "db1a9020d48d9d4ad22631b66ab4b9ebd3637ef7758ad38881348c5d24c38f20" // mainnet
 
-const WDBX_ADDRESS_ETHERUM_SEPOLIA: `0x${string}` = '0x5C5d6FA07c570DF689A34C9334B1DC9fe6E9dF1C'
-const WDBX_ADDRESS_BASE: `0x${string}` = TESTNET ? '0x2FD5f17f7F9284f1c12ff7bF45cB38df02519Ea5' :
+const WDBX_ADDRESS_BASE: `0x${string}` = TESTNET ? '0x360fE6604dC410BB98595C76E0aA4B7ba35d3B70' :
   '0x2dabfFED5584DAb0CA3f9A56BA849f97A08cAd9A' // mainnet
 
 export const DBX_TOKEN: Token = {
   symbol: 'DBX',
   sourceNetworkType: NetworkType.COINSET,
-  supported: TESTNET ? [
+  supported: [
     {
       evmNetworkId: BASE_NETWORK.id,
       coinsetNetworkId: CHIA_NETWORK.id,
       assetId: DBX_ASSET_ID,
       contractAddress: WDBX_ADDRESS_BASE
-    },
-    {
-      evmNetworkId: ETHEREUM_NETWORK.id,
-      coinsetNetworkId: CHIA_NETWORK.id,
-      assetId: DBX_ASSET_ID,
-      contractAddress: WDBX_ADDRESS_ETHERUM_SEPOLIA
     }
-  ] : [
-    {
-      evmNetworkId: BASE_NETWORK.id,
-      coinsetNetworkId: CHIA_NETWORK.id,
-      assetId: DBX_ASSET_ID,
-      contractAddress: WDBX_ADDRESS_BASE
-    },
   ]
 }
 
@@ -450,7 +438,14 @@ export const NOSTR_CONFIG = {
     "wss://test-relay.fireacademy.io",
     "wss://txch-relay.bufflehead.org",
     "wss://txch-relay.tns.cx",
-    "wss://test-relay.defibastion.com"
+    "wss://testnet-relay.spacescan.io",
+    "wss://relay.prime-tek.com",
+    "wss://testrelay.ozonewallet.io",
+    "wss://warpgreen-relay-test.232220.xyz",
+    "wss://testnet-relay.msmc.dev",
+    "wss://warpgreen-testnet-relay.midl.dev",
+    "wss://relay.testnet.giritec.com",
+    "wss://test-relay.goby.app"
   ] : [
     "wss://relay.fireacademy.io",
     "wss://relay.bufflehead.org",
@@ -467,15 +462,15 @@ export const NOSTR_CONFIG = {
   validatorKeys: TESTNET ? [
     "cd5fd0859c3a27c13dd9734b7cdc6f2c25646e45821dcecaa089808803d01706",
     "804f399157512ee115d19e0e15fd63f97f6330755c6f928a8c49a6bda35df74e",
-    "14aed9c23d7774dda60532891423e4e8adf74f468ea5f5cbac58cf8994387b94",
-    "2239f413ce7b399ad1e91e2fb4742960d73637b87a3616c4a28771cc84fb648e",
     "6b8d53c62a1d5f9bc68605a7139c06c9ce6d727ecf815044b46cb983fcc17e52",
-    "c26ce22c6241420e136b8562f9d89e73553a89f29ee15cb0194dd2be184601b8",
-    "38c4190c961bfbc0a23b2c274c36fd6ccad5d50033e8bb263fc4aa23930ededf",
-    "e492322cbbc745127af4bd59227d7e7d7b54a98d3a013d2072c4261dff319f88",
-    "280e03462f0f87ba2aefeb7a033c2c1ec134fc9c06f28a5e9ed308dabf9e7700",
     "6f2aa84aa51327db3507e3c0d0fd02876d1b53fecf42aa88e9d32bbf5247ad3d",
-    "7eff2950197deca52b67901a9641f4e4aac84b8bdd973d44edc6d73fb98af259"
+    "c26ce22c6241420e136b8562f9d89e73553a89f29ee15cb0194dd2be184601b8",
+    "6f6edc8adb8034a605a59109037d1bfdbab3ba38b564db767d29c0ecbe399916",
+    "280e03462f0f87ba2aefeb7a033c2c1ec134fc9c06f28a5e9ed308dabf9e7700",
+    "14aed9c23d7774dda60532891423e4e8adf74f468ea5f5cbac58cf8994387b94",
+    "38c4190c961bfbc0a23b2c274c36fd6ccad5d50033e8bb263fc4aa23930ededf",
+    "b94fe9fd1a47f33bdf1aa6cbf295734e6fc7fdf2d210403edc8b177801c0a849",
+    "e492322cbbc745127af4bd59227d7e7d7b54a98d3a013d2072c4261dff319f88"
   ] : [
     "db5790fd1aac8f0cb60879cd468b0cc845e5b692350ef7a26d4776c4f6da3776",
     "ad4bc8487872b07d5acd9dd4ee11906e107a97945f2141eb60d6f0880c29f8e7",
