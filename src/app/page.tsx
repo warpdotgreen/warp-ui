@@ -10,6 +10,8 @@ import MessagesDelivered from "./landingPageComponents/MessagesDelivered"
 import Script from "next/script"
 import { ChevronDown } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import Image from "next/image"
+import { BaseIconBlue, ChiaIcon } from "./bridge/components/Icons/ChainIcons"
 
 export default function LandingPage() {
   return (
@@ -33,62 +35,39 @@ export default function LandingPage() {
         </section>
 
         {/* SLIDE 2 */}
-        <section id="slide2" className="max-w-[130rem] mx-auto slide 2xl:h-[max(100svh,60rem)] my-auto 2xl:snap-start grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-y-24 2xl:gap-y-4 grow-rows-3 p-0 sm:p-8 !pt-[96px] gap-4">
 
-          {/* Col 1 */}
-          <div className="flex flex-col max-h-[60rem]">
+        <section id="slide2" className="max-w-[130rem] mx-auto slide 2xl:h-[max(100svh,60rem)] my-auto 2xl:snap-start grid lg:grid-rows-[6rem,1fr] grid-rows-[6rem,1fr,1fr] grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-y-4 2xl:gap-y-4 p-0 sm:p-8 !pt-[96px] gap-4">
 
-            <div className="flex flex-col gap-4 justify-center items-center pb-4">
-              <h3 className="text-4xl sm:text-6xl font-light">At a Glance</h3>
-              <h4 className="text-xl opacity-80">A few points about warp.green</h4>
-            </div>
-
-            <div className="row-span-1 mb-4">
-              <MessagesDelivered />
-            </div>
-
-            <div className="flex flex-col justify-center bg-accent/50 h-full hover:bg-accent/90 transition-colors border rounded-md p-6 z-10 overflow-hidden row-span-1">
-              <p className="text-xl text-center">Supported Chains</p>
-              <div className="flex w-full h-full justify-end gap-4 animate-in fade-in slide-in-from-bottom-16 duration-500">
-                <SupportedNetworksCard />
-              </div>
-            </div>
-
+          <div className="flex flex-col gap-4 items-center justify-center h-full">
+            <h3 className="text-4xl sm:text-6xl font-light">At a Glance</h3>
+            <h4 className="text-xl opacity-80">A few points about warp.green</h4>
           </div>
-
-
-          {/* Col 2 */}
-          <div className="flex flex-col gap-4">
-
-            <div className="flex flex-col gap-4 justify-center items-center">
-              <h3 className="text-4xl sm:text-6xl font-light">Live Apps</h3>
-              <h4 className="text-xl opacity-80 text-center">Apps that use warp.green as an oracle</h4>
-            </div>
-
-            <LiveApps />
-
+          <div className="flex flex-col gap-4 items-center justify-center h-full">
+            <h3 className="text-4xl sm:text-6xl font-light mt-8 lg:mt-0">Live Apps</h3>
+            <h4 className="text-xl opacity-80 text-center">Apps that use warp.green as an oracle</h4>
           </div>
-
-
-          {/* Col 3 */}
-          <div className="flex flex-col gap-4 overflow-y-hidden">
-
-            <div className="flex flex-col gap-4 justify-center items-center">
-              <h3 className="text-4xl sm:text-6xl font-light">Messages</h3>
-              <h4 className="text-xl opacity-80 text-center">Latest messages processed by warp.green</h4>
-            </div>
-
-            <div className="relative row-span-2 h-full no-scrollbar">
-              <ScrollArea className="hidden max-h-[600px] 2xl:max-h-full 2xl:flex flex-col gap-4 h-full w-full 2xl:pr-3 overflow-y-hidden 2xl:overflow-y-scroll no-scrollbar">
-                <Messages />
-              </ScrollArea>
-              <div className="overflow-y-hidden 2xl:hidden">
-                <Messages />
-              </div>
+          <div className="flex flex-col gap-4 items-center justify-center h-full">
+            <h3 className="text-4xl sm:text-6xl font-light mt-8 2xl:mt-0">Messages</h3>
+            <h4 className="text-xl opacity-80 text-center">Latest messages processed by warp.green</h4>
+          </div>
+          <div className="col-start-1 row-start-2 flex flex-col items-center justify-center h-full border bg-accent/50 hover:bg-accent/90 transition-colors rounded-lg animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <MessagesDelivered />
+          </div>
+          <div className="col-start-1 row-start-5 lg:row-start-2 lg:col-start-2 flex flex-col items-center justify-center h-full border bg-accent/50 hover:bg-accent/90 transition-colors rounded-lg animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <LiveApps appIndex={0} />
+          </div>
+          <div className="lg:col-start-1 2xl:col-start-3 flex max-h-[600px] 2xl:max-h-max flex-col items-center justify-center h-full border row-span-2 bg-accent/50 hover:bg-accent/90 transition-colors rounded-lg animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <Messages />
+          </div>
+          <div className="col-start-1 row-start-3 flex p-6 flex-col items-center justify-center h-full border bg-accent/50 hover:bg-accent/90 transition-colors rounded-lg animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <p className="text-xl text-center">Supported Chains</p>
+            <div className="flex w-full h-full justify-end gap-4 animate-in fade-in slide-in-from-bottom-16 duration-500">
+              <SupportedNetworksCard />
             </div>
           </div>
-
-
+          <div className="col-start-1 row-start-6 lg:row-start-3 lg:col-start-2 flex flex-col items-center justify-center h-full border bg-accent/50 hover:bg-accent/90 transition-colors rounded-lg animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <LiveApps appIndex={1} />
+          </div>
         </section>
 
         <section id="slide3" className="slide h-[100svh] mt-[72px] snap-center flex flex-col gap-8 items-center justify-center pt-[72px]">
@@ -110,21 +89,21 @@ function SupportedNetworksCard() {
   return (
     <div className="flex h-full justify-between w-full items-center sm:mx-8">
       <div className="relative">
-        <div className="w-20 h-20 sm:w-24 aspect-square sm:h-auto p-3 rounded-full border border-zinc-700 bg-zinc-900 bg-opacity-50 hover:bg-opacity-90 flex items-center justify-center">
-          <img src="https://raw.githubusercontent.com/base-org/brand-kit/main/logo/symbol/Base_Symbol_Blue.svg" alt="Network" className="w-full h-full rounded-full object-scale-down" />
+        <div className="w-20 h-20 sm:w-24 aspect-square sm:h-auto p-3 rounded-full border bg-accent/50 bg-opacity-50 hover:bg-opacity-90 flex items-center justify-center">
+          <BaseIconBlue className="w-full h-full rounded-full" />
         </div>
         <p className="text-center text-zinc-300 pt-2">Base</p>
       </div>
       <div className="w-full h-px bg-zinc-700 flex-grow relative mb-8"></div>
       <div className="relative">
-        <div className="w-20 h-20 sm:w-24 aspect-square sm:h-auto p-2 rounded-full border border-zinc-700 bg-zinc-900 bg-opacity-50 hover:bg-opacity-90 flex items-center justify-center">
-          <img src="https://www.chia.net/wp-content/uploads/2023/06/chia_icon_green-hex5ECE71.svg?w=64" alt="Network" className="w-full h-full rounded-full object-scale-down" />
+        <div className="w-20 h-20 sm:w-24 aspect-square sm:h-auto p-2 rounded-full border bg-accent/50 bg-opacity-50 hover:bg-opacity-90 flex items-center justify-center">
+          <ChiaIcon className="w-full h-full rounded-full" />
         </div>
         <p className="text-center text-zinc-300 pt-2">Chia</p>
       </div>
       <div className="w-full h-px bg-zinc-700 flex-grow relative mb-8"></div>
       <div className="relative">
-        <div className="w-20 h-20 sm:w-24 aspect-square sm:h-auto p-3 rounded-full border border-zinc-700 bg-zinc-900 bg-opacity-50 hover:bg-opacity-90 flex items-center justify-center">
+        <div className="w-20 h-20 sm:w-24 aspect-square sm:h-auto p-3 rounded-full border bg-accent/50 bg-opacity-50 hover:bg-opacity-90 flex items-center justify-center">
           {/* <img src="https://raw.githubusercontent.com/ethereum/ethereum-org-website/dev/public/assets/eth-diamond-black-gray.png" alt="Network" className="w-full h-full rounded-full object-cover" /> */}
           {/* <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Ethereum_logo_2014.svg" alt="Network" className="w-full h-full rounded-full object-cover" /> */}
           <svg className="w-full h-full rounded-full object-scale-down" width="256px" height="417px" viewBox="0 0 256 417" version="1.1" preserveAspectRatio="xMidYMid">
@@ -141,11 +120,5 @@ function SupportedNetworksCard() {
         <p className="text-center text-zinc-300 pt-2">Ethereum</p>
       </div>
     </div>
-  )
-}
-
-function ArrowRight() {
-  return (
-    <svg className="opacity-80 w-6 h-auto" width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.14645 3.14645C8.34171 2.95118 8.65829 2.95118 8.85355 3.14645L12.8536 7.14645C13.0488 7.34171 13.0488 7.65829 12.8536 7.85355L8.85355 11.8536C8.65829 12.0488 8.34171 12.0488 8.14645 11.8536C7.95118 11.6583 7.95118 11.3417 8.14645 11.1464L11.2929 8H2.5C2.22386 8 2 7.77614 2 7.5C2 7.22386 2.22386 7 2.5 7H11.2929L8.14645 3.85355C7.95118 3.65829 7.95118 3.34171 8.14645 3.14645Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path></svg>
   )
 }
