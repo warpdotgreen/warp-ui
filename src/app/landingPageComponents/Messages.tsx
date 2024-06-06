@@ -3,10 +3,11 @@ import { useQuery } from "@tanstack/react-query"
 import { formatDistanceToNow } from 'date-fns'
 import { NETWORKS, WATCHER_API_ROOT } from "../bridge/config"
 import { cn, getChainIcon } from "@/lib/utils"
-import { Skeleton } from "@/components/ui/skeleton"
 import { CopyableLongHexString } from "@/components/CopyableHexString"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { useState } from "react"
 
 
 export interface MessageResponse {
@@ -44,6 +45,7 @@ export const typeToDisplayName = new Map([
 const NUM_OF_MESSAGES = 12
 
 function Messages() {
+
   const { data: messages, isLoading } = useQuery<MessageResponse[]>({
     queryKey: ['landingPage_latest-messages'],
     queryFn: () => fetch(`${WATCHER_API_ROOT}latest-messages?limit=${NUM_OF_MESSAGES}`).then(res => res.json()),
@@ -60,7 +62,7 @@ function Messages() {
     const destChainIcon = <div className="bg-background p-0.5 rounded-full">{getChainIcon(destChainDisplayName, 'w-5 mt-0.5')}</div>
 
     return (
-      <div key={m.id} className={cn("rounded-md mb-2 w-full py-[18px] px-4 bg-accent/50 hover:bg-accent/90 transition-colors border z-10 animate-in fade-in slide-in-from-bottom-2 duration-500 flex flex-col gap-0", i + 1 > 4 && 'hidden 2xl:flex')}>
+      <div key={m.id} className={cn("rounded-md mb-2 w-full py-[18px] px-4 bg-accent/50 hover:bg-accent/90 transition-colors border z-10 animate-in fade-in slide-in-from-bottom-2 duration-500 flex flex-col gap-0", i + 1 > 4 && '')}>
         <div className="flex gap-4 justify-between items-center">
           <CopyableLongHexString hexString={`0x${m.nonce}`} className="p-0 text-base sm:text-md font-extralight opacity-80 px-4 rounded-[8px] border text-primary" tooltipText="Copy Message Nonce" />
           <div className="flex gap-1 py-2 text-sm sm:text-base">
@@ -86,24 +88,32 @@ function Messages() {
     )
   }
 
+  const [scrollPercentage, setScrollPercentage] = useState(0)
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLDivElement
+    if (target) {
+      const { scrollTop, scrollHeight, clientHeight } = target
+      const scrolled = (scrollTop / (scrollHeight - clientHeight)) * 100
+      setScrollPercentage(scrolled)
+    }
+  }
+
   if (isLoading || !messages) {
-    return <>{Array.from({ length: NUM_OF_MESSAGES }, (_, i) => <Skeleton key={i} className="w-full h-[192px] bg-transparent animate-none" />)}</>
+    return <></>
   }
 
   return (
-    <>
-      {messages.map(formatMessage)}
-      <Button variant="outline" className="mb-2 2xl:mb-32 w-full py-4" asChild>
-        <Link href="/explorer">See more</Link>
-      </Button>
-    </>
-  );
+    <div className="relative w-full h-full group overflow-hidden">
+      <ScrollArea onScrollCapture={handleScroll} className="max-h-full flex flex-col gap-4 h-full w-full p-3 overflow-y-scroll no-scrollbar">
+        {messages.map(formatMessage)}
+        <Button variant="outline" className="w-full py-4" asChild>
+          <Link href="/explorer">See more</Link>
+        </Button>
+      </ScrollArea>
+      <div className={cn(scrollPercentage > 10 && 'group-hover:opacity-100', "opacity-0 absolute top-0 pointer-events-none rounded-xl transition-opacity left-0 bg-gradient-to-b from-accent h-24 z-50 w-full")}></div>
+      <div className={cn(scrollPercentage < 90 && 'group-hover:opacity-100', "sticky bottom-0 pointer-events-none rounded-xl transition-opacity opacity-0 left-0 bg-gradient-to-t from-accent h-24 z-50 w-full")}></div>
+    </div>
+  )
 }
 
 export default Messages
-
-function ArrowRight() {
-  return (
-    <svg className="opacity-80 w-4 h-auto" width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.14645 3.14645C8.34171 2.95118 8.65829 2.95118 8.85355 3.14645L12.8536 7.14645C13.0488 7.34171 13.0488 7.65829 12.8536 7.85355L8.85355 11.8536C8.65829 12.0488 8.34171 12.0488 8.14645 11.8536C7.95118 11.6583 7.95118 11.3417 8.14645 11.1464L11.2929 8H2.5C2.22386 8 2 7.77614 2 7.5C2 7.22386 2.22386 7 2.5 7H11.2929L8.14645 3.85355C7.95118 3.65829 7.95118 3.34171 8.14645 3.14645Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path></svg>
-  )
-}
