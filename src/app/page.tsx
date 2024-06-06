@@ -36,7 +36,7 @@ export default function LandingPage() {
 
         {/* SLIDE 2 */}
 
-        <section id="slide2" className="max-w-[130rem] mx-auto slide 2xl:h-[max(100svh,60rem)] my-auto 2xl:snap-start grid lg:grid-rows-[6rem,1fr] grid-rows-[6rem,1fr,1fr] grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-y-4 2xl:gap-y-4 p-0 sm:p-8 !pt-[96px] gap-4">
+        <section id="slide2" className="max-w-[130rem] mx-auto slide 2xl:h-[max(100svh,60rem)] my-auto 2xl:snap-start grid grid-rows-[6rem,1fr,1fr] grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-y-4 2xl:gap-y-4 p-0 sm:p-8 !pt-[96px] gap-4">
 
           <div className="flex flex-col gap-4 items-center justify-center h-full">
             <h3 className="text-4xl sm:text-6xl font-light">At a Glance</h3>
@@ -87,7 +87,7 @@ export default function LandingPage() {
 
 function SupportedNetworksCard() {
   return (
-    <div className="flex h-full justify-between w-full items-center sm:mx-8">
+    <div className="flex h-full justify-between w-full items-center sm:mx-8 animate-in fade-in duration-500">
       <div className="relative">
         <div className="w-20 h-20 sm:w-24 aspect-square sm:h-auto p-3 rounded-full border bg-accent/50 bg-opacity-50 hover:bg-opacity-90 flex items-center justify-center">
           <BaseIconBlue className="w-full h-full rounded-full" />

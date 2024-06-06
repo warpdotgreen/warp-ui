@@ -83,7 +83,7 @@ function LiveApps({ appIndex = 0 }: { appIndex: number }) {
   })
 
 
-  if (isLoading || !data) return <>{liveAppsConfig.map((_, i) => <Skeleton key={i} className="h-[475px] bg-background" />)}</>
+  if (isLoading || !data) return <></>
 
 
   const getTokenTableRow = (token: typeof liveAppsConfig[0]["tokens"][0]) => {
