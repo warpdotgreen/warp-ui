@@ -1,5 +1,4 @@
 "use client"
-import { Skeleton } from "@/components/ui/skeleton"
 import { useQuery } from "@tanstack/react-query"
 import { WATCHER_API_ROOT } from "../bridge/config"
 
@@ -24,13 +23,11 @@ function MessagesDelivered() {
   })
 
   if (isLoading || !data) return (
-    <div className="relative z-10 bg-accent/50 border rounded-md min-h-40 h-[20rem] flex gap-4 p-2 justify-between overflow-hidden">
-      <Skeleton className="w-full bg-transparent" />
-    </div>
+    <></>
   )
 
   return (
-    <div className="rounded-lg border p-6 pt-6 pb-8 row-span-1 bg-accent/50 hover:bg-accent/90 transition-colors flex flex-col">
+    <div className="w-full p-6 pt-6 pb-8 animate-in fade-in">
       <p className="text-center text-xl">Stats</p>
       <div className="flex flex-col mt-6 mx-4 pb-2">
         <div className="flex flex-col justify-center items-center pb-4 border-b">
