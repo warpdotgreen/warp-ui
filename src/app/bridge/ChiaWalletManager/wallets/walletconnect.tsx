@@ -5,7 +5,6 @@ import { addCATParams, createOfferParams } from './types'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import IKeyValueStorage from "@walletconnect/keyvaluestorage"
 
 const chain = TESTNET ? 'chia:testnet' : 'chia:mainnet'
 
@@ -34,11 +33,11 @@ export async function addCAT(params: addCATParams): Promise<void> {
 /* Custom storage for Wallet Connect connection info */
 
 // https://github.com/WalletConnect/walletconnect-monorepo/issues/2493
-export class CustomWalletConnectStorage extends IKeyValueStorage {
+export class CustomWalletConnectStorage {
     private prefix: string;
 
     constructor(prefix: string) {
-        super();
+        // super();
         this.prefix = prefix;
     }
 
