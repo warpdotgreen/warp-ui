@@ -8,6 +8,15 @@ export function BaseIcon(props: SVGProps<SVGSVGElement>) {
   )
 }
 
+export function BaseIconBlue(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...props} width="111" height="111" viewBox="0 0 111 111" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M54.921 110.034C85.359 110.034 110.034 85.402 110.034 55.017C110.034 24.6319 85.359 0 54.921 0C26.0432 0 2.35281 22.1714 0 50.3923H72.8467V59.6416H3.9565e-07C2.35281 87.8625 26.0432 110.034 54.921 110.034Z" fill="#0052FF" />
+    </svg>
+
+  )
+}
+
 export function ETHIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48px" height="48px"><path fill="#9fa8da" d="M11 24L25 2 39 24 25 32z" /><path fill="#7986cb" d="M25 2L39 24 25 32z" /><path fill="#9fa8da" d="M11 27L25 35 39 27 25 46z" /><path fill="#7986cb" d="M25 35L39 27 25 46zM11 24L25 18 39 24 25 32z" /><path fill="#5c6bc0" d="M25 18L39 24 25 32z" /></svg>
