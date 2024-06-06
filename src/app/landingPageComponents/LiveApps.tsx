@@ -76,7 +76,7 @@ const formatNumber = (num: number, decimals: number) => {
   }).format(number / Math.pow(10, decimals))
 }
 
-function LiveApps() {
+function LiveApps({ appIndex = 0 }: { appIndex: number }) {
   const { data, isLoading } = useQuery<StatsResponse>({
     queryKey: ['landingPage_stats'],
     queryFn: () => fetch(`${WATCHER_API_ROOT}stats`).then(res => res.json())
@@ -107,7 +107,7 @@ function LiveApps() {
 
   const formatApp = (app: typeof liveAppsConfig[0]) => {
     return (
-      <div key={app.name} className="border bg-accent/50 hover:bg-accent/90 transition-colors h-full p-6 rounded-md animate-in fade-in slide-in-from-bottom-2 duration-500">
+      <div key={app.name} className="w-full h-full p-6">
         <p className="text-xl mb-4 text-center">{app.name}</p>
         <table className="w-full py-2 h-[calc(100%-2rem)]">
           <tbody>
@@ -118,7 +118,9 @@ function LiveApps() {
     )
   }
 
-  return <>{liveAppsConfig.map(formatApp)}</>
+
+
+  return <>{formatApp(liveAppsConfig[appIndex])}</>
 }
 
 export default LiveApps
