@@ -107,7 +107,7 @@ function Messages() {
       <ScrollArea onScrollCapture={handleScroll} className="max-h-full flex flex-col gap-4 h-full w-full p-3 overflow-y-scroll no-scrollbar">
         {messages.map(formatMessage)}
         <Button variant="outline" className="w-full py-4" asChild>
-          <Link href="/explorer">See more</Link>
+          <a href="/explorer">See more</a>
         </Button>
       </ScrollArea>
       <div className={cn(scrollPercentage > 10 && 'group-hover:opacity-100', "opacity-0 absolute top-0 pointer-events-none rounded-xl transition-opacity left-0 bg-gradient-to-b from-accent h-24 z-50 w-full")}></div>
