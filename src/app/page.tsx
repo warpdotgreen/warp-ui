@@ -22,7 +22,7 @@ export default function LandingPage() {
 
 
         {/* SLIDE 1 */}
-        <section id="slide1" className="slide relative sm:mt-[72px] h-[100svh] min-h-96 snap-center">
+        <section id="slide1" className="slide relative h-[100svh] min-h-96 snap-center">
           <div className="flex flex-col gap-4 items-center justify-center h-full">
             <h1 className="text-4xl sm:text-7xl text-balance text-center font-light">A Cross-Chain <span className="text-theme-purple">Messaging</span> <span className="text-theme-green-foreground">Protocol</span></h1>
             <h2 className="opacity-80 text-center mt-4 text-pretty text-3xl">warp.green allows your app to communicate across blockchains</h2>
@@ -36,7 +36,7 @@ export default function LandingPage() {
 
         {/* SLIDE 2 */}
 
-        <section id="slide2" className="max-w-[130rem] mx-auto slide 2xl:h-[max(100svh,60rem)] my-auto 2xl:snap-start grid grid-rows-[6rem,1fr,1fr] grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-y-4 2xl:gap-y-4 p-0 sm:p-8 !pt-[96px] gap-4">
+        <section id="slide2" className="max-w-[130rem] mx-auto slide 2xl:h-[max(100svh,60rem)] my-auto 2xl:snap-start grid grid-rows-[7.5rem,1fr,1fr] grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-y-4 2xl:gap-y-4 p-0 sm:p-8 !pt-[70px] gap-4">
 
           <div className="flex flex-col gap-4 items-center justify-center h-full">
             <h3 className="text-4xl sm:text-6xl font-light">At a Glance</h3>
@@ -70,7 +70,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section id="slide3" className="slide h-[100svh] mt-[72px] snap-center flex flex-col gap-8 items-center justify-center pt-[72px]">
+        <section id="slide3" className="slide h-[100svh] snap-center flex flex-col gap-8 items-center justify-center">
           <h3 className="text-3xl text-balance sm:text-5xl text-center">Ready to <span className="text-theme-green-foreground font-light">warp</span>? Check out our <Link href="https://docs.warp.green/developers/" className="underline">developer docs</Link>.</h3>
         </section>
 
