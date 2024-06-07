@@ -59,7 +59,7 @@ export default function LandingPage() {
           <div className="lg:col-start-1 2xl:col-start-3 flex max-h-[600px] 2xl:max-h-max flex-col items-center justify-center h-full border row-span-2 bg-accent/50 hover:bg-accent/90 transition-colors rounded-lg animate-in fade-in slide-in-from-bottom-2 duration-500">
             <Messages />
           </div>
-          <div className="col-start-1 row-start-3 flex p-6 flex-col items-center justify-center h-full border bg-accent/50 hover:bg-accent/90 transition-colors rounded-lg animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <div className="col-start-1 row-start-3 flex p-6 flex-col gap-4 items-center justify-center h-full border bg-accent/50 hover:bg-accent/90 transition-colors rounded-lg animate-in fade-in slide-in-from-bottom-2 duration-500">
             <p className="text-xl text-center">Supported Chains</p>
             <div className="flex w-full h-full justify-end gap-4 animate-in fade-in slide-in-from-bottom-16 duration-500">
               <SupportedNetworksCard />
