@@ -92,16 +92,16 @@ function SupportedNetworksCard() {
         <div className="w-20 h-20 sm:w-24 aspect-square sm:h-auto p-3 rounded-full border bg-accent/50 bg-opacity-50 hover:bg-opacity-90 flex items-center justify-center">
           <BaseIconBlue className="w-full h-full rounded-full" />
         </div>
-        <p className="text-center text-zinc-300 pt-2">Base</p>
+        <p className="text-center text-primary pt-2">Base</p>
       </div>
-      <div className="w-full h-px bg-zinc-700 flex-grow relative mb-8"></div>
+      <div className="w-full h-px bg-border flex-grow relative mb-8"></div>
       <div className="relative">
         <div className="w-20 h-20 sm:w-24 aspect-square sm:h-auto p-2 rounded-full border bg-accent/50 bg-opacity-50 hover:bg-opacity-90 flex items-center justify-center">
           <ChiaIcon className="w-full h-full rounded-full" />
         </div>
-        <p className="text-center text-zinc-300 pt-2">Chia</p>
+        <p className="text-center text-primary pt-2">Chia</p>
       </div>
-      <div className="w-full h-px bg-zinc-700 flex-grow relative mb-8"></div>
+      <div className="w-full h-px bg-border flex-grow relative mb-8"></div>
       <div className="relative">
         <div className="w-20 h-20 sm:w-24 aspect-square sm:h-auto p-3 rounded-full border bg-accent/50 bg-opacity-50 hover:bg-opacity-90 flex items-center justify-center">
           {/* <img src="https://raw.githubusercontent.com/ethereum/ethereum-org-website/dev/public/assets/eth-diamond-black-gray.png" alt="Network" className="w-full h-full rounded-full object-cover" /> */}
@@ -117,7 +117,7 @@ function SupportedNetworksCard() {
             </g>
           </svg>
         </div>
-        <p className="text-center text-zinc-300 pt-2">Ethereum</p>
+        <p className="text-center text-primary pt-2">Ethereum</p>
       </div>
     </div>
   )
