@@ -83,7 +83,7 @@ function LiveApps({ appIndex = 0 }: { appIndex: number }) {
   })
 
 
-  if (isLoading || !data) return <></>
+  if (isLoading || !data) return <div className="h-full min-h-[350px]"></div>
 
 
   const getTokenTableRow = (token: typeof liveAppsConfig[0]["tokens"][0]) => {

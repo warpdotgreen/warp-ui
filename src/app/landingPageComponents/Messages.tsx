@@ -99,7 +99,7 @@ function Messages() {
   }
 
   if (isLoading || !messages) {
-    return <></>
+    return <div className="h-full min-h-[600px]"></div>
   }
 
   return (
