@@ -52,7 +52,11 @@ export default function OrPasteOffer({
           className="w-full font-light mt-4 h-14 border-2 border-theme-purple bg-theme-black hover:bg-theme-purple text-theme-purple hover:text-primary hover:opacity-80 text-xl"
           onClick={async () => {
             try {
-              await submitOffer(offer);
+              if(offer.match(/^offer1[a-z0-9]*$/)) {
+                await submitOffer(offer);
+              } else {
+                alert("Offer string not valid - please ensure you've created an offer in your wallet and pasted the correct string, which should start with 'offer1...'.")
+              }
             } catch(_) {
               toast.error("Error while submitting offer");
             }

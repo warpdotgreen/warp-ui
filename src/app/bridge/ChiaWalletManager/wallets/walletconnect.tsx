@@ -9,8 +9,8 @@ import Link from 'next/link'
 const chain = TESTNET ? 'chia:testnet' : 'chia:mainnet'
 
 // Wallet 1 specific logic
-export async function connect(ispersistenceConnect: boolean, setWalletConnectUri: (uri: string) => void): Promise<string> {
-  await getSession(ispersistenceConnect, setWalletConnectUri)
+export async function connect(ispersistenceConnect: boolean, setWalletConnectUri: (uri: string) => void, sessionDisconnectCallback: () => Promise<void>): Promise<string> {
+  await getSession(ispersistenceConnect, setWalletConnectUri, false, sessionDisconnectCallback)
   const res = await getAddress() as { data?: string }
   const address = res?.data
   if (!address) throw new Error('Failed to get Chia wallet address [WalletConnect]')
@@ -18,6 +18,7 @@ export async function connect(ispersistenceConnect: boolean, setWalletConnectUri
 }
 
 export async function disconnect(): Promise<void> {
+  console.log('disconnect called')
   await disconnectWC()
 }
 
@@ -109,12 +110,23 @@ async function getClient() {
     metadata: WcMetadata,
     storage: new CustomWalletConnectStorage("chia-wc-data")
   })
+
   return signClient
 }
 
 
-async function getSession(ispersistenceConnect?: boolean, setWalletConnectUri?: (uri: string) => void) {
+async function getSession(ispersistenceConnect?: boolean, setWalletConnectUri?: (uri: string) => void, disconnect?: boolean, sessionDisconnectCallback?: () => Promise<void>) {
   const signClient = await getClient()
+
+  if(!disconnect && sessionDisconnectCallback) {
+    signClient.on('session_delete', async () => {
+      console.log('Session disconnected');
+      if(sessionDisconnectCallback) {
+        await sessionDisconnectCallback();
+      }
+    });
+  }
+
   // If previous session exists, use it instead of initialising a new pairing
   const lastKeyIndex = signClient.session.getAll().length - 1
   const lastSession = signClient.session.getAll()[lastKeyIndex]
@@ -124,8 +136,12 @@ async function getSession(ispersistenceConnect?: boolean, setWalletConnectUri?: 
     return lastSession
   }
 
-  if (ispersistenceConnect) throw new Error('Chia WalletConnect connection failed to re-establish.')
+  if(disconnect) {
+    return;
+  }
 
+  if (ispersistenceConnect) throw new Error('Chia WalletConnect connection failed to re-establish.')
+  
   try {
     const { uri, approval } = await signClient.connect({
       requiredNamespaces: {
@@ -188,17 +204,23 @@ async function getAddress() {
 }
 
 async function disconnectWC() {
-  const signClient = await getClient()
-  const session = await getSession()
-  if (!signClient || !session) throw new Error('Get Chia Address Request Failed')
-  const result = await signClient.disconnect({
-    topic: session.topic,
-    reason: {
-      code: 6000,
-      message: "USER_DISCONNECTED"
-    }
-  })
-  return result
+  try {
+    const signClient = await getClient()
+    const session = await getSession(true, () => {}, true)
+    if (!signClient || !session) throw new Error('Get Chia Address Request Failed')
+    await signClient.disconnect({
+      topic: session.topic,
+      reason: {
+        code: 6000,
+        message: "USER_DISCONNECTED"
+      }
+    })
+  } catch(_) {
+    console.log(_);
+  } finally {
+    console.log('Clearing local storage...')
+    localStorage.clear()
+  }
 }
 
 async function createOfferWC(params: createOfferParams) {
