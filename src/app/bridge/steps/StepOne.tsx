@@ -506,7 +506,7 @@ function ChiaButton({
     assetId: "",
     amount: xchAmount
   })
-  offerReqString += `${ethers.formatUnits(offerMojoAmount, 12)} XCH`;
+  offerReqString += `${ethers.formatUnits(xchAmount, 12)} XCH`;
 
   const doStuffWithOffer = async (offer: string) => {
     router.push(getStepOneURL({
