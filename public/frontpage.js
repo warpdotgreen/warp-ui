@@ -4,55 +4,55 @@ if (canvas) {
     const slides = document.querySelectorAll('.slide');
   
     let currentSlide = 1;
-  
-    // Function to handle intersection events
-    const handleIntersection = (entries, observer) => {
-      entries.forEach(entry => {
-        const rect = entry.target.getBoundingClientRect();
-        const slideId = entry.target.id;
-        const slideIndex = parseInt(slideId.replace('slide', ''), 10);
-  
-        if (rect.top <= window.innerHeight * 0.8 && rect.bottom >= window.innerHeight * 0.2) {
-          if (currentSlide !== slideIndex) {
-            currentSlide = slideIndex;
-            window.slide = currentSlide;
-            // console.log(`Current slide is now: ${window.slide}`);
-          }
-        }
-      });
-    };
-  
-    // Create the intersection observer
-    const observer = new IntersectionObserver(handleIntersection, {
-      root: null,
-      rootMargin: '0px',
-      threshold: [0, 0.5, 1] // Multiple thresholds to detect visibility changes more reliably
-    });
-  
-    // Observe each slide
-    slides.forEach(slide => {
-      observer.observe(slide);
-    });
-  
-    // Update slide state on load, resize, and scroll
-    const updateSlideState = () => {
-      slides.forEach(slide => {
-        const rect = slide.getBoundingClientRect();
-        const slideId = slide.id;
-        const slideIndex = parseInt(slideId.replace('slide', ''), 10);
-  
-        if (rect.top <= window.innerHeight * 0.8 && rect.bottom >= window.innerHeight * 0.2) {
-          if (currentSlide !== slideIndex) {
-            currentSlide = slideIndex;
-            window.slide = currentSlide;
-            // console.log(`Current slide is now: ${window.slide}`);
-          }
-        }
-      });
-    };
 
-      // Initial update on load
-  updateSlideState();
+// Function to handle intersection events
+const handleIntersection = (entries, observer) => {
+  entries.forEach(entry => {
+    const rect = entry.target.getBoundingClientRect();
+    const slideId = entry.target.id;
+    const slideIndex = parseInt(slideId.replace('slide', ''), 10);
+
+
+    if (entry.isIntersecting && rect.top <= window.innerHeight * 0.8 && rect.bottom >= window.innerHeight * 0.2) {
+      if (currentSlide !== slideIndex) {
+        currentSlide = slideIndex;
+        window.slide = currentSlide;
+      }
+    }
+  });
+};
+
+// Create the intersection observer
+const observer = new IntersectionObserver(handleIntersection, {
+  root: null,
+  rootMargin: '0px',
+  threshold: [0.25, 0.5, 0.75] // Adjusted thresholds for better detection
+});
+
+// Observe each slide
+slides.forEach(slide => {
+  observer.observe(slide);
+});
+
+// Update slide state on load, resize, and scroll
+const updateSlideState = () => {
+  slides.forEach(slide => {
+    const rect = slide.getBoundingClientRect();
+    const slideId = slide.id;
+    const slideIndex = parseInt(slideId.replace('slide', ''), 10);
+
+
+    if (rect.top <= window.innerHeight * 0.8 && rect.bottom >= window.innerHeight * 0.2) {
+      if (currentSlide !== slideIndex) {
+        currentSlide = slideIndex;
+        window.slide = currentSlide;
+      }
+    }
+  });
+};
+
+// Initial update on load
+updateSlideState();
 
   // Update on resize and scroll
   window.addEventListener('resize', updateSlideState);
@@ -60,15 +60,12 @@ if (canvas) {
 
 
     const bridgeButton = document.querySelector('a[href="/bridge"]');
-    console.log({ bridgeButton })
     if (bridgeButton) {
-        console.log("refreshing page to get rid of listeners")
         bridgeButton.addEventListener('click', function (event) {
         event.preventDefault(); // Prevent the default link behavior
         window.removeEventListener('resize', updateSlideState);
         window.removeEventListener('scroll', updateSlideState);
         window.location.href = '/bridge'; // Change the URL
-        // window.location.reload(); // Refresh the page
         });
     }
 
