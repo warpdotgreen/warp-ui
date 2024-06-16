@@ -529,7 +529,7 @@ export async function unlockCATs(
   const lockedCoins: InstanceType<typeof GreenWeb.Coin>[] = coinRecords.map((coinRecord: any) => GreenWeb.util.goby.parseGobyCoin({
     parent_coin_info: GreenWeb.util.unhexlify(coinRecord.coin.parent_coin_info),
     puzzle_hash: GreenWeb.util.unhexlify(coinRecord.coin.puzzle_hash),
-    amount: coinRecord.coin.amount
+    amount: GreenWeb.BigNumber.from(coinRecord.coin.amount.toString())
   })!);
 
   if(tokenTailHash !== null) {
@@ -580,7 +580,6 @@ export async function unlockCATs(
     unlockerCoin,
     updateStatus
   );
-
   coinSpends.push(...portalCoinSpends);
   sigStrings.push(...portalSigs);
 
