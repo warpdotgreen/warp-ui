@@ -570,8 +570,8 @@ export async function findLatestPortalState(
 
   if(mempoolPendingItems.length > 0) {
     const mempoolPendingSbRaw = mempoolPendingItems[0].spend_bundle;
-    mempoolSbCost = GreenWeb.BigNumber.from(mempoolPendingItems[0].cost);
-    mempoolSbFee = GreenWeb.BigNumber.from(mempoolPendingItems[0].fee);
+    mempoolSbCost = GreenWeb.BigNumber.from(mempoolPendingItems[0].cost.toString());
+    mempoolSbFee = GreenWeb.BigNumber.from(mempoolPendingItems[0].fee.toString());
 
     mempoolSb = new GreenWeb.util.serializer.types.SpendBundle();
     mempoolSb.aggregatedSignature = mempoolPendingSbRaw.aggregated_signature.replace("0x", "");
@@ -579,7 +579,7 @@ export async function findLatestPortalState(
       const coin = new GreenWeb.Coin();
       coin.parentCoinInfo = coin_spend.coin.parent_coin_info.replace("0x", "");
       coin.puzzleHash = coin_spend.coin.puzzle_hash.replace("0x", "");
-      coin.amount = GreenWeb.BigNumber.from(coin_spend.coin.amount);
+      coin.amount = GreenWeb.BigNumber.from(coin_spend.coin.amount.toString());
 
       const coinSpend = new GreenWeb.util.serializer.types.CoinSpend();
       coinSpend.coin = coin;
