@@ -654,7 +654,7 @@ function ActionButton({
 
     if (walletInfo?.name === "MetaMask" && amount && typeof balance === "number") {
 
-      if (balance < (parseFloat(amount) + parseFloat(toll))) {
+      if ((isNativeETH && balance < (parseFloat(amount) + parseFloat(toll))) || (!isNativeETH && balance < parseFloat(amount))) {
         return (
           <Button disabled className="w-full h-14 bg-destructive text-primary hover:opacity-80 text-xl">
             Insufficient Balance
