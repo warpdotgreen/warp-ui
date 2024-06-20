@@ -1,4 +1,5 @@
 import * as GreenWeb from 'greenwebjs';
+import { parse, stringify } from 'lossless-json'
 
 export function sbToJSON(sb: any): any {
   return {
@@ -6,7 +7,7 @@ export function sbToJSON(sb: any): any {
       coin: {
         parent_coin_info: "0x" + coinSpend.coin.parentCoinInfo.replace("0x", ""),
         puzzle_hash: "0x" + coinSpend.coin.puzzleHash.replace("0x", ""),
-        amount: parseInt(coinSpend.coin.amount.toString())
+        amount: BigInt(coinSpend.coin.amount.toString(10))
       },
       puzzle_reveal: "0x" + GreenWeb.util.sexp.toHex(coinSpend.puzzleReveal),
       solution: "0x" + GreenWeb.util.sexp.toHex(coinSpend.solution)
@@ -17,7 +18,7 @@ export function sbToJSON(sb: any): any {
 
 // allows debugging via mixch.dev
 export function sbToString(sb: any): any {
-  return JSON.stringify(sbToJSON(sb));
+  return stringify(sbToJSON(sb));
 
 }
 
@@ -29,26 +30,26 @@ export async function getCoinRecordByName(rpcBaseUrl: string, coinName: string) 
       "Content-Type": "application/json",
     },
   });
-  const j = await res.json();
-  return j.coin_record;
+  const t = await res.text();
+  return (parse(t) as any).coin_record;
 }
 
 export async function getPuzzleAndSolution(rpcBaseUrl: string, coinId: string, spentBlockIndex: number) {
   const res = await fetch(`${rpcBaseUrl}/get_puzzle_and_solution`, {
     method: "POST",
-    body: JSON.stringify({ coin_id: coinId, height: spentBlockIndex }),
+    body: stringify({ coin_id: coinId, height: spentBlockIndex }),
     headers: {
       "Content-Type": "application/json",
     },
   });
-  const j = await res.json();
-  return j.coin_solution;
+  const t = await res.text();
+  return (parse(t) as any).coin_solution;
 }
 
 export async function pushTx(rpcBaseUrl: string, sb: any): Promise<any> {
   const res = await fetch(`${rpcBaseUrl}/push_tx`, {
     method: "POST",
-    body: JSON.stringify({ spend_bundle: sbToJSON(sb) }),
+    body: stringify({ spend_bundle: sbToJSON(sb) }),
     headers: {
       "Content-Type": "application/json",
     },
@@ -63,13 +64,13 @@ export async function getCoinRecordsByPuzzleHash(
 ): Promise<any> {
   const res = await fetch(`${rpcBaseUrl}/get_coin_records_by_puzzle_hash`, {
     method: "POST",
-    body: JSON.stringify({ puzzle_hash: puzzleHash }),
+    body: stringify({ puzzle_hash: puzzleHash }),
     headers: {
       "Content-Type": "application/json",
     },
   });
-  const j = await res.json();
-  return j.coin_records;
+  const text = await res.text();
+  return (parse(text) as any).coin_records;
 }
 
 export async function getBlockchainState(
@@ -77,13 +78,13 @@ export async function getBlockchainState(
 ): Promise<any> {
   const res = await fetch(`${rpcBaseUrl}/get_blockchain_state`, {
     method: "POST",
-    body: JSON.stringify({}),
+    body: stringify({}),
     headers: {
       "Content-Type": "application/json",
     },
   });
-  const j = await res.json();
-  return j.blockchain_state;
+  const t = await res.text();
+  return (parse(t) as any).blockchain_state;
 }
 
 export async function getMempoolItemsByCoinName(
@@ -92,11 +93,11 @@ export async function getMempoolItemsByCoinName(
 ): Promise<any[]> {
   const res = await fetch(`${rpcBaseUrl}/get_mempool_items_by_coin_name`, {
     method: "POST",
-    body: JSON.stringify({ coin_name: coinName.startsWith("0x") ? coinName : "0x" + coinName }),
+    body: stringify({ coin_name: coinName.startsWith("0x") ? coinName : "0x" + coinName }),
     headers: {
       "Content-Type": "application/json",
     },
   });
-  const j = await res.json();
-  return j.mempool_items;
+  const t = await res.text();
+  return (parse(t) as any).mempool_items;
 }
