@@ -872,7 +872,7 @@ export async function getMessageSentFromXCHStepThreeData(
   for(var i = 0; i < createCoinConds.length; ++i) {
     const cond = createCoinConds[i];
     if(cond.vars[0] === messageCoinRecord.coin.puzzle_hash.slice(2) &&
-       cond.vars[1] === GreenWeb.util.coin.amountToBytes(messageCoinRecord.coin.amount)) {
+       cond.vars[1] === GreenWeb.util.coin.amountToBytes(GreenWeb.BigNumber.from(messageCoinRecord.coin.amount.toString()))) {
         const memos = GreenWeb.util.sexp.fromHex(cond.vars[2]);
         
         const destination_chain_id = GreenWeb.util.sexp.toHex(memos.first()).slice(2);
