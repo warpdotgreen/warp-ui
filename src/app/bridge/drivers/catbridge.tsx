@@ -557,7 +557,7 @@ export async function unlockCATs(
       lockedCoinProofs.push(GreenWeb.util.goby.parseGobyCoin({
         parent_coin_info: GreenWeb.util.unhexlify(parentSpend.coin.parent_coin_info),
         puzzle_hash: GreenWeb.util.sexp.sha256tree(args[2]), // inner puzzle hash
-        amount: parentSpend.coin.amount,
+        amount: GreenWeb.BigNumber.from(parentSpend.coin.amount.toString()),
       })!);
     }
   }
