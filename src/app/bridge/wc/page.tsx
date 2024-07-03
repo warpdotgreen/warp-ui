@@ -3,20 +3,84 @@
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { useWallet } from "../ChiaWalletManager/WalletContext";
-import { useAccount, useConnect, useWalletClient } from "wagmi";
-import { useWeb3Modal } from "@web3modal/wagmi/react";
+import { http, useAccount, useConnect, WagmiProvider} from "wagmi";
+import { EthereumProvider } from '@walletconnect/ethereum-provider'
+import { BASE_NETWORK, ETHEREUM_NETWORK, TESTNET, wagmiConfig, WALLETCONNECT_PROJECT_ID_ETH, WcMetadata } from "../config";
+import { base, baseSepolia, mainnet, sepolia } from "viem/chains";
+import { web3Modal } from "../ClientProvider";
+import SignClient from '@walletconnect/sign-client'
+import { walletConnect } from 'wagmi/connectors'
+import { defaultWagmiConfig } from "@web3modal/wagmi";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export default function WalletConnectAutoConnect() {
   const { connectWallet, walletConnected, walletConnectUri } = useWallet()
   const { address, isConnecting } = useAccount()
   const [ethWalletConnectUri, setEthWalletConnectUri] = useState<string | null>(null)
   const [showButton, setShowButton] = useState(false)
-  const { data: walletClient } = useWeb()
+  const { connect } = useConnect();
 
   useEffect(() => {
     const promise = async () => {
-      const { transport } = walletClient;
-      const provider = new providers.Web3Provider(transport, network);
+      console.log({ address, isConnecting })
+      if(!address && !isConnecting) {
+        const provider = await EthereumProvider.init({
+          optionalChains: [
+            TESTNET ? baseSepolia.id : base.id,
+            TESTNET ? sepolia.id : mainnet.id,
+          ],
+          projectId: WALLETCONNECT_PROJECT_ID_ETH,
+          metadata: WcMetadata,
+          showQrModal: false,
+          rpcMap: {
+            [BASE_NETWORK.chainId!]: BASE_NETWORK.rpcUrl,
+            [ETHEREUM_NETWORK.chainId!]: ETHEREUM_NETWORK.rpcUrl
+          },
+          storageOptions: {}
+        });
+
+        function handleURI(uri: string) {
+          console.log({ uri })
+        }
+
+        if(!provider.connected) {
+          provider.on('display_uri', handleURI)
+
+          console.log("awaiting connect...")
+          await provider.connect()
+          const resp = await provider.enable()
+          console.log("connected!")
+          console.log({ resp })
+        } 
+        
+        console.log({ providerConnected: provider.connected, a: provider.session })
+
+        // this also works but doesn't set wagmi values the good way
+      //   const signClient = await SignClient.init({
+      //     projectId: WALLETCONNECT_PROJECT_ID_ETH,
+      //     metadata: WcMetadata,
+      //     // storage: new CustomWalletConnectStorage("chia-wc-data")
+      //   })
+
+      //   const sessions = signClient.session.getAll();
+      //   console.log({ sessions: sessions })
+
+      //   if(sessions.length > 0) { return; }
+
+      //   const { uri, approval } = await signClient.connect({
+      //     requiredNamespaces: {
+      //       eip155: {
+      //         chains: [`eip155:${BASE_NETWORK.chainId!}`, `eip155:${ETHEREUM_NETWORK.chainId!}`],
+      //         methods: ["eth_accounts","eth_requestAccounts","eth_sendRawTransaction","eth_sign","eth_signTransaction","eth_signTypedData","eth_signTypedData_v3","eth_signTypedData_v4","eth_sendTransaction","personal_sign","wallet_switchEthereumChain","wallet_addEthereumChain","wallet_getPermissions","wallet_requestPermissions","wallet_registerOnboarding","wallet_watchAsset","wallet_scanQRCode","wallet_sendCalls","wallet_getCapabilities","wallet_getCallsStatus","wallet_showCallsStatus"],
+      //         events: ["chainChanged","accountsChanged","message","disconnect","connect"]
+      //       }
+      //     }
+      //   })
+
+      //   console.log({ uri })
+      //   const session = await approval()
+      //   console.log({ session })
+      }
     };
 
     promise();
