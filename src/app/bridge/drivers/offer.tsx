@@ -131,7 +131,7 @@ export function parseXCHOffer(offer: string): [
   xchSourceCoinSpend.puzzleReveal = GreenWeb.util.sexp.fromHex(OFFER_MOD);
   xchSourceCoinSpend.solution = xchSourceCoinSolution;
   
-  const coinSpends = rawSpendBundle.coinSpends;
+  const coinSpends = rawSpendBundle.coinSpends.filter((coinSpend) => coinSpend.coin.parentCoinInfo !== '00'.repeat(32));
   coinSpends.push(xchSourceCoinSpend);
 
   return [
