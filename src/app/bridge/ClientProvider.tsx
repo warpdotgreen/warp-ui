@@ -5,7 +5,7 @@ import { createWeb3Modal } from "@web3modal/wagmi/react"
 import { useEffect } from "react"
 import { ChiaWalletProvider } from "./ChiaWalletManager/WalletContext"
 
-createWeb3Modal({
+export const web3Modal = createWeb3Modal({
   wagmiConfig: wagmiConfig,
   projectId: WALLETCONNECT_PROJECT_ID_ETH,
   enableOnramp: true,
