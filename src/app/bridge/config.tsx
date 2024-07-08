@@ -412,8 +412,14 @@ declare module 'wagmi' {
 export const WALLETCONNECT_PROJECT_ID_ETH = 'e47a64f2fc7214f6c9f71b8b71e5e786'
 export const WALLETCONNECT_PROJECT_ID_XCH = '777b63154ba9ec11877caf45a17b523e'
 
-export const WcMetadata = {
-  name: 'warp.green Bridge Interface',
+export const xchWcMetadata = {
+  name: 'warp.green Bridge XCH Interface',
+  description: 'Bridging powered by the warp.green cross-chain messaging protocol',
+  url: 'https://warp.green',
+  icons: ['https://testnet.warp.green/warp-green-icon.png']
+}
+export const ethWcMetadata = {
+  name: 'warp.green Bridge ETH Interface',
   description: 'Bridging powered by the warp.green cross-chain messaging protocol',
   url: 'https://warp.green',
   icons: ['https://testnet.warp.green/warp-green-icon.png']
@@ -426,7 +432,7 @@ export const wagmiConfig = defaultWagmiConfig({
   ],
   projectId: WALLETCONNECT_PROJECT_ID_ETH,
   ssr: true,
-  metadata: WcMetadata,
+  metadata: ethWcMetadata,
   transports: {
     [TESTNET ? baseSepolia.id : base.id]: http(BASE_NETWORK.rpcUrl),
     [TESTNET ? sepolia.id : mainnet.id]: http(ETHEREUM_NETWORK.rpcUrl),

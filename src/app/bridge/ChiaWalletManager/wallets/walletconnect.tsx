@@ -1,4 +1,4 @@
-import { TESTNET, TOKENS, WALLETCONNECT_PROJECT_ID_XCH, WcMetadata } from '../../config'
+import { TESTNET, TOKENS, WALLETCONNECT_PROJECT_ID_XCH, xchWcMetadata } from '../../config'
 import SignClient from '@walletconnect/sign-client'
 import { SessionTypes } from '@walletconnect/types'
 import { addCATParams, createOfferParams } from './types'
@@ -107,7 +107,7 @@ function getFingerprint(session: SessionTypes.Struct) {
 async function getClient() {
   const signClient = await SignClient.init({
     projectId: WALLETCONNECT_PROJECT_ID_XCH,
-    metadata: WcMetadata,
+    metadata: xchWcMetadata,
     storage: new CustomWalletConnectStorage("chia-wc-data")
   })
 
