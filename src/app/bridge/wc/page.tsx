@@ -5,7 +5,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useWallet } from "../ChiaWalletManager/WalletContext";
 import { useAccount} from "wagmi";
 import { EthereumProvider } from '@walletconnect/ethereum-provider'
-import { BASE_NETWORK, ETHEREUM_NETWORK, TESTNET, WALLETCONNECT_PROJECT_ID_ETH, WcMetadata } from "../config";
+import { BASE_NETWORK, ETHEREUM_NETWORK, TESTNET, WALLETCONNECT_PROJECT_ID_ETH, ethWcMetadata, xchWcMetadata } from "../config";
 import { base, baseSepolia, mainnet, sepolia } from "viem/chains";
 
 export default function SuspensefulComponent() {
@@ -53,7 +53,7 @@ function WalletConnectAutoConnect() {
             TESTNET ? sepolia.id : mainnet.id,
           ],
           projectId: WALLETCONNECT_PROJECT_ID_ETH,
-          metadata: WcMetadata,
+          metadata: ethWcMetadata,
           showQrModal: false,
           rpcMap: {
             [BASE_NETWORK.chainId!]: BASE_NETWORK.rpcUrl,
