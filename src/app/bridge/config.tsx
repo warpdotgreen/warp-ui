@@ -337,6 +337,22 @@ export const XCH_TOKEN: Token = {
   ]
 }
 
+const EURC_ADDRESS_BASE: `0x${string}` = TESTNET ?
+  '0x808456652fdb597867f38412077A9182bf77359F' :
+  '0x60a3E35Cc302bFA44Cb288Bc5a4F316Fdb1adb42' // mainnet
+const EURC_TOKEN: Token = {
+  symbol: 'EURC',
+  sourceNetworkType: NetworkType.EVM,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: getWrappedERC20AssetID(BASE_NETWORK, EURC_ADDRESS_BASE),
+      contractAddress: EURC_ADDRESS_BASE
+    },
+  ]
+}
+
 const DBX_ASSET_ID = TESTNET ? "d82dd03f8a9ad2f84353cd953c4de6b21dbaaf7de3ba3f4ddd9abe31ecba80ad" :
   "db1a9020d48d9d4ad22631b66ab4b9ebd3637ef7758ad38881348c5d24c38f20" // mainnet
 
@@ -392,11 +408,13 @@ export const TOKENS = TESTNET ? [
   ETH_TOKEN,
   USDT_TOKEN,
   XCH_TOKEN,
+  EURC_TOKEN,
   DBX_TOKEN
 ] : [
   USDC_TOKEN_MAINNET_ONLY,
   ETH_TOKEN,
   XCH_TOKEN,
+  EURC_TOKEN,
   DBX_TOKEN,
   SBX_TOKEN_MAINNET_ONLY,
   USDT_TOKEN,
@@ -416,13 +434,17 @@ export const xchWcMetadata = {
   name: 'warp.green Bridge XCH Interface',
   description: 'Bridging powered by the warp.green cross-chain messaging protocol',
   url: 'https://warp.green',
-  icons: ['https://testnet.warp.green/warp-green-icon.png']
+  icons: [
+    TESTNET ? 'https://testnet.warp.green/warp-green-icon.png' : 'https://www.warp.green/warp-green-icon.png'
+  ]
 }
 export const ethWcMetadata = {
   name: 'warp.green Bridge ETH Interface',
   description: 'Bridging powered by the warp.green cross-chain messaging protocol',
   url: 'https://warp.green',
-  icons: ['https://testnet.warp.green/warp-green-icon.png']
+  icons: [
+    TESTNET ? 'https://testnet.warp.green/warp-green-icon.png' : 'https://www.warp.green/warp-green-icon.png'
+  ]
 }
 
 export const wagmiConfig = defaultWagmiConfig({
