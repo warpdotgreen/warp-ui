@@ -404,6 +404,22 @@ export const HOA_TOKEN_BASE_ONLY: Token = {
   ]
 }
 
+const WARP_MEMECOIN_ASSET_ID_BASE_MAINNET = '563c883b801c4e6c736994d09ec69c94c9c6482612b4655b76097282b8d2fae6'
+const WARP_MEMECOIN_ADDRESS_BASE_MAINNET = '0x6ca253E17e2334165113Be86C70Bc2655798BDcB'
+
+export const WARP_MEMECOIN_TOKEN_BASE_ONLY: Token = {
+  symbol: 'WARP',
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: WARP_MEMECOIN_ASSET_ID_BASE_MAINNET,
+      contractAddress: WARP_MEMECOIN_ADDRESS_BASE_MAINNET
+    },
+  ]
+}
+
 export const TOKENS = TESTNET ? [
   ETH_TOKEN,
   USDT_TOKEN,
@@ -418,7 +434,8 @@ export const TOKENS = TESTNET ? [
   DBX_TOKEN,
   SBX_TOKEN_MAINNET_ONLY,
   USDT_TOKEN,
-  HOA_TOKEN_BASE_ONLY
+  HOA_TOKEN_BASE_ONLY,
+  WARP_MEMECOIN_TOKEN_BASE_ONLY,
 ]
 
 declare module 'wagmi' {
