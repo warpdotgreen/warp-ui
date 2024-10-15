@@ -41,8 +41,13 @@ export function MessageTableBody({
     const messageSourceAddress = formatAddress(message.source_chain, message.source);
     const messageDestinationAddress = formatAddress(message.destination_chain, message.destination);
 
-    const parsedContents =  message.parsed.token_symbol && message.parsed.amount_mojo ?
-      `${ethers.formatUnits(BigInt(message.parsed.amount_mojo), message.parsed.token_symbol === 'XCH' ? 12 : 3)} ${message.parsed.token_symbol}` : '-';
+    const parsedContents =  message.parsed.token_symbol && message.parsed.amount_mojo && message.parsed.receiver ? (
+      <>
+        <p>{`${ethers.formatUnits(BigInt(message.parsed.amount_mojo), message.parsed.token_symbol === 'XCH' ? 12 : 3)} ${message.parsed.token_symbol}`}</p>
+        <p>to {`${message.parsed.receiver.slice(0, 4 + (message.destination_chain === 'xch' ? 4 : 2))}...${message.parsed.receiver.slice(-4)}`}</p>
+      </>
+    )
+       : (<>-</>);
 
     const timestamp = message.destination_timestamp ?? message.source_timestamp
     const timeAgo = formatDistanceToNow(timestamp * 1000, { addSuffix: true }).replace('about ', '')
