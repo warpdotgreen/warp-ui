@@ -420,6 +420,23 @@ export const WARP_MEMECOIN_TOKEN_BASE_ONLY: Token = {
   ]
 }
 
+const BEPE_MEMECOIN_ASSET_ID_BASE_MAINNET = 'ccda69ff6c44d687994efdbee30689be51d2347f739287ab4bb7b52344f8bf1d'
+const BEPE_MEMECOIN_ADDRESS_BASE_MAINNET = '0xBB5cBDAE23C5368557CC9A32337863eECf03cF9f'
+
+export const BEPE_MEMECOIN_TOKEN_BASE_ONLY: Token = {
+  symbol: 'BEPE',
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: BEPE_MEMECOIN_ASSET_ID_BASE_MAINNET,
+      contractAddress: BEPE_MEMECOIN_ADDRESS_BASE_MAINNET
+    },
+  ]
+}
+
+
 export const TOKENS = TESTNET ? [
   ETH_TOKEN,
   USDT_TOKEN,
@@ -436,6 +453,7 @@ export const TOKENS = TESTNET ? [
   USDT_TOKEN,
   HOA_TOKEN_BASE_ONLY,
   WARP_MEMECOIN_TOKEN_BASE_ONLY,
+  BEPE_MEMECOIN_TOKEN_BASE_ONLY
 ]
 
 declare module 'wagmi' {
