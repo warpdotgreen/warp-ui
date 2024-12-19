@@ -159,7 +159,7 @@ export default function StepZero() {
                     </SelectTrigger>
                     <SelectContent>
                       {TOKENS.map((t: Token) => (
-                        <SelectItem key={t.symbol} value={t.symbol} className="text-xl">{t.symbol}</SelectItem>
+                        <SelectItem key={t.symbol} value={t.symbol} className="text-xl">{t.getSpecificSymbol(sourceNetworkId, destinationNetworkId)}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>

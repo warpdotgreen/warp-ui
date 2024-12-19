@@ -248,6 +248,8 @@ export type TokenInfo = {
 
 export type Token = {
   symbol: string,
+  // returns e.g., wmilliETH.b when path is XCH -> BSE
+  getSpecificSymbol: (fromNetworkId: string, toNetworkId: string) => string,
   sourceNetworkType: NetworkType,
   supported: TokenInfo[]
 }
@@ -262,6 +264,17 @@ const MILLIETH_ADDRESS_BASE: `0x${string}` = TESTNET ?
 export const ETH_TOKEN: Token = {
   symbol: 'ETH',
   sourceNetworkType: NetworkType.EVM,
+  getSpecificSymbol: (fromNetworkId: string, toNetworkId: string) => {
+    if (fromNetworkId === 'xch') {
+      if (toNetworkId === 'bse') {
+        return 'wmilliETH.b';
+      }
+
+      return 'wmilliETH';
+    }
+
+    return 'ETH';
+  },
   supported: [
     {
       evmNetworkId: BASE_NETWORK.id,
@@ -278,11 +291,26 @@ export const ETH_TOKEN: Token = {
   ],
 }
 
+const makeEVMNativeToken = (baseSymbol: string) => {
+  return (fromNetworkId: string, toNetworkId: string) => {
+    if (fromNetworkId === 'xch') {
+      if (toNetworkId === 'bse') {
+        return `w${baseSymbol}.b`;
+      }
+
+      return `w${baseSymbol}`;
+    }
+
+    return baseSymbol;
+  };
+};
+
 const USDT_ADDRESS_ETHEREUM: `0x${string}` = TESTNET ?
   '0xaa8e23fb1079ea71e0a56f48a2aa51851d8433d0' :
   '0xdAC17F958D2ee523a2206206994597C13D831ec7' // mainnet
 const USDT_TOKEN: Token = {
   symbol: 'USDT',
+  getSpecificSymbol: makeEVMNativeToken('USDT'),
   sourceNetworkType: NetworkType.EVM,
   supported: [
     {
@@ -298,6 +326,7 @@ const USDC_ADDRESS_ETHEREUM_MAINNET: `0x${string}` = '0xA0b86991c6218b36c1d19D4a
 const USDC_ADDRESS_BASE_MAINNET: `0x${string}` = '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
 const USDC_TOKEN_MAINNET_ONLY: Token = {
   symbol: 'USDC',
+  getSpecificSymbol: makeEVMNativeToken('USDC'),
   sourceNetworkType: NetworkType.EVM,
   supported: [
     {
@@ -315,11 +344,22 @@ const USDC_TOKEN_MAINNET_ONLY: Token = {
   ]
 }
 
+const makeCoinsetNativeToken = (baseSymbol: string) => {
+  return (fromNetworkId: string, _: string) => {
+    if (fromNetworkId !== 'xch') {
+      return `w${baseSymbol}`;
+    }
+
+    return baseSymbol;
+  };
+};
+
 const XCH_ASSET_ID = "00".repeat(32)
 const WXCH_ADDRESS_BASE: `0x${string}` = TESTNET ? '0xf374cF9D090E19E8d39Db96eEDc8daf62a6C435a' : '0x36be1d329444aeF5D28df3662Ec5B4F965Cd93E9'
 const WXCH_ADDRESS_ETHERUM: `0x${string}` = TESTNET ? '0x3df856f8d94BAF6527b89Cf07fAFea447A4418CA' : '0x1be362F422A862055dCFF627D33f9bD478e6C7d7'
 export const XCH_TOKEN: Token = {
   symbol: 'XCH',
+  getSpecificSymbol: makeCoinsetNativeToken('XCH'),
   sourceNetworkType: NetworkType.COINSET,
   supported: [
     {
@@ -342,6 +382,7 @@ const EURC_ADDRESS_BASE: `0x${string}` = TESTNET ?
   '0x60a3E35Cc302bFA44Cb288Bc5a4F316Fdb1adb42' // mainnet
 const EURC_TOKEN: Token = {
   symbol: 'EURC',
+  getSpecificSymbol: makeEVMNativeToken('EURC'),
   sourceNetworkType: NetworkType.EVM,
   supported: [
     {
@@ -361,6 +402,7 @@ const WDBX_ADDRESS_BASE: `0x${string}` = TESTNET ? '0x360fE6604dC410BB98595C76E0
 
 export const DBX_TOKEN: Token = {
   symbol: 'DBX',
+  getSpecificSymbol: makeCoinsetNativeToken('DBX'),
   sourceNetworkType: NetworkType.COINSET,
   supported: [
     {
@@ -377,6 +419,7 @@ const SBX_ADDRESS_BASE_MAINNET = '0x0f374737547cC191f940E02763084CD62BCDe4a6'
 
 export const SBX_TOKEN_MAINNET_ONLY: Token = {
   symbol: 'SBX',
+  getSpecificSymbol: makeCoinsetNativeToken('SBX'),
   sourceNetworkType: NetworkType.COINSET,
   supported: [
     {
@@ -393,6 +436,7 @@ const HOA_ADDRESS_BASE_MAINNET = '0xee642384091f4bb9ab457b875E4e209b5a0BD147'
 
 export const HOA_TOKEN_BASE_ONLY: Token = {
   symbol: 'HOA',
+  getSpecificSymbol: makeCoinsetNativeToken('HOA'),
   sourceNetworkType: NetworkType.COINSET,
   supported: [
     {
@@ -409,6 +453,7 @@ const WARP_MEMECOIN_ADDRESS_BASE_MAINNET = '0x6ca253E17e2334165113Be86C70Bc26557
 
 export const WARP_MEMECOIN_TOKEN_BASE_ONLY: Token = {
   symbol: 'WARP',
+  getSpecificSymbol: makeCoinsetNativeToken('WARP'),
   sourceNetworkType: NetworkType.COINSET,
   supported: [
     {
@@ -425,6 +470,7 @@ const BEPE_MEMECOIN_ADDRESS_BASE_MAINNET = '0xBB5cBDAE23C5368557CC9A32337863eECf
 
 export const BEPE_MEMECOIN_TOKEN_BASE_ONLY: Token = {
   symbol: 'BEPE',
+  getSpecificSymbol: makeCoinsetNativeToken('BEPE'),
   sourceNetworkType: NetworkType.COINSET,
   supported: [
     {
