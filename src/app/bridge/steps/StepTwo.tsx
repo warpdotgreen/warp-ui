@@ -10,6 +10,7 @@ import { getBlockchainState, getCoinRecordByName } from "../drivers/rpc"
 import { getMessageSentFromXCHStepThreeData } from "../drivers/portal"
 import { L1BlockABI } from "../drivers/abis"
 import { Loader } from "lucide-react"
+import Link from "next/link"
 
 export default function StepTwo({
   sourceChain,
@@ -22,22 +23,27 @@ export default function StepTwo({
   const txHash: string = searchParams.get("tx")!
 
   return (
-    <div className="flex items-center justify-center">
-      <div className="flex gap-2 items-center bg-background h-14 w-full px-6 rounded-md font-light">
-        <Loader className="w-4 shrink-0 h-auto animate-spin" />
-        <div className="animate-pulse">
-          {sourceChain.type === NetworkType.EVM ? (
-            <EVMValidationTextElement
-              txHash={txHash as `0x${string}`}
-              sourceChain={sourceChain}
-              destinationChain={destinationChain}
-            />
-          ) : (
-            <XCHValidationElement
-              txHash={txHash as `0x${string}`}
-              sourceChain={sourceChain}
-            />
-          )}
+    <div>
+      {sourceChain.id !== 'xch' && <div className="px-2 mb-4 text-white p-2 rounded-md text-center">
+        New to Chia? While you wait, learn more about our favorite blockchain at <Link href="https://xch.network/" target="_blank" rel="noopener noreferrer" className="text-green-500 font-semibold underline hover:opacity-80">XCH.network</Link>.
+      </div>}
+      <div className="flex items-center justify-center">
+        <div className="flex gap-2 items-center bg-background h-14 w-full px-6 rounded-md font-light">
+          <Loader className="w-4 shrink-0 h-auto animate-spin" />
+          <div className="animate-pulse">
+            {sourceChain.type === NetworkType.EVM ? (
+              <EVMValidationTextElement
+                txHash={txHash as `0x${string}`}
+                sourceChain={sourceChain}
+                destinationChain={destinationChain}
+              />
+            ) : (
+              <XCHValidationElement
+                txHash={txHash as `0x${string}`}
+                sourceChain={sourceChain}
+              />
+            )}
+          </div>
         </div>
       </div>
     </div>
