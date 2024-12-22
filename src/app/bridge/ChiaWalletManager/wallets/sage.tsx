@@ -88,8 +88,8 @@ async function getSession(ispersistenceConnect?: boolean, setWalletConnectUri?: 
       requiredNamespaces: {
         chia: {
           methods: [
-            'chip0002_connect',
-            'chia_createOffer'
+            'chia_createOffer',
+            'chia_getAddress'
           ],
           chains: [chain],
           events: []
@@ -123,11 +123,11 @@ async function getAddress() {
       topic: session.topic,
       chainId: chain,
       request: {
-        method: 'chip0002_connect',
+        method: 'chia_getAddress',
         params: {}
       }
     })
-    return "Sage"
+    return (result as any).address
   } catch (error: any) {
     console.log({ msg: "error in get address func", error })
     if (error?.message === "Invalid Request") {
