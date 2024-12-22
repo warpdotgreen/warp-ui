@@ -211,6 +211,7 @@ export const BASE_NETWORK: Network = TESTNET ? {
   chainId: base.id,
   type: NetworkType.EVM,
   rpcUrl: 'https://base-mainnet.infura.io/v3/fe4978ed90a14204a6db4d5ac1f42250',
+  // rpcUrl: 'https://mainnet.base.org',
   explorerUrl: 'https://basescan.org',
   messageToll: ethers.parseEther("0.00001"),
   signatureThreshold: 7,

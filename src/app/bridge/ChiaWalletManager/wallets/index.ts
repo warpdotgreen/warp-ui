@@ -1,4 +1,5 @@
 import * as goby from './goby'
+import * as sage from './sage'
 import { addCATParams, createOfferParams } from './types'
 import * as ChiaWalletConnect from './walletconnect'
 
@@ -13,6 +14,15 @@ export interface WalletConfig {
 }
 
 export const walletConfigs: WalletConfig[] = [
+  {
+    id: 'sage',
+    name: 'Sage',
+    icon: '/icons/Sage-icon.png',
+    connect: sage.connect,
+    disconnect: sage.disconnect,
+    createOffer: (params) => sage.createOffer(params),
+    addCAT: (params) => sage.addCAT(params)
+  },
   {
     id: 'goby',
     name: 'Goby',
