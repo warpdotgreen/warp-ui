@@ -20,7 +20,7 @@ function WalletModal() {
     :
     <Button variant="outline" className="group flex gap-2 shadow-sm ">
       <Image className='group-hover:opacity-80 w-6 h-auto p-1 shadow-sm shadow-white/50 border rounded-full aspect-square bg-accent object-contain' src="/icons/chia-icon.svg" width={40} height={40} alt={`Chia wallet icon`} priority />
-      {!!address ?`${address.slice(0, 5)}...${address.slice(-3)}` : 'Manage Wallet'}
+      {!!address ? `${address.slice(0, 5)}...${address.slice(-3)}` : 'Manage Wallet'}
     </Button>
 
   return (
