@@ -1,6 +1,14 @@
 import * as GreenWeb from 'greenwebjs';
 import { parse, stringify } from 'lossless-json'
 
+declare global {
+  interface BigInt {
+      toJSON(): Number;
+  }
+}
+BigInt.prototype.toJSON = function () { return Number(this) }
+
+
 export function sbToJSON(sb: any): any {
   return {
     coin_spends: sb.coinSpends.map((coinSpend: any) => ({
