@@ -452,12 +452,16 @@ function ChiaButton({
       }
 
       window.localStorage.setItem("bls_retries", "0")
-      const pushTxResp = await pushTx(sourceChain.rpcUrl, sb)
+      const [pushTxResp, feeError] = await pushTx(sourceChain.rpcUrl, sb);
       if (!pushTxResp.success) {
         const sbJson = sbToJSON(sb)
         await navigator.clipboard.writeText(JSON.stringify(sbJson, null, 2))
         console.error(pushTxResp)
-        toast.error("Failed to push transaction", { description: "Please check console for more details. Refresh the page to try again.", duration: 20000, id: "Failed to push transaction" })
+        if (feeError) {
+          toast.error("Fee too low", { description: "Your transaction includes a fee that is too low for the current mempool conditions.", duration: 20000, id: "Fee too low" })
+        } else {
+          toast.error("Failed to push transaction", { description: "Please check console for more details. Refresh the page to try again.", duration: 20000, id: "Failed to push transaction" })
+        }
         setStatus("Failed to push tx")
         return
       } else {

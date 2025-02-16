@@ -257,8 +257,12 @@ function StepThreeCoinsetDestination({
       }
 
       window.localStorage.setItem("bls_retries", "0")
-      const pushTxResp = await pushTx(destinationChain.rpcUrl, sb)
-      if (!pushTxResp.success) {
+      const [pushTxResp, feeError] = await pushTx(destinationChain.rpcUrl, sb)
+      if (feeError) {
+        alert(`Transaction push failed - fee is too low`)
+          router.back()
+          return;
+      } else if (!pushTxResp.success) {
         const sbJson = sbToJSON(sb)
         await navigator.clipboard.writeText(JSON.stringify(sbJson, null, 2))
         toast.error("Failed to push transaction - please check console for more details.", { duration: 20000, id: "failed-to-push-transaction" })
