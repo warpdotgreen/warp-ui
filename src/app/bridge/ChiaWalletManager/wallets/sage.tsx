@@ -23,7 +23,10 @@ export async function disconnect(): Promise<void> {
 }
 
 export async function createOffer(params: createOfferParams): Promise<string> {
-  const offer = await createOfferSage(params)
+  const offer = await createOfferSage({
+    ...params,
+    fee: 2500000000,
+  })
   return offer
 }
 

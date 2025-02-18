@@ -535,7 +535,8 @@ function ChiaButton({
     try {
       const params = {
         offerAssets: offerAssets,
-        requestAssets: []
+        requestAssets: [],
+        fee: 2500000000,
       }
       offer = await createOffer(params)
     } catch (e) {

@@ -313,6 +313,7 @@ async function createOfferWC(params: createOfferParams) {
         offer,
         driverDict: {},
         disableJSONFormatting: true,
+        fee: 2500000000,
       },
     },
   })
