@@ -157,7 +157,7 @@ export default function StepOne({
     <>
       {sourceChain.id === 'xch' && destinationChain.id === 'bse' && token.symbol === 'XCH' && <div className="px-2 mb-4 text-white p-2 rounded-md text-center">
         Selling XCH? Compare different routes at <Link href="https://xchprice.info/?direction=sell" target="_blank" rel="noopener noreferrer" className="text-green-500 font-semibold underline hover:opacity-80">xchprice.info</Link>. <br/>
-        (not affiliated with warp.green - we just thought it'd be useful)
+        (not affiliated with warp.green - we just thought it&apos;d be useful)
       </div>}
 
       <p className="px-4">Confirm the details below and ensure you have sufficient assets for one transaction on both networks.</p>
