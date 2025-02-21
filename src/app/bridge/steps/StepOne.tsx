@@ -19,6 +19,7 @@ import { cn, withToolTip } from "@/lib/utils"
 import { useWalletInfo, useWeb3Modal, useWeb3ModalState } from "@web3modal/wagmi/react"
 import { erc20Abi } from "viem"
 import OrPasteOffer from "./OrOffer"
+import Link from "next/link"
 
 export default function StepOne({
   sourceChain,
@@ -154,6 +155,11 @@ export default function StepOne({
 
   return (
     <>
+      {sourceChain.id === 'xch' && destinationChain.id === 'bse' && token.symbol === 'XCH' && <div className="px-2 mb-4 text-white p-2 rounded-md text-center">
+        Selling XCH? Compare different routes at <Link href="https://xchprice.info/?direction=sell" target="_blank" rel="noopener noreferrer" className="text-green-500 font-semibold underline hover:opacity-80">xchprice.info</Link>. <br/>
+        (not affiliated with warp.green - we just thought it'd be useful)
+      </div>}
+
       <p className="px-4">Confirm the details below and ensure you have sufficient assets for one transaction on both networks.</p>
 
       <div className="p-6 mt-6 bg-background flex flex-col gap-2 font-light rounded-md relative animate-in fade-in slide-in-from-bottom-2 duration-500">
