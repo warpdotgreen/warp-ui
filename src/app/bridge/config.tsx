@@ -39,6 +39,7 @@ export type Network = {
   portalAddress?: `0x${string}`,
   erc20BridgeAddress?: `0x${string}`,
   l1BlockContractAddress?: `0x${string}` // Optimism L2 only
+  createCallAddress?: `0x${string}`
 }
 
 export const CHIA_NETWORK: Network = TESTNET ? {
@@ -176,7 +177,8 @@ export const ETHEREUM_NETWORK: Network = TESTNET ? {
   ],
   confirmationMinHeight: 64,
   portalAddress: "0x2593C582B7a24d94Ba0056B493Fd4048bd99fc3F",
-  erc20BridgeAddress: "0x208b80E85dAC3354DD80f72cC272297909EE81b7"
+  erc20BridgeAddress: "0x208b80E85dAC3354DD80f72cC272297909EE81b7",
+  createCallAddress: "0x7cbB62EaA69F79e6873cD1ecB2392971036cFAa4",
 }
 
 export const BASE_NETWORK: Network = TESTNET ? {
@@ -210,8 +212,8 @@ export const BASE_NETWORK: Network = TESTNET ? {
   id: 'bse',
   chainId: base.id,
   type: NetworkType.EVM,
-  rpcUrl: 'https://base-mainnet.infura.io/v3/fe4978ed90a14204a6db4d5ac1f42250',
-  // rpcUrl: 'https://mainnet.base.org',
+  // rpcUrl: 'https://base-mainnet.infura.io/v3/fe4978ed90a14204a6db4d5ac1f42250',
+  rpcUrl: 'https://mainnet.base.org',
   explorerUrl: 'https://basescan.org',
   messageToll: ethers.parseEther("0.00001"),
   signatureThreshold: 7,
@@ -232,6 +234,7 @@ export const BASE_NETWORK: Network = TESTNET ? {
   l1BlockContractAddress: "0x4200000000000000000000000000000000000015",
   portalAddress: "0x382bd36d1dE6Fe0a3D9943004D3ca5Ee389627EE",
   erc20BridgeAddress: "0x8412f06e811b858Ea9edcf81a5E5882dbf70aC96",
+  createCallAddress: "0x7cbB62EaA69F79e6873cD1ecB2392971036cFAa4",
 }
 
 export const NETWORKS = [
