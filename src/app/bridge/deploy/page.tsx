@@ -25,6 +25,7 @@ function ActualDeployPage() {
 
   const [assetId, setAssetId] = useState('');
   const [chiaSymbol, setChiaSymbol] = useState('');
+  const [predictedContractAddress, setPredictedContractAddress] = useState('');
 
   const dataCompleted = assetId.length == 64 && chiaSymbol.length > 2;
 
@@ -64,6 +65,7 @@ function ActualDeployPage() {
       initCodeHash
     );
     console.log("Predicted WrappedCAT address:", predictedAddress);
+    setPredictedContractAddress(predictedAddress);
 
     const lockerPuzzleHash = GreenWeb.util.sexp.sha256tree(getLockerPuzzle(
       hexlify(toUtf8Bytes("bse")).replace("0x", ""),
@@ -172,6 +174,11 @@ function ActualDeployPage() {
             </Button>
           }
         </div>
+        {
+          predictedContractAddress && (
+            <p>Predicted contract address: {predictedContractAddress}</p>
+          )
+        }
       </div>
     </div>
   )
