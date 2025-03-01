@@ -51,7 +51,7 @@ function ActualDeployPage() {
       name,
       symbol,
       portalAddress,
-      70,
+      30,
       mojoToTokenRatio,
       hexlify(toUtf8Bytes("xch"))
     );
