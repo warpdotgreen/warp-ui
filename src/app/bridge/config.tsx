@@ -511,6 +511,25 @@ export const BEPE_MEMECOIN_TOKEN_BASE_ONLY: Token = {
   additionalWarning: null,
 }
 
+const PEPE_MEMECOIN_ASSET_ID_BASE_MAINNET = 'ec9d874e152e888231024c72e391fc484e8b6a1cf744430a322a0544e207bf46'
+const PEPE_MEMECOIN_ADDRESS_BASE_MAINNET = '0xC71690cd048F30F58Eee0d138fc19647bDaD79C7'
+
+export const PEPE_MEMECOIN_TOKEN_BASE_ONLY: Token = {
+  symbol: 'PEPE',
+  getSpecificSymbol: makeCoinsetNativeToken('PEPE'),
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: PEPE_MEMECOIN_ASSET_ID_BASE_MAINNET,
+      contractAddress: PEPE_MEMECOIN_ADDRESS_BASE_MAINNET
+    },
+  ],
+  memecoin: true,
+  additionalWarning: "This PEPE is a Chia-based CAT not connected to the memecoins launched on other chains.",
+}
+
 
 export const TOKENS = TESTNET ? [
   ETH_TOKEN,
@@ -528,7 +547,8 @@ export const TOKENS = TESTNET ? [
   USDT_TOKEN,
   HOA_TOKEN_BASE_ONLY,
   WARP_MEMECOIN_TOKEN_BASE_ONLY,
-  BEPE_MEMECOIN_TOKEN_BASE_ONLY
+  BEPE_MEMECOIN_TOKEN_BASE_ONLY,
+  PEPE_MEMECOIN_TOKEN_BASE_ONLY
 ]
 
 declare module 'wagmi' {
