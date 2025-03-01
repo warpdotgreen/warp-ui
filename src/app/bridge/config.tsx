@@ -483,7 +483,7 @@ export const WARP_MEMECOIN_TOKEN_BASE_ONLY: Token = {
     },
   ],
   memecoin: true,
-  additionalWarning: "WARP is not affiliated with warp.green in any way.",
+  additionalWarning: "WARP is a memecoin and NOT affiliated with warp.green in any way.",
 }
 
 const BEPE_MEMECOIN_ASSET_ID_BASE_MAINNET = 'ccda69ff6c44d687994efdbee30689be51d2347f739287ab4bb7b52344f8bf1d'
