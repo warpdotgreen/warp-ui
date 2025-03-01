@@ -8,7 +8,7 @@ import { Suspense, useState } from "react";
 import { useAccount, useWriteContract } from "wagmi";
 import { BASE_NETWORK, CHIA_NETWORK } from "../config";
 import { concat, ContractFactory, getCreate2Address, hexlify, Interface, keccak256, parseEther, sha256, solidityPacked, toUtf8Bytes } from "ethers";
-import { WrappedCATABI, WrappedCATBytecode } from "../drivers/abis";
+import { MultiSendABI, WrappedCATABI, WrappedCATBytecode } from "../drivers/abis";
 import { getLockerPuzzle, getUnlockerPuzzle } from "../drivers/catbridge";
 
 export default function DeployPage() {
@@ -21,11 +21,7 @@ export default function DeployPage() {
 
 function ActualDeployPage() {
   const account = useAccount()
-  const { data: hash, writeContract } = useWriteContract()
-
-  if(hash) {
-    console.log(hash)
-  }
+  const { writeContractAsync } = useWriteContract()
 
   const [assetId, setAssetId] = useState('');
   const [chiaSymbol, setChiaSymbol] = useState('');
@@ -90,10 +86,6 @@ function ActualDeployPage() {
     const CreateCallABI = [
       "function performCreate2(uint256 value, bytes memory deploymentData, bytes32 salt) external returns (address)"
     ];
-    const MultiSendABI = [
-      "function multiSend(bytes memory transactions) external payable"
-    ];
-
     const createCallInterface = new Interface(CreateCallABI);
     const deployData = createCallInterface.encodeFunctionData("performCreate2", [
       0,
@@ -121,15 +113,17 @@ function ActualDeployPage() {
   
     console.log("Calling multiSend...")
     const transactions = concat([deployTxEncoded, initTxEncoded]);
-    writeContract({
+    const resp = await writeContractAsync({
       address: BASE_NETWORK.multiCallAddress!,
       abi: MultiSendABI,
       functionName: "multiSend",
       args: [
-        transactions
+        transactions as `0x${string}`
       ],
       value: BigInt(0),
+      chainId: BASE_NETWORK.chainId!
     });
+    console.log({ resp })
   }
 
   return (
