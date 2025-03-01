@@ -13,7 +13,7 @@ export default function DeployPage() {
     <div className="max-w-xl flex flex-col justify-center mx-auto w-full break-words grow">
       <div className="rounded-lg flex flex-col gap-4 p-6 ">
         <h1 className="text-2xl font-bold">Deploy a Wrapped CAT Contract</h1>
-        <p className="text-muted-foreground mb-4">
+        <p className="text-muted-foreground mb-8">
           For more information, please see <a className="underline" href="https://docs.warp.green/users/creating-a-new-wrapped-cat" target="_blank">this page</a>.
         </p>
         <p>CAT asset id on Chia (TAIL hash):</p>
@@ -27,7 +27,7 @@ export default function DeployPage() {
             onChange={(e) => setAssetId(e.target.value)}
           />
         </div>
-        <p>CAT symbol on Chia:</p>
+        <p>CAT symbol on Chia (usually 3-4 characters):</p>
         <div className="flex items-center h-14 w-full gap-2">
           <Input
             type="text"
