@@ -1,16 +1,31 @@
 "use client"
 
+import * as GreenWeb from 'greenwebjs';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
-import { useAccount } from "wagmi";
-import { BASE_NETWORK } from "../config";
-import { ContractFactory, getCreate2Address, hexlify, keccak256, sha256, toUtf8Bytes } from "ethers";
+import { Suspense, useState } from "react";
+import { useAccount, useWriteContract } from "wagmi";
+import { BASE_NETWORK, CHIA_NETWORK } from "../config";
+import { concat, ContractFactory, getCreate2Address, hexlify, Interface, keccak256, parseEther, sha256, solidityPacked, toUtf8Bytes } from "ethers";
 import { WrappedCATABI, WrappedCATBytecode } from "../drivers/abis";
+import { getLockerPuzzle, getUnlockerPuzzle } from "../drivers/catbridge";
 
 export default function DeployPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ActualDeployPage />
+    </Suspense>
+  );
+}
+
+function ActualDeployPage() {
   const account = useAccount()
+  const { data: hash, writeContract } = useWriteContract()
+
+  if(hash) {
+    console.log(hash)
+  }
 
   const [assetId, setAssetId] = useState('');
   const [chiaSymbol, setChiaSymbol] = useState('');
@@ -53,6 +68,68 @@ export default function DeployPage() {
       initCodeHash
     );
     console.log("Predicted WrappedCAT address:", predictedAddress);
+
+    const lockerPuzzleHash = GreenWeb.util.sexp.sha256tree(getLockerPuzzle(
+      hexlify(toUtf8Bytes("bse")).replace("0x", ""),
+      predictedAddress.replace("0x", ""),
+      CHIA_NETWORK.portalLauncherId!.replace("0x", ""),
+      assetId
+    ));
+
+    console.log("Locker puzzle hash:", lockerPuzzleHash);
+
+    const unlockerPuzzleHash = GreenWeb.util.sexp.sha256tree(getUnlockerPuzzle(
+      hexlify(toUtf8Bytes("bse")).replace("0x", ""),
+      predictedAddress.replace("0x", ""),
+      CHIA_NETWORK.portalLauncherId!.replace("0x", ""),
+      assetId
+    ));
+
+    console.log("Unlocker puzzle hash:", unlockerPuzzleHash);
+
+    const CreateCallABI = [
+      "function performCreate2(uint256 value, bytes memory deploymentData, bytes32 salt) external returns (address)"
+    ];
+    const MultiSendABI = [
+      "function multiSend(bytes memory transactions) external payable"
+    ];
+
+    const createCallInterface = new Interface(CreateCallABI);
+    const deployData = createCallInterface.encodeFunctionData("performCreate2", [
+      0,
+      deploymentTxData,
+      deploymentSalt
+    ]);
+    
+    const deployDataSize = Math.floor(deployData.replace("0x", "").length / 2);
+    const deployTxEncoded = solidityPacked(
+      ["uint8", "address", "uint256", "uint256", "bytes"],
+      [0, createCallAddress, 0, deployDataSize, deployData]
+    );
+
+    const wrappedCatInterface = new Interface(WrappedCATABI);
+    const initData = wrappedCatInterface.encodeFunctionData("initializePuzzleHashes", [
+      `0x${lockerPuzzleHash}`,
+      `0x${unlockerPuzzleHash}`,
+    ]);
+
+    const initDataSize = Math.floor(initData.replace("0x", "").length / 2);
+    const initTxEncoded = solidityPacked(
+      ["uint8", "address", "uint256", "uint256", "bytes"],
+      [0, predictedAddress, 0, initDataSize, initData]
+    );
+  
+    console.log("Calling multiSend...")
+    const transactions = concat([deployTxEncoded, initTxEncoded]);
+    writeContract({
+      address: BASE_NETWORK.multiCallAddress!,
+      abi: MultiSendABI,
+      functionName: "multiSend",
+      args: [
+        transactions
+      ],
+      value: BigInt(0),
+    });
   }
 
   return (
