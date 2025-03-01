@@ -252,7 +252,9 @@ export type Token = {
   // returns e.g., wmilliETH.b when path is XCH -> BSE
   getSpecificSymbol: (fromNetworkId: string, toNetworkId: string) => string,
   sourceNetworkType: NetworkType,
-  supported: TokenInfo[]
+  supported: TokenInfo[],
+  memecoin: boolean,
+  additionalWarning: string | null,
 }
 
 const MILLIETH_ADDRESS_ETHEREUM: `0x${string}` = TESTNET ?
@@ -290,6 +292,8 @@ export const ETH_TOKEN: Token = {
       contractAddress: MILLIETH_ADDRESS_ETHEREUM
     }
   ],
+  memecoin: false,
+  additionalWarning: null,
 }
 
 const makeEVMNativeToken = (baseSymbol: string) => {
@@ -320,7 +324,9 @@ const USDT_TOKEN: Token = {
       assetId: getWrappedERC20AssetID(ETHEREUM_NETWORK, USDT_ADDRESS_ETHEREUM),
       contractAddress: USDT_ADDRESS_ETHEREUM
     },
-  ]
+  ],
+  memecoin: false,
+  additionalWarning: null,
 }
 
 const USDC_ADDRESS_ETHEREUM_MAINNET: `0x${string}` = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
@@ -342,7 +348,9 @@ const USDC_TOKEN_MAINNET_ONLY: Token = {
       assetId: getWrappedERC20AssetID(ETHEREUM_NETWORK, USDC_ADDRESS_ETHEREUM_MAINNET),
       contractAddress: USDC_ADDRESS_ETHEREUM_MAINNET
     }
-  ]
+  ],
+  memecoin: false,
+  additionalWarning: null,
 }
 
 const makeCoinsetNativeToken = (baseSymbol: string) => {
@@ -375,7 +383,9 @@ export const XCH_TOKEN: Token = {
       assetId: XCH_ASSET_ID,
       contractAddress: WXCH_ADDRESS_ETHERUM
     },
-  ]
+  ],
+  memecoin: false,
+  additionalWarning: null,
 }
 
 const EURC_ADDRESS_BASE: `0x${string}` = TESTNET ?
@@ -392,7 +402,9 @@ const EURC_TOKEN: Token = {
       assetId: getWrappedERC20AssetID(BASE_NETWORK, EURC_ADDRESS_BASE),
       contractAddress: EURC_ADDRESS_BASE
     },
-  ]
+  ],
+  memecoin: false,
+  additionalWarning: null,
 }
 
 const DBX_ASSET_ID = TESTNET ? "d82dd03f8a9ad2f84353cd953c4de6b21dbaaf7de3ba3f4ddd9abe31ecba80ad" :
@@ -412,7 +424,9 @@ export const DBX_TOKEN: Token = {
       assetId: DBX_ASSET_ID,
       contractAddress: WDBX_ADDRESS_BASE
     }
-  ]
+  ],
+  memecoin: false,
+  additionalWarning: null,
 }
 
 const SBX_ASSET_ID_MAINNET = 'a628c1c2c6fcb74d53746157e438e108eab5c0bb3e5c80ff9b1910b3e4832913'
@@ -429,7 +443,9 @@ export const SBX_TOKEN_MAINNET_ONLY: Token = {
       assetId: SBX_ASSET_ID_MAINNET,
       contractAddress: SBX_ADDRESS_BASE_MAINNET
     },
-  ]
+  ],
+  memecoin: true,
+  additionalWarning: null,
 }
 
 const HOA_ASSET_ID_MAINNET = 'e816ee18ce2337c4128449bc539fbbe2ecfdd2098c4e7cab4667e223c3bdc23d'
@@ -446,7 +462,9 @@ export const HOA_TOKEN_BASE_ONLY: Token = {
       assetId: HOA_ASSET_ID_MAINNET,
       contractAddress: HOA_ADDRESS_BASE_MAINNET
     },
-  ]
+  ],
+  memecoin: true,
+  additionalWarning: null,
 }
 
 const WARP_MEMECOIN_ASSET_ID_BASE_MAINNET = '563c883b801c4e6c736994d09ec69c94c9c6482612b4655b76097282b8d2fae6'
@@ -463,7 +481,9 @@ export const WARP_MEMECOIN_TOKEN_BASE_ONLY: Token = {
       assetId: WARP_MEMECOIN_ASSET_ID_BASE_MAINNET,
       contractAddress: WARP_MEMECOIN_ADDRESS_BASE_MAINNET
     },
-  ]
+  ],
+  memecoin: true,
+  additionalWarning: "WARP is not affiliated with warp.green in any way.",
 }
 
 const BEPE_MEMECOIN_ASSET_ID_BASE_MAINNET = 'ccda69ff6c44d687994efdbee30689be51d2347f739287ab4bb7b52344f8bf1d'
@@ -480,7 +500,9 @@ export const BEPE_MEMECOIN_TOKEN_BASE_ONLY: Token = {
       assetId: BEPE_MEMECOIN_ASSET_ID_BASE_MAINNET,
       contractAddress: BEPE_MEMECOIN_ADDRESS_BASE_MAINNET
     },
-  ]
+  ],
+  memecoin: true,
+  additionalWarning: null,
 }
 
 
