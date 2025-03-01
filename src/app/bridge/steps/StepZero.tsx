@@ -208,10 +208,17 @@ export default function StepZero() {
                 }
               </div>
 
-              {/* WARP memecoin warning */}
-              {tokenSymbol === 'WARP' && (<div className="pt-4">
+              {/* memecoin warning */}
+              {token.memecoin && (<div className="pt-2">
                 <div className="text-orange-800 font-semibold bg-orange-400 text-center border-2 border-orange-800 border-input rounded-lg p-4 flex items-center justify-between animate-in fade-in slide-in-from-top-2 duration-500">
-                  WARP is a Chia-based memecoin. It is NOT affiliated with warp.green in any other way.
+                  {tokenSymbol} is a Chia-based memecoin added to the bridge by the Chia community. Listing on this interface does NOT represent endorsement from the warp.green team. Do your own research before transacting with {tokenSymbol}.
+                </div>
+              </div>)}
+
+              {/* additional warning */}
+              {token.additionalWarning !== null && (<div className="pt-1">
+                <div className="text-orange-800 font-semibold bg-orange-400 text-center border-2 border-orange-800 border-input rounded-lg p-4 flex items-center justify-between animate-in fade-in slide-in-from-top-2 duration-500">
+                  {token.additionalWarning}
                 </div>
               </div>)}
 
