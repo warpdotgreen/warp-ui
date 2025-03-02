@@ -530,6 +530,328 @@ export const PEPE_MEMECOIN_TOKEN_BASE_ONLY: Token = {
   additionalWarning: "This PEPE is a Chia-based CAT not connected to the memecoins launched on other chains.",
 }
 
+const SPROUT_MEMECOIN_ASSET_ID_BASE_MAINNET = 'ab558b1b841365a24d1ff2264c55982e55664a8b6e45bc107446b7e667bb463b'
+const SPROUT_MEMECOIN_ADDRESS_BASE_MAINNET = '0x68f305Cca4D3462Ac8CAf759492Ed9d33E4DFF40'
+
+export const SPROUT_MEMECOIN_TOKEN_BASE_ONLY: Token = {
+  symbol: 'SPROUT',
+  getSpecificSymbol: makeCoinsetNativeToken('SPROUT'),
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: SPROUT_MEMECOIN_ASSET_ID_BASE_MAINNET,
+      contractAddress: SPROUT_MEMECOIN_ADDRESS_BASE_MAINNET
+    },
+  ],
+  memecoin: true,
+  additionalWarning: null,
+}
+
+const LOVE_MEMECOIN_ASSET_ID_BASE_MAINNET = '70010d83542594dd44314efbae75d82b3d9ae7d946921ed981a6cd08f0549e50'
+const LOVE_MEMECOIN_ADDRESS_BASE_MAINNET = '0xCf6Ca3929b00Ebc7fF504b165ca40C44087CAE47'
+
+export const LOVE_MEMECOIN_TOKEN_BASE_ONLY: Token = {
+  symbol: 'LOVE',
+  getSpecificSymbol: makeCoinsetNativeToken('LOVE'),
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: LOVE_MEMECOIN_ASSET_ID_BASE_MAINNET,
+      contractAddress: LOVE_MEMECOIN_ADDRESS_BASE_MAINNET
+    },
+  ],
+  memecoin: true,
+  additionalWarning: null,
+}
+
+const CHIA_MEMECOIN_ASSET_ID_BASE_MAINNET = '69326954fe16117cd6250e929748b2a1ab916347598bc8180749279cfae21ddb'
+const CHIA_MEMECOIN_ADDRESS_BASE_MAINNET = '0x05AefaFfF978EA4F9E6ff9FA3Bc2465B90598549'
+
+export const CHIA_MEMECOIN_TOKEN_BASE_ONLY: Token = {
+  symbol: '$CHIA',
+  getSpecificSymbol: makeCoinsetNativeToken('$CHIA'),
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: CHIA_MEMECOIN_ASSET_ID_BASE_MAINNET,
+      contractAddress: CHIA_MEMECOIN_ADDRESS_BASE_MAINNET
+    },
+  ],
+  memecoin: true,
+  additionalWarning: "This $CHIA is a Chia-based CAT memecoin not related to the Chia blockchain.",
+}
+
+const TWV_MEMECOIN_ASSET_ID_BASE_MAINNET = '36029c0e2f17c2021c5f078a85917bbb10a006cd9431da74d26344723fc3679e'
+const TWV_MEMECOIN_ADDRESS_BASE_MAINNET = '0xb23b3F88E1c4564C42177B7b28757f275D2aCBB9'
+
+export const TWV_MEMECOIN_TOKEN_BASE_ONLY: Token = {
+  symbol: 'TWV',
+  getSpecificSymbol: makeCoinsetNativeToken('TWV'),
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: TWV_MEMECOIN_ASSET_ID_BASE_MAINNET,
+      contractAddress: TWV_MEMECOIN_ADDRESS_BASE_MAINNET
+    },
+  ],
+  memecoin: true,
+  additionalWarning: null,
+}
+
+const YKY_MEMECOIN_ASSET_ID_BASE_MAINNET = 'f930c6c02e8bb72e3d06eabb61483fbd4bbbc41906336e4db49c81affa51df81'
+const YKY_MEMECOIN_ADDRESS_BASE_MAINNET = '0x78701035aCB24261d532E73B0836478c5c01E0f1'
+
+export const YKY_MEMECOIN_TOKEN_BASE_ONLY: Token = {
+  symbol: 'YKY',
+  getSpecificSymbol: makeCoinsetNativeToken('YKY'),
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: YKY_MEMECOIN_ASSET_ID_BASE_MAINNET,
+      contractAddress: YKY_MEMECOIN_ADDRESS_BASE_MAINNET
+    },
+  ],
+  memecoin: true,
+  additionalWarning: null,
+}
+
+const NIOC_MEMECOIN_ASSET_ID_BASE_MAINNET = '79f6313fdb6ba66347a5bcad4af6878ac07bf5fafedeb384c3b350d913c8b6b6'
+const NIOC_MEMECOIN_ADDRESS_BASE_MAINNET = '0x8f0Fc5F93832A1A3368e0a25c2798e1B4c4c7437'
+
+export const NIOC_MEMECOIN_TOKEN_BASE_ONLY: Token = {
+  symbol: 'NIOC',
+  getSpecificSymbol: makeCoinsetNativeToken('NIOC'),
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: NIOC_MEMECOIN_ASSET_ID_BASE_MAINNET,
+      contractAddress: NIOC_MEMECOIN_ADDRESS_BASE_MAINNET
+    },
+  ],
+  memecoin: true,
+  additionalWarning: null,
+}
+
+const BTC_MEMECOIN_ASSET_ID_BASE_MAINNET = 'c6be668127b983686af02ceb26486ead5144c958c9f450b273c4549f209a4660'
+const BTC_MEMECOIN_ADDRESS_BASE_MAINNET = '0x36191b19FafA6B0b470E1A9986Ad50a0AD559950'
+
+export const BTC_MEMECOIN_TOKEN_BASE_ONLY: Token = {
+  symbol: '$BTC',
+  getSpecificSymbol: makeCoinsetNativeToken('$BTC'),
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: BTC_MEMECOIN_ASSET_ID_BASE_MAINNET,
+      contractAddress: BTC_MEMECOIN_ADDRESS_BASE_MAINNET
+    },
+  ],
+  memecoin: true,
+  additionalWarning: "This $BTC is a Chia-based CAT memecoin not related to Bitcoin.",
+}
+
+const CAT_MEMECOIN_ASSET_ID_BASE_MAINNET = '086287bab372e0fcf2ce36b43e4eab3e0ad0c6fcf6e1a326612e5240a2a8abb5'
+const CAT_MEMECOIN_ADDRESS_BASE_MAINNET = '0xf543D9930337af6A6601D19564AaeB58EbF87451'
+
+export const CAT_MEMECOIN_TOKEN_BASE_ONLY: Token = {
+  symbol: '$CAT',
+  getSpecificSymbol: makeCoinsetNativeToken('$CAT'),
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: CAT_MEMECOIN_ASSET_ID_BASE_MAINNET,
+      contractAddress: CAT_MEMECOIN_ADDRESS_BASE_MAINNET
+    },
+  ],
+  memecoin: true,
+  additionalWarning: "This $CAT is a Chia-based CAT memecoin not related to the Chia Asset Token standard.",
+}
+
+const WAR_MEMECOIN_ASSET_ID_BASE_MAINNET = 'cb21f3625d7b4e8f843dda59b4b7866862f16c376077134cc8735e2b3a29c011'
+const WAR_MEMECOIN_ADDRESS_BASE_MAINNET = '0xBB5ed692F675108B454202b8789351599f6E829C'
+
+export const WAR_MEMECOIN_TOKEN_BASE_ONLY: Token = {
+  symbol: 'WAR',
+  getSpecificSymbol: makeCoinsetNativeToken('WAR'),
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: WAR_MEMECOIN_ASSET_ID_BASE_MAINNET,
+      contractAddress: WAR_MEMECOIN_ADDRESS_BASE_MAINNET
+    },
+  ],
+  memecoin: true,
+  additionalWarning: null,
+}
+
+const MWIF_MEMECOIN_ASSET_ID_BASE_MAINNET = 'e233f9c0ebc092f083aaacf6295402ed0a0bb1f9acb1b56500d8a4f5a5e4c957'
+const MWIF_MEMECOIN_ADDRESS_BASE_MAINNET = '0x014bab9524f4408ef13262401E5609547F7E8718'
+
+export const MWIF_MEMECOIN_TOKEN_BASE_ONLY: Token = {
+  symbol: 'MWIF',
+  getSpecificSymbol: makeCoinsetNativeToken('MWIF'),
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: MWIF_MEMECOIN_ASSET_ID_BASE_MAINNET,
+      contractAddress: MWIF_MEMECOIN_ADDRESS_BASE_MAINNET
+    },
+  ],
+  memecoin: true,
+  additionalWarning: null,
+}
+
+const MZ_MEMECOIN_ASSET_ID_BASE_MAINNET = 'b8edcc6a7cf3738a3806fdbadb1bbcfc2540ec37f6732ab3a6a4bbcd2dbec105'
+const MZ_MEMECOIN_ADDRESS_BASE_MAINNET = '0xaC0c9DB04234668A1C15F47C7BE9c5D7040b0506'
+
+export const MZ_MEMECOIN_TOKEN_BASE_ONLY: Token = {
+  symbol: 'MZ',
+  getSpecificSymbol: makeCoinsetNativeToken('MZ'),
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: MZ_MEMECOIN_ASSET_ID_BASE_MAINNET,
+      contractAddress: MZ_MEMECOIN_ADDRESS_BASE_MAINNET
+    },
+  ],
+  memecoin: true,
+  additionalWarning: null,
+}
+
+const GOAT_MEMECOIN_ASSET_ID_BASE_MAINNET = '01ac0cb37e80075dd028e2ceb433a79a5eb62649d5fbfd2e94650e33fa7d1cff'
+const GOAT_MEMECOIN_ADDRESS_BASE_MAINNET = '0x8DC7294F5d6C5fbF0E926dEcE719e5db648bF45c'
+
+export const GOAT_MEMECOIN_TOKEN_BASE_ONLY: Token = {
+  symbol: 'GOAT',
+  getSpecificSymbol: makeCoinsetNativeToken('GOAT'),
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: GOAT_MEMECOIN_ASSET_ID_BASE_MAINNET,
+      contractAddress: GOAT_MEMECOIN_ADDRESS_BASE_MAINNET
+    },
+  ],
+  memecoin: true,
+  additionalWarning: null,
+}
+
+const STR_MEMECOIN_ASSET_ID_BASE_MAINNET = '8c77de1427156b98fb15cce77d908f79bd69f6b4b8e3a60d8e051dac481b5365'
+const STR_MEMECOIN_ADDRESS_BASE_MAINNET = '0x000bA7E6824AA002033Df7BEDf8bAB72Fc6465e9'
+
+export const STR_MEMECOIN_TOKEN_BASE_ONLY: Token = {
+  symbol: 'STR',
+  getSpecificSymbol: makeCoinsetNativeToken('STR'),
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: STR_MEMECOIN_ASSET_ID_BASE_MAINNET,
+      contractAddress: STR_MEMECOIN_ADDRESS_BASE_MAINNET
+    },
+  ],
+  memecoin: true,
+  additionalWarning: null,
+}
+
+const STNK_MEMECOIN_ASSET_ID_BASE_MAINNET = 'bf96d9d1a1973d41047e74d43117799d5b63b275c8f26921e6228ec84b553da9'
+const STNK_MEMECOIN_ADDRESS_BASE_MAINNET = '0xdc77bca5ed07a73D4E3E0D5E5817ebDC69EEc9bf'
+
+export const STNK_MEMECOIN_TOKEN_BASE_ONLY: Token = {
+  symbol: 'STNK',
+  getSpecificSymbol: makeCoinsetNativeToken('STNK'),
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: STNK_MEMECOIN_ASSET_ID_BASE_MAINNET,
+      contractAddress: STNK_MEMECOIN_ADDRESS_BASE_MAINNET
+    },
+  ],
+  memecoin: true,
+  additionalWarning: null,
+}
+
+const JOCK_MEMECOIN_ASSET_ID_BASE_MAINNET = '3b19b64418682ad60c6278d85f8076a108c9fb4ca385d401c6d41ba2bfa9612e'
+const JOCK_MEMECOIN_ADDRESS_BASE_MAINNET = '0x20CC08b1135D7Ae892D6b5C799f0aBb51D822899'
+
+export const JOCK_MEMECOIN_TOKEN_BASE_ONLY: Token = {
+  symbol: 'JOCK',
+  getSpecificSymbol: makeCoinsetNativeToken('JOCK'),
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: JOCK_MEMECOIN_ASSET_ID_BASE_MAINNET,
+      contractAddress: JOCK_MEMECOIN_ADDRESS_BASE_MAINNET
+    },
+  ],
+  memecoin: true,
+  additionalWarning: null,
+}
+
+const CHUMP_MEMECOIN_ASSET_ID_BASE_MAINNET = '7d4de8d69be7a3f661a04284ec96e7ca1c33bf0f5eeacf8740e8d37ff4d698a8'
+const CHUMP_MEMECOIN_ADDRESS_BASE_MAINNET = '0xCF38291b2A89Cb884a161E363Bfcc2b2F70E1844'
+
+export const CHUMP_MEMECOIN_TOKEN_BASE_ONLY: Token = {
+  symbol: 'CHUMP',
+  getSpecificSymbol: makeCoinsetNativeToken('CHUMP'),
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: CHUMP_MEMECOIN_ASSET_ID_BASE_MAINNET,
+      contractAddress: CHUMP_MEMECOIN_ADDRESS_BASE_MAINNET
+    },
+  ],
+  memecoin: true,
+  additionalWarning: null,
+}
+
+const PIZZA_MEMECOIN_ASSET_ID_BASE_MAINNET = 'dd37f678dda586fad9b1daeae1f7c5c137ffa6d947e1ed5c7b4f3c430da80638'
+const PIZZA_MEMECOIN_ADDRESS_BASE_MAINNET = '0x3A7B077d815614ae51100fCBd7Fe1EE104Ae4b66'
+
+export const PIZZA_MEMECOIN_TOKEN_BASE_ONLY: Token = {
+  symbol: 'PIZZA',
+  getSpecificSymbol: makeCoinsetNativeToken('PIZZA'),
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: PIZZA_MEMECOIN_ASSET_ID_BASE_MAINNET,
+      contractAddress: PIZZA_MEMECOIN_ADDRESS_BASE_MAINNET
+    },
+  ],
+  memecoin: true,
+  additionalWarning: null,
+}
 
 export const TOKENS = TESTNET ? [
   ETH_TOKEN,
@@ -548,7 +870,24 @@ export const TOKENS = TESTNET ? [
   HOA_TOKEN_BASE_ONLY,
   WARP_MEMECOIN_TOKEN_BASE_ONLY,
   BEPE_MEMECOIN_TOKEN_BASE_ONLY,
-  PEPE_MEMECOIN_TOKEN_BASE_ONLY
+  PEPE_MEMECOIN_TOKEN_BASE_ONLY,
+  SPROUT_MEMECOIN_TOKEN_BASE_ONLY,
+  LOVE_MEMECOIN_TOKEN_BASE_ONLY,
+  CHIA_MEMECOIN_TOKEN_BASE_ONLY,
+  TWV_MEMECOIN_TOKEN_BASE_ONLY,
+  YKY_MEMECOIN_TOKEN_BASE_ONLY,
+  NIOC_MEMECOIN_TOKEN_BASE_ONLY,
+  BTC_MEMECOIN_TOKEN_BASE_ONLY,
+  CAT_MEMECOIN_TOKEN_BASE_ONLY,
+  WAR_MEMECOIN_TOKEN_BASE_ONLY,
+  MWIF_MEMECOIN_TOKEN_BASE_ONLY,
+  MZ_MEMECOIN_TOKEN_BASE_ONLY,
+  GOAT_MEMECOIN_TOKEN_BASE_ONLY,
+  // STR_MEMECOIN_TOKEN_BASE_ONLY,
+  STNK_MEMECOIN_TOKEN_BASE_ONLY,
+  JOCK_MEMECOIN_TOKEN_BASE_ONLY,
+  CHUMP_MEMECOIN_TOKEN_BASE_ONLY,
+  PIZZA_MEMECOIN_TOKEN_BASE_ONLY
 ]
 
 declare module 'wagmi' {

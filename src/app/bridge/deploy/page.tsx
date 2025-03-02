@@ -27,7 +27,7 @@ function ActualDeployPage() {
   const [chiaSymbol, setChiaSymbol] = useState('');
   const [predictedContractAddress, setPredictedContractAddress] = useState('');
 
-  const dataCompleted = assetId.length == 64 && chiaSymbol.length > 2;
+  const dataCompleted = assetId.length == 64 && chiaSymbol.length >= 2;
 
   const deployPls = async () => {
     const symbol = `w${chiaSymbol}`;
