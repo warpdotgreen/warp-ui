@@ -644,44 +644,6 @@ export const NIOC_MEMECOIN_TOKEN_BASE_ONLY: Token = {
   additionalWarning: null,
 }
 
-const BTC_MEMECOIN_ASSET_ID_BASE_MAINNET = 'c6be668127b983686af02ceb26486ead5144c958c9f450b273c4549f209a4660'
-const BTC_MEMECOIN_ADDRESS_BASE_MAINNET = '0x36191b19FafA6B0b470E1A9986Ad50a0AD559950'
-
-export const BTC_MEMECOIN_TOKEN_BASE_ONLY: Token = {
-  symbol: '$BTC',
-  getSpecificSymbol: makeCoinsetNativeToken('$BTC'),
-  sourceNetworkType: NetworkType.COINSET,
-  supported: [
-    {
-      evmNetworkId: BASE_NETWORK.id,
-      coinsetNetworkId: CHIA_NETWORK.id,
-      assetId: BTC_MEMECOIN_ASSET_ID_BASE_MAINNET,
-      contractAddress: BTC_MEMECOIN_ADDRESS_BASE_MAINNET
-    },
-  ],
-  memecoin: true,
-  additionalWarning: "This $BTC is a Chia-based CAT memecoin not related to Bitcoin.",
-}
-
-const CAT_MEMECOIN_ASSET_ID_BASE_MAINNET = '086287bab372e0fcf2ce36b43e4eab3e0ad0c6fcf6e1a326612e5240a2a8abb5'
-const CAT_MEMECOIN_ADDRESS_BASE_MAINNET = '0xf543D9930337af6A6601D19564AaeB58EbF87451'
-
-export const CAT_MEMECOIN_TOKEN_BASE_ONLY: Token = {
-  symbol: '$CAT',
-  getSpecificSymbol: makeCoinsetNativeToken('$CAT'),
-  sourceNetworkType: NetworkType.COINSET,
-  supported: [
-    {
-      evmNetworkId: BASE_NETWORK.id,
-      coinsetNetworkId: CHIA_NETWORK.id,
-      assetId: CAT_MEMECOIN_ASSET_ID_BASE_MAINNET,
-      contractAddress: CAT_MEMECOIN_ADDRESS_BASE_MAINNET
-    },
-  ],
-  memecoin: true,
-  additionalWarning: "This $CAT is a Chia-based CAT memecoin not related to the Chia Asset Token standard.",
-}
-
 const WAR_MEMECOIN_ASSET_ID_BASE_MAINNET = 'cb21f3625d7b4e8f843dda59b4b7866862f16c376077134cc8735e2b3a29c011'
 const WAR_MEMECOIN_ADDRESS_BASE_MAINNET = '0xBB5ed692F675108B454202b8789351599f6E829C'
 
@@ -752,25 +714,6 @@ export const GOAT_MEMECOIN_TOKEN_BASE_ONLY: Token = {
       coinsetNetworkId: CHIA_NETWORK.id,
       assetId: GOAT_MEMECOIN_ASSET_ID_BASE_MAINNET,
       contractAddress: GOAT_MEMECOIN_ADDRESS_BASE_MAINNET
-    },
-  ],
-  memecoin: true,
-  additionalWarning: null,
-}
-
-const STR_MEMECOIN_ASSET_ID_BASE_MAINNET = '8c77de1427156b98fb15cce77d908f79bd69f6b4b8e3a60d8e051dac481b5365'
-const STR_MEMECOIN_ADDRESS_BASE_MAINNET = '0x000bA7E6824AA002033Df7BEDf8bAB72Fc6465e9'
-
-export const STR_MEMECOIN_TOKEN_BASE_ONLY: Token = {
-  symbol: 'STR',
-  getSpecificSymbol: makeCoinsetNativeToken('STR'),
-  sourceNetworkType: NetworkType.COINSET,
-  supported: [
-    {
-      evmNetworkId: BASE_NETWORK.id,
-      coinsetNetworkId: CHIA_NETWORK.id,
-      assetId: STR_MEMECOIN_ASSET_ID_BASE_MAINNET,
-      contractAddress: STR_MEMECOIN_ADDRESS_BASE_MAINNET
     },
   ],
   memecoin: true,
@@ -877,13 +820,10 @@ export const TOKENS = TESTNET ? [
   TWV_MEMECOIN_TOKEN_BASE_ONLY,
   YKY_MEMECOIN_TOKEN_BASE_ONLY,
   NIOC_MEMECOIN_TOKEN_BASE_ONLY,
-  // BTC_MEMECOIN_TOKEN_BASE_ONLY,
-  // CAT_MEMECOIN_TOKEN_BASE_ONLY,
   WAR_MEMECOIN_TOKEN_BASE_ONLY,
   MWIF_MEMECOIN_TOKEN_BASE_ONLY,
   MZ_MEMECOIN_TOKEN_BASE_ONLY,
   GOAT_MEMECOIN_TOKEN_BASE_ONLY,
-  // STR_MEMECOIN_TOKEN_BASE_ONLY,
   STNK_MEMECOIN_TOKEN_BASE_ONLY,
   JOCK_MEMECOIN_TOKEN_BASE_ONLY,
   CHUMP_MEMECOIN_TOKEN_BASE_ONLY,
