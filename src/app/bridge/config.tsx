@@ -796,6 +796,25 @@ export const PIZZA_MEMECOIN_TOKEN_BASE_ONLY: Token = {
   additionalWarning: null,
 }
 
+const SBF_MEMECOIN_ASSET_ID_BASE_MAINNET = '9f81bc1e1fbdc4027a08ef19923f3835c87311b70e897968c72fd20b2cc266b9'
+const SBF_MEMECOIN_ADDRESS_BASE_MAINNET = '0xCe031c942F63769F7ef5C67b337B126A983EA952'
+
+export const SBF_MEMECOIN_TOKEN_BASE_ONLY: Token = {
+  symbol: 'SBF',
+  getSpecificSymbol: makeCoinsetNativeToken('SBF'),
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: SBF_MEMECOIN_ASSET_ID_BASE_MAINNET,
+      contractAddress: SBF_MEMECOIN_ADDRESS_BASE_MAINNET
+    },
+  ],
+  memecoin: true,
+  additionalWarning: null,
+}
+
 export const TOKENS = TESTNET ? [
   ETH_TOKEN,
   USDT_TOKEN,
@@ -827,7 +846,8 @@ export const TOKENS = TESTNET ? [
   STNK_MEMECOIN_TOKEN_BASE_ONLY,
   JOCK_MEMECOIN_TOKEN_BASE_ONLY,
   CHUMP_MEMECOIN_TOKEN_BASE_ONLY,
-  PIZZA_MEMECOIN_TOKEN_BASE_ONLY
+  PIZZA_MEMECOIN_TOKEN_BASE_ONLY,
+  SBF_MEMECOIN_TOKEN_BASE_ONLY
 ]
 
 declare module 'wagmi' {
