@@ -796,6 +796,82 @@ export const PIZZA_MEMECOIN_TOKEN_BASE_ONLY: Token = {
   additionalWarning: null,
 }
 
+const CAT_MEMECOIN_ASSET_ID_BASE_MAINNET = '086287bab372e0fcf2ce36b43e4eab3e0ad0c6fcf6e1a326612e5240a2a8abb5'
+const CAT_MEMECOIN_ADDRESS_BASE_MAINNET = '0x69adFc7C32e12b17B875087c217209B7e13bFff9'
+
+export const CAT_MEMECOIN_TOKEN_BASE_ONLY: Token = {
+  symbol: 'CAT',
+  getSpecificSymbol: makeCoinsetNativeToken('CAT'),
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: CAT_MEMECOIN_ASSET_ID_BASE_MAINNET,
+      contractAddress: CAT_MEMECOIN_ADDRESS_BASE_MAINNET
+    },
+  ],
+  memecoin: true,
+  additionalWarning: null,
+}
+
+const DWB_MEMECOIN_ASSET_ID_BASE_MAINNET = 'b0495abe70851d43d8444f785daa4fb2aaa8dae6312d596ee318d2b5834cc987'
+const DWB_MEMECOIN_ADDRESS_BASE_MAINNET = '0xc65151ac284f43A51F0A843F6A46930EfF0076c5'
+
+export const DWB_MEMECOIN_TOKEN_BASE_ONLY: Token = {
+  symbol: 'DWB',
+  getSpecificSymbol: makeCoinsetNativeToken('DWB'),
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: DWB_MEMECOIN_ASSET_ID_BASE_MAINNET,
+      contractAddress: DWB_MEMECOIN_ADDRESS_BASE_MAINNET
+    },
+  ],
+  memecoin: true,
+  additionalWarning: null,
+}
+
+const PP_MEMECOIN_ASSET_ID_BASE_MAINNET = '84d31c80c619070ba45ce4dc5cc0bed2ae4341a0da1d69504e28243e6ccbef37'
+const PP_MEMECOIN_ADDRESS_BASE_MAINNET = '0xB5908e2ed3cfb5b6cfB0D5c7D8f4FAdA105861B2'
+
+export const PP_MEMECOIN_TOKEN_BASE_ONLY: Token = {
+  symbol: 'PP',
+  getSpecificSymbol: makeCoinsetNativeToken('PP'),
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: PP_MEMECOIN_ASSET_ID_BASE_MAINNET,
+      contractAddress: PP_MEMECOIN_ADDRESS_BASE_MAINNET
+    },
+  ],
+  memecoin: true,
+  additionalWarning: null,
+}
+
+const SBF_MEMECOIN_ASSET_ID_BASE_MAINNET = '9f81bc1e1fbdc4027a08ef19923f3835c87311b70e897968c72fd20b2cc266b9'
+const SBF_MEMECOIN_ADDRESS_BASE_MAINNET = '0xCe031c942F63769F7ef5C67b337B126A983EA952'
+
+export const SBF_MEMECOIN_TOKEN_BASE_ONLY: Token = {
+  symbol: 'SBF',
+  getSpecificSymbol: makeCoinsetNativeToken('SBF'),
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: SBF_MEMECOIN_ASSET_ID_BASE_MAINNET,
+      contractAddress: SBF_MEMECOIN_ADDRESS_BASE_MAINNET
+    },
+  ],
+  memecoin: true,
+  additionalWarning: null,
+}
+
 export const TOKENS = TESTNET ? [
   ETH_TOKEN,
   USDT_TOKEN,
@@ -827,7 +903,11 @@ export const TOKENS = TESTNET ? [
   STNK_MEMECOIN_TOKEN_BASE_ONLY,
   JOCK_MEMECOIN_TOKEN_BASE_ONLY,
   CHUMP_MEMECOIN_TOKEN_BASE_ONLY,
-  PIZZA_MEMECOIN_TOKEN_BASE_ONLY
+  PIZZA_MEMECOIN_TOKEN_BASE_ONLY,
+  CAT_MEMECOIN_TOKEN_BASE_ONLY,
+  DWB_MEMECOIN_TOKEN_BASE_ONLY,
+  PP_MEMECOIN_TOKEN_BASE_ONLY,
+  SBF_MEMECOIN_TOKEN_BASE_ONLY
 ]
 
 declare module 'wagmi' {
