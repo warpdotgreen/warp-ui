@@ -830,6 +830,7 @@ export function getSecurityCoinSig(
   );
   const securityDelegatedPuzzleHash = GreenWeb.util.sexp.sha256tree(securityDelegatedPuzzle);
   const dataToSign = securityDelegatedPuzzleHash + GreenWeb.util.coin.getName(securityCoin) + aggSigAdditionalDataHex;
+  // const securityCoinSigRaw = AugSchemeMPL.sign(tempSk, Buffer.from(dataToSign, "hex"));
   const securityCoinSigRaw = AugSchemeMPL.sign(tempSk, new Uint8Array(Buffer.from(dataToSign, "hex")));
   const securityCoinSig = Buffer.from(
     securityCoinSigRaw.serialize()
