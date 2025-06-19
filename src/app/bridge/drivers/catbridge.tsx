@@ -59,6 +59,9 @@ export function getUnlockerPuzzle(
   portalReceiverLauncherId: string,
   assetId: string | null
 ): GreenWeb.clvm.SExp {
+  while (messageSource.startsWith("00")) {
+    messageSource = messageSource.slice(2);
+  }
   return GreenWeb.util.sexp.curry(
     GreenWeb.util.sexp.fromHex(UNLOCKER_MOD),
     [

@@ -65,6 +65,9 @@ function getMessageCoinPuzzle(
   destination: string,
   messageHash: string,
 ): GreenWeb.clvm.SExp {
+  while (source.startsWith("00")) {
+    source = source.slice(2);
+  }
   return GreenWeb.util.sexp.curry(
     getMessageCoinPuzzle1stCurry(portalReceiverLauncherId),
     [
@@ -221,18 +224,23 @@ export function getPortalReceiverInnerSolution(
         GreenWeb.util.sexp.bytesToAtom(msgInfo[0].nonce),
       ),
     ),
-    messageInfos.map((msgInfo) =>
-      [
+    messageInfos.map((msgInfo) => {
+      let source = msgInfo[0].sourceHex;
+      while (source.startsWith("00")) {
+        source = source.slice(2);
+      }
+
+      return [
         GreenWeb.util.sexp.bytesToAtom(
           GreenWeb.util.coin.amountToBytes(
             msgInfo[1]
           )
         ),
-        GreenWeb.util.sexp.bytesToAtom(msgInfo[0].sourceHex),
+        GreenWeb.util.sexp.bytesToAtom(source),
         GreenWeb.util.sexp.bytesToAtom(msgInfo[0].destinationHex),
         msgInfo[0].contents.map(contentPart => GreenWeb.util.sexp.bytesToAtom(contentPart))
-      ]
-    )
+      ];
+    })
   ]);
 }
 
