@@ -112,25 +112,25 @@ export default function StepZero() {
     const newToken = TOKENS.find((t: Token) => t.symbol === newValue)!
     setTokenSymbol(newValue)
 
-    const newEvmNetworks = Array.from(new Set(newToken.supported.map(t => t.evmNetworkId))).map(id => NETWORKS.find(n => n.id === id)!);
-    const newCoinsetNetworks = Array.from(new Set(newToken.supported.map(t => t.coinsetNetworkId))).map(id => NETWORKS.find(n => n.id === id)!);
-    if(newToken.sourceNetworkType === NetworkType.EVM) {
-      setSourceNetworks(newEvmNetworks);
-      setDestinationNetworks(newCoinsetNetworks);
-    } else {
-      setSourceNetworks(newCoinsetNetworks);
-      setDestinationNetworks(newEvmNetworks);
-    }
+    // const newEvmNetworks = Array.from(new Set(newToken.supported.map(t => t.evmNetworkId))).map(id => NETWORKS.find(n => n.id === id)!);
+    // const newCoinsetNetworks = Array.from(new Set(newToken.supported.map(t => t.coinsetNetworkId))).map(id => NETWORKS.find(n => n.id === id)!);
+    // if(newToken.sourceNetworkType === NetworkType.EVM) {
+    //   setSourceNetworks(newEvmNetworks);
+    //   setDestinationNetworks(newCoinsetNetworks);
+    // } else {
+    //   setSourceNetworks(newCoinsetNetworks);
+    //   setDestinationNetworks(newEvmNetworks);
+    // }
 
-    setSourceNetworkId(
-      newToken.sourceNetworkType !== NetworkType.EVM ?
-        newToken.supported[0].coinsetNetworkId : newToken.supported[0].evmNetworkId
-    )
+    // setSourceNetworkId(
+    //   newToken.sourceNetworkType !== NetworkType.EVM ?
+    //     newToken.supported[0].coinsetNetworkId : newToken.supported[0].evmNetworkId
+    // )
 
-    const destNetworkId = newToken.sourceNetworkType === NetworkType.EVM ?
-      newToken.supported[0].coinsetNetworkId : newToken.supported[0].evmNetworkId
-    setDestinationNetworkId(destNetworkId)
-    updateDestinationAddress(destNetworkId)
+    // const destNetworkId = newToken.sourceNetworkType === NetworkType.EVM ?
+    //   newToken.supported[0].coinsetNetworkId : newToken.supported[0].evmNetworkId
+    // setDestinationNetworkId(destNetworkId)
+    // updateDestinationAddress(destNetworkId)
   }
 
   return (
