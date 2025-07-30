@@ -214,8 +214,8 @@ export const BASE_NETWORK: Network = TESTNET ? {
   id: 'bse',
   chainId: base.id,
   type: NetworkType.EVM,
-  rpcUrl: 'https://base-mainnet.infura.io/v3/fe4978ed90a14204a6db4d5ac1f42250',
-  // rpcUrl: 'https://mainnet.base.org',
+  // rpcUrl: 'https://base-mainnet.infura.io/v3/fe4978ed90a14204a6db4d5ac1f42250',
+  rpcUrl: 'https://mainnet.base.org',
   explorerUrl: 'https://basescan.org',
   messageToll: ethers.parseEther("0.00001"),
   signatureThreshold: 7,
@@ -1043,6 +1043,44 @@ export const COFFEE_MEMECOIN_TOKEN_BASE_ONLY: Token = {
   additionalWarning: null,
 }
 
+const NECK_MEMECOIN_ASSET_ID_BASE_MAINNET = '1ad673d21799c9a224014ca71f9fe07cbc836fa23fa97b3be275d46d0b8bd9da'
+const NECK_MEMECOIN_ADDRESS_BASE_MAINNET = '0x0b034bB4e7A19662bd4C5150B270CF654506985A'
+
+export const NECK_MEMECOIN_TOKEN_BASE_ONLY: Token = {
+  symbol: 'NECK',
+  getSpecificSymbol: makeCoinsetNativeToken('NECK'),
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: NECK_MEMECOIN_ASSET_ID_BASE_MAINNET,
+      contractAddress: NECK_MEMECOIN_ADDRESS_BASE_MAINNET
+    },
+  ],
+  memecoin: true,
+  additionalWarning: null,
+}
+
+const GYATT_MEMECOIN_ASSET_ID_BASE_MAINNET = '6188396ebb38365be3f7aad1d5c0310d1b6ce66180d8847e5da096e2ce33ba1a'
+const GYATT_MEMECOIN_ADDRESS_BASE_MAINNET = '0xA4c74853BE20F750ae5BeAbcAF4BEa93e6eF9bF7'
+
+export const GYATT_MEMECOIN_TOKEN_BASE_ONLY: Token = {
+  symbol: 'GYATT',
+  getSpecificSymbol: makeCoinsetNativeToken('GYATT'),
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: GYATT_MEMECOIN_ASSET_ID_BASE_MAINNET,
+      contractAddress: GYATT_MEMECOIN_ADDRESS_BASE_MAINNET
+    },
+  ],
+  memecoin: true,
+  additionalWarning: null,
+}
+
 export const TOKENS = TESTNET ? [
   ETH_TOKEN,
   USDT_TOKEN,
@@ -1087,7 +1125,9 @@ export const TOKENS = TESTNET ? [
   MOG_MEMECOIN_TOKEN_BASE_ONLY,
   DUMB_MEMECOIN_TOKEN_BASE_ONLY,
   SPACE_MEMECOIN_TOKEN_BASE_ONLY,
-  COFFEE_MEMECOIN_TOKEN_BASE_ONLY
+  COFFEE_MEMECOIN_TOKEN_BASE_ONLY,
+  NECK_MEMECOIN_TOKEN_BASE_ONLY,
+  GYATT_MEMECOIN_TOKEN_BASE_ONLY
 ]
 
 declare module 'wagmi' {
