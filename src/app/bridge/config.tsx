@@ -214,8 +214,8 @@ export const BASE_NETWORK: Network = TESTNET ? {
   id: 'bse',
   chainId: base.id,
   type: NetworkType.EVM,
-  // rpcUrl: 'https://base-mainnet.infura.io/v3/fe4978ed90a14204a6db4d5ac1f42250',
-  rpcUrl: 'https://mainnet.base.org',
+  rpcUrl: 'https://base-mainnet.infura.io/v3/fe4978ed90a14204a6db4d5ac1f42250',
+  // rpcUrl: 'https://mainnet.base.org',
   explorerUrl: 'https://basescan.org',
   messageToll: ethers.parseEther("0.00001"),
   signatureThreshold: 7,
@@ -1044,11 +1044,11 @@ export const COFFEE_MEMECOIN_TOKEN_BASE_ONLY: Token = {
 }
 
 const NECK_MEMECOIN_ASSET_ID_BASE_MAINNET = '1ad673d21799c9a224014ca71f9fe07cbc836fa23fa97b3be275d46d0b8bd9da'
-const NECK_MEMECOIN_ADDRESS_BASE_MAINNET = '0x0b034bB4e7A19662bd4C5150B270CF654506985A'
+const NECK_MEMECOIN_ADDRESS_BASE_MAINNET = '0x359D5BFa1bb87598e2198EC139eE44D31Bd06FaC'
 
 export const NECK_MEMECOIN_TOKEN_BASE_ONLY: Token = {
-  symbol: 'NECK',
-  getSpecificSymbol: makeCoinsetNativeToken('NECK'),
+  symbol: 'NeckCoin',
+  getSpecificSymbol: makeCoinsetNativeToken('NeckCoin'),
   sourceNetworkType: NetworkType.COINSET,
   supported: [
     {
