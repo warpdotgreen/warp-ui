@@ -54,7 +54,7 @@ function Messages() {
 
   const formatMessage = (m: MessageResponse, i: number) => {
     const timestamp = m.destination_timestamp ?? m.source_timestamp
-    const typeDisplayName = typeToDisplayName.get(m.parsed.type) || 'Unknown App'
+    const typeDisplayName = typeToDisplayName.get(m.parsed.type) || '🧙‍♂️'
     const sourceChainDisplayName = NETWORKS.find(n => n.id === m.source_chain)!.displayName
     const destChainDisplayName = NETWORKS.find(n => n.id === m.destination_chain)!.displayName
     const timeSince = formatDistanceToNow(timestamp * 1000, { addSuffix: true }).replace('about ', '')

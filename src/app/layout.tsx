@@ -6,10 +6,11 @@ import "./globals.css"
 import ReactQueryProvider from "@/components/ReactQueryProvider"
 import { cn } from "@/lib/utils"
 
+
 const inter = Inter({ subsets: ["latin"], variable: '--font-inter' })
 
 export const metadata: Metadata = {
-  title: "warp.green | A Cross-Chain Messaging Protocol",
+  title: "🧙‍♂️🪄🌱",
   description: "warp.green is a cross-chain messaging protocol that currently supports sending messages between Chia, Ethereum, and Base.",
 }
 

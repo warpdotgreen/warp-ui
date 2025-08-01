@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import * as GreenWeb from 'greenwebjs';
 import { Button } from "@/components/ui/button";
@@ -20,34 +20,54 @@ export default function DeployPage() {
 }
 
 function ActualDeployPage() {
-  const account = useAccount()
-  const { writeContractAsync } = useWriteContract()
-
+  const account = useAccount();
+  const { writeContractAsync } = useWriteContract();
+  
   const [assetId, setAssetId] = useState('');
   const [chiaSymbol, setChiaSymbol] = useState('');
+  const [convertedSymbol, setConvertedSymbol] = useState('');
+  const [name, setName] = useState('');
   const [predictedContractAddress, setPredictedContractAddress] = useState('');
 
-  const dataCompleted = assetId.length == 64 && chiaSymbol.length >= 2;
+  const dataCompleted = assetId.length === 64 && chiaSymbol.length >= 2 && name.length > 0;
+
+  // Convert symbol to Unicode code points
+const convertSymbolToUnicode = (symbol) => {
+  return Array.from(symbol)
+    .map(char => {
+      const codePoint = char.codePointAt(0).toString(16).toUpperCase();
+      return codePoint !== 'FE0F' ? `U+${codePoint}` : ''; // Exclude U+FE0F
+    })
+    .filter(Boolean) // Remove empty entries
+    .join(' ');
+};
+
+  // Handle chiaSymbol change
+  const handleChiaSymbolChange = (e) => {
+    const newSymbol = e.target.value;
+    setChiaSymbol(newSymbol);
+    setConvertedSymbol(convertSymbolToUnicode(newSymbol));
+  };
 
   const deployPls = async () => {
-    const symbol = `w${chiaSymbol}`;
-    const name = `Chia Warped ${chiaSymbol}`;
-    console.log({symbol, name, assetId})
+    const symbol = chiaSymbol;
+    if (!symbol) return; // Ensures the symbol is set
+
+    console.log({ symbol, name, assetId });
 
     const mojoToTokenRatio = 1e15;
     const createCallAddress = BASE_NETWORK.createCallAddress!;
     const portalAddress = BASE_NETWORK.portalAddress!;
 
     const deploymentSalt = sha256(
-      toUtf8Bytes(
-        "you cannot imagine how many times yak manually changed this string during testing"
-      )
+      toUtf8Bytes("you cannot imagine how many times yak manually changed this string during testing")
     );
 
     const wrappedCatFactory = new ContractFactory(
       WrappedCATABI,
       WrappedCATBytecode
     );
+
     const deploymentTx = await wrappedCatFactory.getDeployTransaction(
       name,
       symbol,
@@ -56,6 +76,7 @@ function ActualDeployPage() {
       mojoToTokenRatio,
       hexlify(toUtf8Bytes("xch"))
     );
+
     const deploymentTxData = deploymentTx.data;
 
     const initCodeHash = keccak256(deploymentTxData);
@@ -73,7 +94,6 @@ function ActualDeployPage() {
       CHIA_NETWORK.portalLauncherId!.replace("0x", ""),
       assetId
     ));
-
     console.log("Locker puzzle hash:", lockerPuzzleHash);
 
     const unlockerPuzzleHash = GreenWeb.util.sexp.sha256tree(getUnlockerPuzzle(
@@ -82,7 +102,6 @@ function ActualDeployPage() {
       CHIA_NETWORK.portalLauncherId!.replace("0x", ""),
       assetId
     ));
-
     console.log("Unlocker puzzle hash:", unlockerPuzzleHash);
 
     const CreateCallABI = [
@@ -94,7 +113,7 @@ function ActualDeployPage() {
       deploymentTxData,
       deploymentSalt
     ]);
-    
+
     const deployDataSize = Math.floor(deployData.replace("0x", "").length / 2);
     const deployTxEncoded = solidityPacked(
       ["uint8", "address", "uint256", "uint256", "bytes"],
@@ -112,21 +131,19 @@ function ActualDeployPage() {
       ["uint8", "address", "uint256", "uint256", "bytes"],
       [0, predictedAddress, 0, initDataSize, initData]
     );
-  
-    console.log("Calling multiSend...")
+
+    console.log("Calling multiSend...");
     const transactions = concat([deployTxEncoded, initTxEncoded]);
     const resp = await writeContractAsync({
       address: BASE_NETWORK.multiCallAddress!,
       abi: MultiSendABI,
       functionName: "multiSend",
-      args: [
-        transactions as `0x${string}`
-      ],
+      args: [transactions as `0x${string}`],
       value: BigInt(0),
       chainId: BASE_NETWORK.chainId!
     });
-    console.log({ resp })
-  }
+    console.log({ resp });
+  };
 
   return (
     <div className="max-w-xl flex flex-col justify-center mx-auto w-full break-words grow">
@@ -146,41 +163,52 @@ function ActualDeployPage() {
             onChange={(e) => setAssetId(e.target.value)}
           />
         </div>
-        <p>CAT symbol on Chia (usually 3-4 characters):</p>
+
+        <p>Asset Name:</p>
+        <div className="flex items-center h-14 w-full gap-2 mb-4">
+          <Input
+            type="text"
+            placeholder="Name"
+            className="text-xl h-full border-0"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </div>
+
+        <p>CAT symbol on Chia:</p>
         <div className="flex items-center h-14 w-full gap-2 mb-8">
           <Input
             type="text"
             placeholder="Symbol"
             className="text-xl h-full border-0"
-            pattern="^\d*(\.\d{0,8})?$"
             value={chiaSymbol}
-            onChange={(e) => setChiaSymbol(e.target.value)}
+            onChange={handleChiaSymbolChange}
           />
         </div>
 
-        <div className={cn("mx-8 flex justify-center", account?.address == undefined  || dataCompleted && 'cursor-not-allowed')}>
-          {
-            <Button
-              type="submit"
-              className="w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl"
-              onClick={deployPls}
-              disabled={account?.address == undefined  || !dataCompleted}
-            >
-              {
-                account?.address == undefined ? "Connect Base Wallet First"
-                  :
-                  dataCompleted ? "Deploy" : "Complete Info First"
-              }
-            </Button>
-          }
+        <div className={cn("mx-8 flex justify-center", account?.address == undefined || !dataCompleted && 'cursor-not-allowed')}>
+          <Button
+            type="submit"
+            className="w-full h-14 bg-theme-purple hover:bg-theme-purple text-primary hover:opacity-80 text-xl"
+            onClick={deployPls}
+            disabled={account?.address == undefined || !dataCompleted}
+          >
+            {
+              account?.address == undefined ? "Connect Base Wallet First"
+                :
+                dataCompleted ? "Deploy" : "Complete Info First"
+            }
+          </Button>
         </div>
-        {
-          predictedContractAddress && (
-            <p>Predicted contract address: {predictedContractAddress}</p>
-          )
-        }
+
+        {predictedContractAddress && (
+          <p>Predicted contract address: {predictedContractAddress}</p>
+        )}
+
+        {chiaSymbol && (
+          <p>Unicode representation (for testing): {convertSymbolToUnicode(chiaSymbol)}</p>
+        )}
       </div>
     </div>
-  )
-
+  );
 }

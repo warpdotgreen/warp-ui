@@ -16,9 +16,46 @@ interface StatsResponse {
   USDT_locked: number
   DBX_total_volume: number
   DBX_locked: number
+  SPROUT_total_volume: number
+  SPROUT_locked: number
+  LOVE_locked: number
+  LOVE_total_volume: number
+  PIZZA_total_volume: number
+  PIZZA_locked: number
 }
 
 const liveAppsConfig = [
+
+  {
+    name: "CAT Bridge",
+    tokens: [
+      {
+        symbol: "XCH",
+        accessorPrefixKey: "XCH",
+        decimals: 12
+      },
+      {
+        symbol: "HOA",
+        accessorPrefixKey: "HOA",
+        decimals: 3
+      },
+      {
+        symbol: "SPROUT",
+        accessorPrefixKey: "SPROUT",
+        decimals: 3
+      },
+      {
+        symbol: "LOVE",
+        accessorPrefixKey: "LOVE",
+        decimals: 3
+      },
+      {
+        symbol: "PIZZA",
+        accessorPrefixKey: "PIZZA",
+        decimals: 3
+      },
+    ]
+  },
   {
     name: "ERC-20 Bridge",
     tokens: [
@@ -35,31 +72,6 @@ const liveAppsConfig = [
       {
         symbol: "USDT",
         accessorPrefixKey: "USDT",
-        decimals: 3
-      }
-    ]
-  },
-  {
-    name: "CAT Bridge",
-    tokens: [
-      {
-        symbol: "XCH",
-        accessorPrefixKey: "XCH",
-        decimals: 12
-      },
-      {
-        symbol: "HOA",
-        accessorPrefixKey: "HOA",
-        decimals: 3
-      },
-      {
-        symbol: "DBX",
-        accessorPrefixKey: "DBX",
-        decimals: 3
-      },
-      {
-        symbol: "SBX",
-        accessorPrefixKey: "SBX",
         decimals: 3
       }
     ]

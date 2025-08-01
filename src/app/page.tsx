@@ -21,11 +21,11 @@ export default function LandingPage() {
       <main id="scrollContainer" className="relative px-4 sm:px-8 py-4 2xl:snap-y 2xl:snap-mandatory h-[100svh] overflow-y-scroll no-scrollbar">
 
 
-        {/* SLIDE 1 */}
+          {/* SLIDE 1 */}
         <section id="slide1" className="slide relative h-[100svh] min-h-96 snap-center">
           <div className="flex flex-col gap-4 items-center justify-center h-full">
-            <h1 className="text-4xl sm:text-7xl text-balance text-center font-light">A Cross-Chain <span className="text-theme-purple">Messaging</span> <span className="text-theme-green-foreground">Protocol</span></h1>
-            <h2 className="opacity-80 text-center mt-4 text-pretty text-3xl">warp.green allows your app to communicate across blockchains</h2>
+            <h1 className="text-4xl sm:text-7xl text-balance text-center font-light">Welcome <span className="text-theme-purple"></span> <span className="text-theme-green-foreground">Wizards</span></h1>
+            <h2 className="opacity-80 text-center mt-4 text-pretty text-3xl">Crosschain Magic powered by warp.green</h2>
           </div>
           <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex-col gap-2 flex items-center">
             <p>Scroll Down</p>
