@@ -10,7 +10,9 @@ import { cn } from "@/lib/utils"
 const inter = Inter({ subsets: ["latin"], variable: '--font-inter' })
 
 export const metadata: Metadata = {
+
   title: "🧙‍♂️🪄🌱",
+
   description: "warp.green is a cross-chain messaging protocol that currently supports sending messages between Chia, Ethereum, and Base.",
 }
 
