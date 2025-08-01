@@ -257,8 +257,12 @@ function StepThreeCoinsetDestination({
       }
 
       window.localStorage.setItem("bls_retries", "0")
-      const pushTxResp = await pushTx(destinationChain.rpcUrl, sb)
-      if (!pushTxResp.success) {
+      const [pushTxResp, feeError] = await pushTx(destinationChain.rpcUrl, sb)
+      if (feeError) {
+        alert(`Transaction push failed - fee is too low`)
+          router.back()
+          return;
+      } else if (!pushTxResp.success) {
         const sbJson = sbToJSON(sb)
         await navigator.clipboard.writeText(JSON.stringify(sbJson, null, 2))
         toast.error("Failed to push transaction - please check console for more details.", { duration: 20000, id: "failed-to-push-transaction" })
@@ -336,11 +340,15 @@ function ChiaFeeWarning({
   const originalFee = portalInfo.mempoolSbFee.eq(0) ? originalCost.mul(4) : GreenWeb.BigNumber.from(portalInfo.mempoolSbFee);
 
   const estAdditionalCost = GreenWeb.BigNumber.from("200000000");
-  const recommendedFeeMojos: GreenWeb.BigNumber = (
+  let recommendedFeeMojos: GreenWeb.BigNumber = (
     originalCost.add(estAdditionalCost) // new cost = original_cost + estimated cost for adding new coin spends (200 mil.)
   ).mul(
     (originalFee.add(originalCost)).div(originalCost) // fpc + 1 = original_fee / original_cost + 1 = (original_fee + original_cost) / original_cost
   )
+  const minPositiveFee = GreenWeb.BigNumber.from("2500000000");
+  if(recommendedFeeMojos.gt(0) && recommendedFeeMojos.lt(minPositiveFee)) {
+    recommendedFeeMojos = minPositiveFee;
+  }
 
   return (
     <div className="p-6 mt-2 bg-background flex flex-col gap-2 font-light rounded-md relative animate-in fade-in slide-in-from-bottom-2 duration-500">
@@ -419,7 +427,8 @@ function GenerateOfferPrompt({
             amount: amount
           }
         ],
-        requestAssets: []
+        requestAssets: [],
+        fee: 2500000000,
       }
       const offer = await createOffer(params)
       if (offer) {

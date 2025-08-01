@@ -6,6 +6,7 @@ export interface asset {
 export interface createOfferParams {
   offerAssets: asset[]
   requestAssets: asset[]
+  fee: number
 }
 
 export interface addCATParams {

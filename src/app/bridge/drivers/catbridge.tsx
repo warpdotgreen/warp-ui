@@ -59,6 +59,9 @@ export function getUnlockerPuzzle(
   portalReceiverLauncherId: string,
   assetId: string | null
 ): GreenWeb.clvm.SExp {
+  while (messageSource.startsWith("00")) {
+    messageSource = messageSource.slice(2);
+  }
   return GreenWeb.util.sexp.curry(
     GreenWeb.util.sexp.fromHex(UNLOCKER_MOD),
     [
@@ -300,7 +303,7 @@ export async function lockCATs(
     catSourceCoinLineageProof
   ] = parseXCHAndCATOffer(offer);
 
-  if(tokenTailHash !== tokenTailHash) {
+  if(tokenTailHash !== tailHashHex) {
     alert("You were about to offer the wrong CAT...");
     return [new GreenWeb.util.serializer.types.SpendBundle(), ""];
   }

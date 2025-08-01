@@ -33,7 +33,7 @@ export function sbToString(sb: any): any {
 export async function getCoinRecordByName(rpcBaseUrl: string, coinName: string) {
   const res = await fetch(`${rpcBaseUrl}/get_coin_record_by_name`, {
     method: "POST",
-    body: JSON.stringify({ name: coinName }),
+    body: stringify({ name: coinName }),
     headers: {
       "Content-Type": "application/json",
     },
@@ -54,7 +54,7 @@ export async function getPuzzleAndSolution(rpcBaseUrl: string, coinId: string, s
   return (parse(t) as any).coin_solution;
 }
 
-export async function pushTx(rpcBaseUrl: string, sb: any): Promise<any> {
+export async function pushTx(rpcBaseUrl: string, sb: any): Promise<[any, boolean]> {
   const res = await fetch(`${rpcBaseUrl}/push_tx`, {
     method: "POST",
     body: stringify({ spend_bundle: sbToJSON(sb) }),
@@ -63,7 +63,9 @@ export async function pushTx(rpcBaseUrl: string, sb: any): Promise<any> {
     },
   });
   const j = await res.json();
-  return j;
+  const feeError = !j.success && (j?.error ?? "").includes("INVALID_FEE_TOO_CLOSE_TO_ZERO");
+  console.log({ feeError})
+  return [j, feeError];
 }
 
 export async function getCoinRecordsByPuzzleHash(
