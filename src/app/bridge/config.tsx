@@ -511,6 +511,26 @@ export const BEPE_MEMECOIN_TOKEN_BASE_ONLY: Token = {
   additionalWarning: null,
 }
 
+const DIG_ASSET_ID_BASE_MAINNET = "a406d3a9de984d03c9591c10d917593b434d5263cabe2b42f6b367df16832f81";
+const DIG_ADDRESS_BASE_MAINNET: `0x${string}` = "0x4087fF5F00dAAFdd24F93b72a4BFdc3e6b5C1fa8";
+
+export const DIG_TOKEN: Token = {
+  symbol: 'DIG',
+  getSpecificSymbol: makeCoinsetNativeToken('DIG'),
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: DIG_ASSET_ID_BASE_MAINNET,
+      contractAddress: DIG_ADDRESS_BASE_MAINNET
+    }
+  ],
+  memecoin: false,
+  additionalWarning: null,
+}
+
+
 const PEPE_MEMECOIN_ASSET_ID_BASE_MAINNET = 'ec9d874e152e888231024c72e391fc484e8b6a1cf744430a322a0544e207bf46'
 const PEPE_MEMECOIN_ADDRESS_BASE_MAINNET = '0xC71690cd048F30F58Eee0d138fc19647bDaD79C7'
 
@@ -1081,6 +1101,44 @@ export const GYATT_MEMECOIN_TOKEN_BASE_ONLY: Token = {
   additionalWarning: null,
 }
 
+const TIBET_NECK_XCH_ASSET_ID_BASE_MAINNET = 'ad737980cfd6a3ef70bb2e0867d23ed72a954de643d40b51d075cb413bf292cb'
+const TIBET_NECK_XCH_ADDRESS_BASE_MAINNET = '0x9c6CAC4E0b34D21C52202d10f72995C5574cDe64'
+
+export const TIBET_NECK_XCH_TOKEN_BASE_ONLY: Token = {
+  symbol: 'TIBET-NeckCoin-XCH',
+  getSpecificSymbol: makeCoinsetNativeToken('TIBET-NeckCoin-XCH'),
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: TIBET_NECK_XCH_ASSET_ID_BASE_MAINNET,
+      contractAddress: TIBET_NECK_XCH_ADDRESS_BASE_MAINNET
+    },
+  ],
+  memecoin: false,
+  additionalWarning: "TIBET-NeckCoin-XCH is a liquidity token that tracks the NeckCoin-XCH pair on TibetSwap, Chia's leading AMM. The amount of NeckCoin and XCH one unit may claim will fluctuate. Listing on this interface does NOT represent endorsement from the warp.green team. Do your own research before transacting with this token.",
+}
+
+const NWO_MEMECOIN_ASSET_ID_BASE_MAINNET = '2ccbaed18bc14fcd3abe862c229ae4730e9c29cac46a5c0996e25b3d435327be'
+const NWO_MEMECOIN_ADDRESS_BASE_MAINNET = '0x0fB9e135419bc82D4Fe250bf2b79fBcbec212639'
+
+export const NWO_MEMECOIN_TOKEN_BASE_ONLY: Token = {
+  symbol: 'NWO',
+  getSpecificSymbol: makeCoinsetNativeToken('NWO'),
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: NWO_MEMECOIN_ASSET_ID_BASE_MAINNET,
+      contractAddress: NWO_MEMECOIN_ADDRESS_BASE_MAINNET
+    },
+  ],
+  memecoin: true,
+  additionalWarning: null,
+}
+
 export const TOKENS = TESTNET ? [
   ETH_TOKEN,
   USDT_TOKEN,
@@ -1098,6 +1156,7 @@ export const TOKENS = TESTNET ? [
   HOA_TOKEN_BASE_ONLY,
   WARP_MEMECOIN_TOKEN_BASE_ONLY,
   BEPE_MEMECOIN_TOKEN_BASE_ONLY,
+  DIG_TOKEN,
   PEPE_MEMECOIN_TOKEN_BASE_ONLY,
   SPROUT_MEMECOIN_TOKEN_BASE_ONLY,
   LOVE_MEMECOIN_TOKEN_BASE_ONLY,
@@ -1127,7 +1186,9 @@ export const TOKENS = TESTNET ? [
   SPACE_MEMECOIN_TOKEN_BASE_ONLY,
   COFFEE_MEMECOIN_TOKEN_BASE_ONLY,
   NECK_MEMECOIN_TOKEN_BASE_ONLY,
-  GYATT_MEMECOIN_TOKEN_BASE_ONLY
+  GYATT_MEMECOIN_TOKEN_BASE_ONLY,
+  TIBET_NECK_XCH_TOKEN_BASE_ONLY,
+  NWO_MEMECOIN_TOKEN_BASE_ONLY
 ]
 
 declare module 'wagmi' {
