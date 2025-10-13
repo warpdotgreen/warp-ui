@@ -1139,6 +1139,25 @@ export const NWO_MEMECOIN_TOKEN_BASE_ONLY: Token = {
   additionalWarning: null,
 }
 
+const PLANK_MEMECOIN_ASSET_ID_BASE_MAINNET = '7c1766edb4c48c6a692715def4343af1ff8d68ab7db7acf93f8e4658329294d7'
+const PLANK_MEMECOIN_ADDRESS_BASE_MAINNET = '0x66B55cBbBDd3a96C94220DD4C7A1f47b4213e285'
+
+export const PLANK_MEMECOIN_TOKEN_BASE_ONLY: Token = {
+  symbol: 'Plank',
+  getSpecificSymbol: makeCoinsetNativeToken('Plank'),
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: PLANK_MEMECOIN_ASSET_ID_BASE_MAINNET,
+      contractAddress: PLANK_MEMECOIN_ADDRESS_BASE_MAINNET
+    },
+  ],
+  memecoin: true,
+  additionalWarning: null,
+}
+
 export const TOKENS = TESTNET ? [
   ETH_TOKEN,
   USDT_TOKEN,
@@ -1188,7 +1207,8 @@ export const TOKENS = TESTNET ? [
   NECK_MEMECOIN_TOKEN_BASE_ONLY,
   GYATT_MEMECOIN_TOKEN_BASE_ONLY,
   TIBET_NECK_XCH_TOKEN_BASE_ONLY,
-  NWO_MEMECOIN_TOKEN_BASE_ONLY
+  NWO_MEMECOIN_TOKEN_BASE_ONLY,
+  PLANK_MEMECOIN_TOKEN_BASE_ONLY
 ]
 
 declare module 'wagmi' {
