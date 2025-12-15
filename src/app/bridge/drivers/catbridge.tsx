@@ -529,7 +529,7 @@ export async function unlockCATs(
 
   const coinRecords = await getCoinRecordsByPuzzleHash(coinsetNetwork.rpcUrl, vaultPuzzleHash);
 
-  const lockedCoins: InstanceType<typeof GreenWeb.Coin>[] = coinRecords.map((coinRecord: any) => GreenWeb.util.goby.parseGobyCoin({
+  const lockedCoins: InstanceType<typeof GreenWeb.Coin>[] = coinRecords.filter((coinRecord: any) => !coinRecord.spent).map((coinRecord: any) => GreenWeb.util.goby.parseGobyCoin({
     parent_coin_info: GreenWeb.util.unhexlify(coinRecord.coin.parent_coin_info),
     puzzle_hash: GreenWeb.util.unhexlify(coinRecord.coin.puzzle_hash),
     amount: GreenWeb.BigNumber.from(coinRecord.coin.amount.toString())
