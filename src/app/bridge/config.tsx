@@ -1158,6 +1158,25 @@ export const PLANK_MEMECOIN_TOKEN_BASE_ONLY: Token = {
   additionalWarning: null,
 }
 
+const BYC_ASSET_ID_BASE_MAINNET = 'ae1536f56760e471ad85ead45f00d680ff9cca73b8cc3407be778f1c0c606eac'
+const BYC_ADDRESS_BASE_MAINNET = '0x16b13A47B0C535EFaE58675e0657d3C22471cdA8'
+
+export const BYC_TOKEN_BASE_ONLY: Token = {
+  symbol: 'BYC',
+  getSpecificSymbol: makeCoinsetNativeToken('BYC'),
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: BYC_ASSET_ID_BASE_MAINNET,
+      contractAddress: BYC_ADDRESS_BASE_MAINNET
+    },
+  ],
+  memecoin: false,
+  additionalWarning: "The CircuitDAO protocol, currently in beta, is responsible for maintaining BYC's peg. Listing on this interface does NOT represent endorsement from the warp.green team. Do your own research before transacting with BYC.",
+}
+
 export const TOKENS = TESTNET ? [
   ETH_TOKEN,
   USDT_TOKEN,
@@ -1176,6 +1195,7 @@ export const TOKENS = TESTNET ? [
   WARP_MEMECOIN_TOKEN_BASE_ONLY,
   BEPE_MEMECOIN_TOKEN_BASE_ONLY,
   DIG_TOKEN,
+  BYC_TOKEN_BASE_ONLY,
   PEPE_MEMECOIN_TOKEN_BASE_ONLY,
   SPROUT_MEMECOIN_TOKEN_BASE_ONLY,
   LOVE_MEMECOIN_TOKEN_BASE_ONLY,
