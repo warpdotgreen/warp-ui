@@ -1177,6 +1177,25 @@ export const BYC_TOKEN_BASE_ONLY: Token = {
   additionalWarning: "The CircuitDAO protocol, currently in beta, is responsible for maintaining BYC's peg. Listing on this interface does NOT represent endorsement from the warp.green team. Do your own research before transacting with BYC.",
 }
 
+const MINUTES_MEMECOIN_ASSET_ID_BASE_MAINNET = '8fac6c37fa3bf95bdb2e473df9839fa5f50580c7bad8b6ea13ad201b695b9398'
+const MINUTES_MEMECOIN_ADDRESS_BASE_MAINNET = '0x75fE74892c15b9cfddbCD24C388d07a3c8c7D7c6'
+
+export const MINUTES_MEMECOIN_TOKEN_BASE_ONLY: Token = {
+  symbol: 'MINUTES',
+  getSpecificSymbol: makeCoinsetNativeToken('MINUTES'),
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: MINUTES_MEMECOIN_ASSET_ID_BASE_MAINNET,
+      contractAddress: MINUTES_MEMECOIN_ADDRESS_BASE_MAINNET
+    },
+  ],
+  memecoin: true,
+  additionalWarning: null,
+}
+
 export const TOKENS = TESTNET ? [
   ETH_TOKEN,
   USDT_TOKEN,
@@ -1228,7 +1247,8 @@ export const TOKENS = TESTNET ? [
   GYATT_MEMECOIN_TOKEN_BASE_ONLY,
   TIBET_NECK_XCH_TOKEN_BASE_ONLY,
   NWO_MEMECOIN_TOKEN_BASE_ONLY,
-  PLANK_MEMECOIN_TOKEN_BASE_ONLY
+  PLANK_MEMECOIN_TOKEN_BASE_ONLY,
+  MINUTES_MEMECOIN_TOKEN_BASE_ONLY
 ]
 
 declare module 'wagmi' {
