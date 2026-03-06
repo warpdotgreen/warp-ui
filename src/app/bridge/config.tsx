@@ -1196,6 +1196,25 @@ export const MINUTES_MEMECOIN_TOKEN_BASE_ONLY: Token = {
   additionalWarning: null,
 }
 
+const WESO_ASSET_ID_BASE_MAINNET = '3057c3eca4087abbc15d75b29b56e523a9f85cf4476802e137c645cf7d5d9f5f'
+const WESO_ADDRESS_BASE_MAINNET = '0xb7Cf6834259fE7331924Bf96Ae88CFD6269bfEB0'
+
+export const WESO_TOKEN_BASE_ONLY: Token = {
+  symbol: 'WESO',
+  getSpecificSymbol: makeCoinsetNativeToken('WESO'),
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: WESO_ASSET_ID_BASE_MAINNET,
+      contractAddress: WESO_ADDRESS_BASE_MAINNET
+    },
+  ],
+  memecoin: false,
+  additionalWarning: 'WESO is the Chia-based reward token of weso.forgeros.fr. Listing on this interface does NOT represent endorsement from the warp.green team. Do your own research before transacting with WESO.',
+}
+
 export const TOKENS = TESTNET ? [
   ETH_TOKEN,
   USDT_TOKEN,
@@ -1248,7 +1267,8 @@ export const TOKENS = TESTNET ? [
   TIBET_NECK_XCH_TOKEN_BASE_ONLY,
   NWO_MEMECOIN_TOKEN_BASE_ONLY,
   PLANK_MEMECOIN_TOKEN_BASE_ONLY,
-  MINUTES_MEMECOIN_TOKEN_BASE_ONLY
+  MINUTES_MEMECOIN_TOKEN_BASE_ONLY,
+  WESO_TOKEN_BASE_ONLY
 ]
 
 declare module 'wagmi' {
