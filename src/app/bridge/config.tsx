@@ -413,6 +413,25 @@ const EURC_TOKEN: Token = {
   additionalWarning: null,
 }
 
+const EURe_ADDRESS_BASE: `0x${string}` = TESTNET ?
+  '0x29F37F6adCa168B79B8d9567eab9BE3fBF21db85' :
+  '0xbf6e2966A9C3D99C9E4D069E04f7Bdb9C8aa762C' // mainnet
+const EURe_TOKEN: Token = {
+  symbol: 'EURe',
+  getSpecificSymbol: makeEVMNativeToken('EURe'),
+  sourceNetworkType: NetworkType.EVM,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: getWrappedERC20AssetID(BASE_NETWORK, EURe_ADDRESS_BASE),
+      contractAddress: EURe_ADDRESS_BASE
+    },
+  ],
+  memecoin: false,
+  additionalWarning: null,
+}
+
 const DBX_ASSET_ID = TESTNET ? "d82dd03f8a9ad2f84353cd953c4de6b21dbaaf7de3ba3f4ddd9abe31ecba80ad" :
   "db1a9020d48d9d4ad22631b66ab4b9ebd3637ef7758ad38881348c5d24c38f20" // mainnet
 
@@ -1220,12 +1239,14 @@ export const TOKENS = TESTNET ? [
   USDT_TOKEN,
   XCH_TOKEN,
   EURC_TOKEN,
+  EURe_TOKEN,
   DBX_TOKEN
 ] : [
   USDC_TOKEN_MAINNET_ONLY,
   ETH_TOKEN,
   XCH_TOKEN,
   EURC_TOKEN,
+  EURe_TOKEN,
   DBX_TOKEN,
   SBX_TOKEN_MAINNET_ONLY,
   USDT_TOKEN,
