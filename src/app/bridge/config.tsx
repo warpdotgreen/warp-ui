@@ -1234,6 +1234,25 @@ export const WESO_TOKEN_BASE_ONLY: Token = {
   additionalWarning: 'WESO is the Chia-based reward token of weso.forgeros.fr. Listing on this interface does NOT represent endorsement from the warp.green team. Do your own research before transacting with WESO.',
 }
 
+const HORSE_MEMECOIN_ASSET_ID_BASE_MAINNET = '1efff18fedcdb63818a1b41ab3e977707bc314a090e7ea5db396a56095290604'
+const HORSE_MEMECOIN_ADDRESS_BASE_MAINNET = '0x827fc57Bc514578E8280cEE73f5e948D306aF074'
+
+export const HORSE_MEMECOIN_TOKEN_BASE_ONLY: Token = {
+  symbol: '$HORSE',
+  getSpecificSymbol: makeCoinsetNativeToken('$HORSE'),
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: HORSE_MEMECOIN_ASSET_ID_BASE_MAINNET,
+      contractAddress: HORSE_MEMECOIN_ADDRESS_BASE_MAINNET
+    },
+  ],
+  memecoin: true,
+  additionalWarning: null,
+}
+
 export const TOKENS = TESTNET ? [
   ETH_TOKEN,
   USDT_TOKEN,
@@ -1289,7 +1308,8 @@ export const TOKENS = TESTNET ? [
   NWO_MEMECOIN_TOKEN_BASE_ONLY,
   PLANK_MEMECOIN_TOKEN_BASE_ONLY,
   MINUTES_MEMECOIN_TOKEN_BASE_ONLY,
-  WESO_TOKEN_BASE_ONLY
+  WESO_TOKEN_BASE_ONLY,
+  HORSE_MEMECOIN_TOKEN_BASE_ONLY,
 ]
 
 declare module 'wagmi' {
