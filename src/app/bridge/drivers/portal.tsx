@@ -422,9 +422,16 @@ export async function getSigsAndSelectors(
 
   // We're getting sigs for XCH
   // Order doesn't matter but we need to generate the 'selectors' array
+  const seenContents = new Set<string>();
   let sigStrings = events
     .filter((e) => NOSTR_CONFIG.validatorKeys.includes(e.pubkey))
+    .filter((e) => {
+      if (seenContents.has(e.content)) return false;
+      seenContents.add(e.content);
+      return true;
+    })
     .map((event) => routingData + "-" + (event.tags.find(e => e[0] == 'c')??["", ""])[1] + "-" + event.content)
+  
   if(sigStrings.length > sigLimit) {
     sigStrings = sigStrings.slice(0, sigLimit);
   }
