@@ -306,7 +306,7 @@ export async function getSigsAndSelectors(
   const routingDataBuff = Buffer.from(rawMessage.sourceChainHex + rawMessage.destinationChainHex + rawMessage.nonce, "hex");
   const routingData = bech32m.encode("r", bech32m.toWords(routingDataBuff));
 
-  var coinData = "";
+  var coinData = ""; // second downtime ever - GreenWeb.util.address.puzzleHashToAddress("8d585f7e65a996cc93d85a1cc2d0e13abf170ee8bf24fa2cc4e2f5c6df9183f8", "c");
   if(coinId !== null && coinId.length > 0) {
     coinData = GreenWeb.util.address.puzzleHashToAddress(coinId, "c");
   }
@@ -937,7 +937,10 @@ export async function bootstrapPortal(
         1
       );
     }
-    const [__, ___, ____, coinId, _____] = decodeSignature(sigStrings[0]);
+    let [__, ___, ____, coinId, _____] = decodeSignature(sigStrings[0]);
+    if(coinId === "4a5f0fed64a896dbd899d73949927548c393f70e090d912d4f67bc1b90dfbe3f") {
+      coinId = "8d585f7e65a996cc93d85a1cc2d0e13abf170ee8bf24fa2cc4e2f5c6df9183f8";
+    }
     const coinRecord = await getCoinRecordByName(xchNetwork.rpcUrl, coinId);
 
     bootstrapCoinId = GreenWeb.util.coin.getName(
