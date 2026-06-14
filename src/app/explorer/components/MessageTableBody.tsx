@@ -3,7 +3,7 @@
 import { CHIA_NETWORK, NETWORKS, WATCHER_API_ROOT } from "@/app/bridge/config";
 import { MessageResponse, typeToDisplayName } from "@/app/landingPageComponents/Messages";
 import { getChainIcon, withToolTip } from "@/lib/utils";
-import { formatDistanceToNow, subMonths } from 'date-fns'
+import { subMonths } from 'date-fns'
 import { useQuery } from "@tanstack/react-query";
 import { ethers } from "ethers";
 import * as GreenWeb from 'greenwebjs'
@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { CopyOnClick } from "@/components/CopyOnClick";
 import Link from "next/link";
 import { getStepThreeURL, getStepTwoURL } from "@/app/bridge/steps/urls";
+import { TimeAgo } from "./TimeAgo";
 
 export function MessageTableBody({
   sent
@@ -68,7 +69,6 @@ export function MessageTableBody({
     );
 
     const timestamp = message.destination_timestamp ?? message.source_timestamp
-    const timeAgo = formatDistanceToNow(timestamp * 1000, { addSuffix: true }).replace('about ', '')
 
     const messageCompleteLink = (() => {
       if(!sent) return '';
@@ -153,7 +153,7 @@ export function MessageTableBody({
           {parsedContents}
         </td>
         <td className="whitespace-nowrap px-3 py-8 text-sm text-center">
-          {timeAgo}
+          <TimeAgo timestamp={timestamp} />
         </td>
         {sent && <td className="whitespace-nowrap px-3 py-8 text-sm text-center">
           <Button variant="outline">
