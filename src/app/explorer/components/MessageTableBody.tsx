@@ -20,7 +20,7 @@ export function MessageTableBody({
   const limit = sent ? 7 : 16;
   const { data: messages, isLoading } = useQuery<MessageResponse[]>({
     queryKey: [`explorer_messages_${limit}_${sent}`],
-    queryFn: () => fetch(`${WATCHER_API_ROOT}messages?limit=${limit}&status=${status}`).then(res => res.json()).then(
+    queryFn: () => fetch(`${WATCHER_API_ROOT}messages?limit=${limit}&status=${status}${sent ? '&only_parsed=true' : '&order_by=destination_timestamp'}`).then(res => res.json()).then(
       (msgs) => msgs.filter((msg: MessageResponse) => msg.contents[0] !== "0000000000000000000000000000000000000000000000000000000000000000")
     ).then((msgs) => msgs.filter(
       (msg: MessageResponse) => !(msg.parsed.token_symbol === 'milliETH' && msg.parsed.amount_mojo === 1)
