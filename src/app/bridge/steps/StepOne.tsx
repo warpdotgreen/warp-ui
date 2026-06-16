@@ -5,7 +5,9 @@ import { Network, NetworkType, Token, TOKENS, wagmiConfig } from "../config"
 import { ethers } from "ethers"
 import { useAccount, useReadContract, useTransactionConfirmations, useWriteContract, useChainId, useConfig, useSwitchChain, useBalance, useReadContracts } from "wagmi"
 import * as GreenWeb from 'greenwebjs'
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
+import { useEvmWalletResume } from "../hooks/useEvmWalletResume"
+import { findRecentOutgoingTx } from "../drivers/evmTxRecovery"
 import { getStepOneURL, getStepTwoURL } from "./urls"
 import { USDTABI, erc20ABI, ERC20BridgeABI, WrappedCATABI } from "../drivers/abis"
 import { burnCATs } from "../drivers/erc20bridge"
@@ -251,6 +253,35 @@ function EthereumButton({
   const router = useRouter()
   const account = useAccount()
   const [waitingForTx, setWaitingForTx] = useState(false)
+  const bridgeSubmitStartedAt = useRef<number | null>(null)
+
+  const bridgeTargetContract = (
+    token.sourceNetworkType === NetworkType.COINSET
+      ? tokenInfo.contractAddress
+      : sourceChain.erc20BridgeAddress!
+  ) as `0x${string}`
+
+  const navigateToStepTwo = useCallback((txHash: string) => {
+    router.push(getStepTwoURL({
+      sourceNetworkId: sourceChain.id,
+      destinationNetworkId: destinationChain.id,
+      txHash,
+    }))
+  }, [router, sourceChain.id, destinationChain.id])
+
+  const recoverPendingBridgeTx = useCallback(async () => {
+    if (!account.address || !bridgeSubmitStartedAt.current) return
+
+    const txHash = await findRecentOutgoingTx(
+      account.address,
+      bridgeTargetContract,
+      sourceChain.rpcUrl,
+      bridgeSubmitStartedAt.current,
+    )
+    if (txHash) {
+      navigateToStepTwo(txHash)
+    }
+  }, [account.address, bridgeTargetContract, navigateToStepTwo, sourceChain.rpcUrl])
 
   // allowance stuff
   const { data: tokenDecimalsFromContract } = useReadContract({
@@ -282,23 +313,38 @@ function EthereumButton({
   })
 
   useEffect(() => {
-    if (approvalTxConfirmations ?? 0 > 0) {
+    if ((approvalTxConfirmations ?? 0) > 0) {
       refetchAllowance()
     }
   }, [approvalTxConfirmations, refetchAllowance])
+
+  const onWalletVisible = useCallback(() => {
+    if (approvalTxHash) {
+      refetchAllowance()
+    }
+    if (waitingForTx) {
+      recoverPendingBridgeTx()
+    }
+  }, [approvalTxHash, refetchAllowance, recoverPendingBridgeTx, waitingForTx])
+
+  useEvmWalletResume(onWalletVisible)
   // end allowance stuff
 
-  const { data: hash, writeContract } = useWriteContract()
+  const { data: hash, writeContractAsync, isError: isBridgeTxError, reset: resetBridgeTx } = useWriteContract()
 
   useEffect(() => {
     if (hash !== undefined) {
-      router.push(getStepTwoURL({
-        sourceNetworkId: sourceChain.id,
-        destinationNetworkId: destinationChain.id,
-        txHash: hash
-      }))
+      navigateToStepTwo(hash)
     }
-  })
+  }, [hash, navigateToStepTwo])
+
+  useEffect(() => {
+    if (isBridgeTxError) {
+      setWaitingForTx(false)
+      bridgeSubmitStartedAt.current = null
+      resetBridgeTx()
+    }
+  }, [isBridgeTxError, resetBridgeTx])
 
   if (waitingForTx) {
     return (
@@ -310,45 +356,52 @@ function EthereumButton({
     const receiver = GreenWeb.util.address.addressToPuzzleHash(recipient)
 
     setWaitingForTx(true)
+    bridgeSubmitStartedAt.current = Date.now()
 
-    if (token.symbol == "ETH") {
-      writeContract({
-        address: sourceChain.erc20BridgeAddress as `0x${string}`,
-        abi: ERC20BridgeABI,
-        functionName: "bridgeEtherToChia",
-        args: [
-          ("0x" + receiver) as `0x${string}`,
-          sourceChain.messageToll
-        ],
-        value: ethers.parseEther(amount) + sourceChain.messageToll,
-        chainId: sourceChain.chainId
-      })
-    } else if (token.sourceNetworkType == NetworkType.EVM) {
-      writeContract({
-        address: sourceChain.erc20BridgeAddress as `0x${string}`,
-        abi: ERC20BridgeABI,
-        functionName: "bridgeToChia",
-        args: [
-          token.supported.find((supported) => supported.evmNetworkId === sourceChain.id)!.contractAddress,
-          ("0x" + receiver) as `0x${string}`,
-          amountMojo
-        ],
-        chainId: sourceChain.chainId,
-        value: sourceChain.messageToll
-      })
-    } else {
-      // token.sourceNetworkType == NetworkType.COINSET
-      writeContract({
-        address: tokenInfo.contractAddress,
-        abi: WrappedCATABI,
-        functionName: "bridgeBack",
-        args: [
-          ("0x" + receiver) as `0x${string}`,
-          amountMojo
-        ],
-        chainId: sourceChain.chainId,
-        value: sourceChain.messageToll
-      })
+    try {
+      let txHash: `0x${string}`
+      if (token.symbol == "ETH") {
+        txHash = await writeContractAsync({
+          address: sourceChain.erc20BridgeAddress as `0x${string}`,
+          abi: ERC20BridgeABI,
+          functionName: "bridgeEtherToChia",
+          args: [
+            ("0x" + receiver) as `0x${string}`,
+            sourceChain.messageToll
+          ],
+          value: ethers.parseEther(amount) + sourceChain.messageToll,
+          chainId: sourceChain.chainId
+        })
+      } else if (token.sourceNetworkType == NetworkType.EVM) {
+        txHash = await writeContractAsync({
+          address: sourceChain.erc20BridgeAddress as `0x${string}`,
+          abi: ERC20BridgeABI,
+          functionName: "bridgeToChia",
+          args: [
+            token.supported.find((supported) => supported.evmNetworkId === sourceChain.id)!.contractAddress,
+            ("0x" + receiver) as `0x${string}`,
+            amountMojo
+          ],
+          chainId: sourceChain.chainId,
+          value: sourceChain.messageToll
+        })
+      } else {
+        txHash = await writeContractAsync({
+          address: tokenInfo.contractAddress,
+          abi: WrappedCATABI,
+          functionName: "bridgeBack",
+          args: [
+            ("0x" + receiver) as `0x${string}`,
+            amountMojo
+          ],
+          chainId: sourceChain.chainId,
+          value: sourceChain.messageToll
+        })
+      }
+      navigateToStepTwo(txHash)
+    } catch {
+      setWaitingForTx(false)
+      bridgeSubmitStartedAt.current = null
     }
   }
 

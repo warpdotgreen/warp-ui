@@ -4,6 +4,12 @@ import { wagmiConfig, WALLETCONNECT_PROJECT_ID_ETH } from "./config"
 import { createWeb3Modal } from "@web3modal/wagmi/react"
 import { useEffect } from "react"
 import { ChiaWalletProvider } from "./ChiaWalletManager/WalletContext"
+import { useEvmWalletResume } from "./hooks/useEvmWalletResume"
+
+function WalletResumeOnFocus() {
+  useEvmWalletResume()
+  return null
+}
 
 export const web3Modal = createWeb3Modal({
   wagmiConfig: wagmiConfig,
@@ -30,6 +36,7 @@ export function ClientProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <WagmiProvider config={wagmiConfig}>
+      <WalletResumeOnFocus />
       <ChiaWalletProvider>
         {children}
       </ChiaWalletProvider>
