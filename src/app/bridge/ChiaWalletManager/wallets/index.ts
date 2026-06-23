@@ -34,7 +34,7 @@ export const walletConfigs: WalletConfig[] = [
   },
   {
     id: 'chiawalletconnect',
-    name: 'Wallet Connect',
+    name: 'Ozone',
     icon: '/icons/Walletconnect-icon-gradient.png',
     connect: (isPersistenceConnect, setWalletConnectUri, sessionDisconnectCallback) => ChiaWalletConnect.connect(isPersistenceConnect, setWalletConnectUri, sessionDisconnectCallback),
     disconnect: ChiaWalletConnect.disconnect,
