@@ -63,7 +63,6 @@ export const CHIA_NETWORK: Network = TESTNET ? {
     "85e07033fd3f31e73e476e21a3723434138a865edeab36e7debaea928f88ce14a05599d2ac5dfc41860b0159e6f7efb3",
     "98fc5a235bd0880fb9f8de1fb57c67fd468ff2b1989edb1925e80ea359579a7668b6b77777b06d69c6ddfffd626407eb",
     "b8322e6079ef33975028b44dae0c632396e2503982e0c8eb73d3b55343e6ffd75e49f1006db7d49b5151438c83cec351",
-    "a1b99088e104d9a7c5c2c5638a9ea70f0c5b8e14be9b379520b5aa7a9286ae5472789fe2ac3a96288b2fa2c3105e1ec8",
     "c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
   ],
   multisigThreshold: 2,
@@ -78,7 +77,6 @@ export const CHIA_NETWORK: Network = TESTNET ? {
     "b5bd04adb90273d97a458b5e42d4930ab35643203131c22d53ac312026da74fda64c71216fc6db263063262266c45727",
     "84b00e171a571b5904e48cdf456bf2861d37f01961c8b641a66974c70f49393fc55ba4b05543ca2894e8f6c7daad0719",
     "a0d0dc619cdca2045c2cfde7e7884d60e71c7216a21cb3a327f76767f19516069a6c4552673a48d4b14e2bc46eebc069",
-    "a56731d87b2240a9cfae3bc77e2af3c9f41fb7fca6393d721a2114041db03e58a6b986301c6281eb51d031a165ae5e1a",
     "c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
   ],
   confirmationMinHeight: 5,
@@ -93,7 +91,7 @@ export const CHIA_NETWORK: Network = TESTNET ? {
   explorerUrl: 'https://spacescan.io/',
   explorer2Url: 'https://xchscan.com/',
   messageToll: BigInt(1000000000),
-  signatureThreshold: 7,
+  signatureThreshold: 6,
   validatorInfos: [
     "8d7b289831084afb41ec99d4ccd781b0a7e5c01fb9a1d3a6e0af70582bb2c7ff3bc36d657e7bfba60e5119d62bd30993",
     "b4c92890f9dfdf47d674943a8acbdb4b695c6936d79c66c62a5679c2dc2fe649ba11431f474ff0b168cf709515e0b6e6",
@@ -105,10 +103,9 @@ export const CHIA_NETWORK: Network = TESTNET ? {
     "abb4408a3e0c9cfb14f2b0bd27265a7650c3d1d916e9ac3ef8d2a91558364ce4610575c7339767d1ffdd52ffff085d50",
     "8efc3b506c75e91a66357f9b965721434074ea148fd54d25dce8371a8496f9f66f6bb811fafa73d77798eb9e02d0bf7f",
     "a166b08281b6f29d858e1723a85ca4581740b09ad3f38f35db5038ebd06162cf45d41d13acb290b392db3b10dbb230eb",
-    "879f8e452a99610c4e841ec0bd739db0ec8912b796509c88d67f5223315f74bd79e39147a31f23eb7eba64b8641eca3e",
     "c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
   ],
-  multisigThreshold: 7,
+  multisigThreshold: 6,
   multisigInfos: [
     "b63871fbc72a7ff07d8f2419c8d3bbe1ac557d3cbf367761d08a1a1209dd285358124845151381da912751e33bd7ffa8",
     "8d5ca1a64a587c2fe7603a6933d335ad01a50f0187085981651d617ffaffce9d57ad25680813a030665fabef12075811",
@@ -120,7 +117,6 @@ export const CHIA_NETWORK: Network = TESTNET ? {
     "b5bd04adb90273d97a458b5e42d4930ab35643203131c22d53ac312026da74fda64c71216fc6db263063262266c45727",
     "84b00e171a571b5904e48cdf456bf2861d37f01961c8b641a66974c70f49393fc55ba4b05543ca2894e8f6c7daad0719",
     "836324ba44d7e1f2290a1ccf4c3c2d064c5047619981198ec4059165d85c06a1fd214da2b1b58603254f9b48637a9db1",
-    "8ca3153d0cc39eb9aff1bf51d09900758bc995605f1ad3fedc696f396f7fde2833cd5d1eda1f18bfb409a8752646d8e3",
     "c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
   ],
   confirmationMinHeight: 32,
@@ -148,8 +144,7 @@ export const ETHEREUM_NETWORK: Network = TESTNET ? {
     "0x144eE8FaB13Eed04b5A8F339105076B8BC51cAF2",
     "0xE42277e12F577810e73f70b42e184dd5BcD30ce6",
     "0x92c02A599E056B2706f74421f4250951E1f736ab",
-    "0xF187Be30D8681BF67A6a1D1c77663f0e19Fe2d7d",
-    "0xcF46Dd34bB1B1a4c5dCC9aEed02E494180C637f1"
+    "0xF187Be30D8681BF67A6a1D1c77663f0e19Fe2d7d"
   ],
   confirmationMinHeight: 64,
   portalAddress: "0x383D27dA16A24a2920b14aA93270Efccf32F4104",
@@ -162,7 +157,7 @@ export const ETHEREUM_NETWORK: Network = TESTNET ? {
   rpcUrl: 'https://mainnet.infura.io/v3/fe4978ed90a14204a6db4d5ac1f42250',
   explorerUrl: 'https://etherscan.io',
   messageToll: ethers.parseEther("0.00001"),
-  signatureThreshold: 7,
+  signatureThreshold: 6,
   validatorInfos: [
     "0x12a67BDC9a74dc0Bde185d6cA03480a16BFB0E96",
     "0x0838a3f6B6465BF44898c91B89823B4D743001Cb",
@@ -173,8 +168,7 @@ export const ETHEREUM_NETWORK: Network = TESTNET ? {
     "0xe456b36224f163242778db6C877eaED81922166F",
     "0xAd2169657d32B302a6519C545B5425608e4aC4E2",
     "0x8094548A72eadAC2742F368E9e8Bf644FF17D03f",
-    "0x5110FB4762021ad3954Bdf2caBF4510C0ACd6d2f",
-    "0x9a342A2dB17e8Ad8dafA1a7748AD42d66919B3f3"
+    "0x5110FB4762021ad3954Bdf2caBF4510C0ACd6d2f"
   ],
   confirmationMinHeight: 64,
   portalAddress: "0x2593C582B7a24d94Ba0056B493Fd4048bd99fc3F",
@@ -202,8 +196,7 @@ export const BASE_NETWORK: Network = TESTNET ? {
     "0x144eE8FaB13Eed04b5A8F339105076B8BC51cAF2",
     "0xE42277e12F577810e73f70b42e184dd5BcD30ce6",
     "0x92c02A599E056B2706f74421f4250951E1f736ab",
-    "0xF187Be30D8681BF67A6a1D1c77663f0e19Fe2d7d",
-    "0xcF46Dd34bB1B1a4c5dCC9aEed02E494180C637f1"
+    "0xF187Be30D8681BF67A6a1D1c77663f0e19Fe2d7d"
   ],
   confirmationMinHeight: 10,
   l1BlockContractAddress: "0x4200000000000000000000000000000000000015",
@@ -218,7 +211,7 @@ export const BASE_NETWORK: Network = TESTNET ? {
   // rpcUrl: 'https://mainnet.base.org',
   explorerUrl: 'https://basescan.org',
   messageToll: ethers.parseEther("0.00001"),
-  signatureThreshold: 7,
+  signatureThreshold: 6,
   validatorInfos: [
     "0x12a67BDC9a74dc0Bde185d6cA03480a16BFB0E96",
     "0x0838a3f6B6465BF44898c91B89823B4D743001Cb",
@@ -229,8 +222,7 @@ export const BASE_NETWORK: Network = TESTNET ? {
     "0xe456b36224f163242778db6C877eaED81922166F",
     "0xAd2169657d32B302a6519C545B5425608e4aC4E2",
     "0x8094548A72eadAC2742F368E9e8Bf644FF17D03f",
-    "0x5110FB4762021ad3954Bdf2caBF4510C0ACd6d2f",
-    "0x9a342A2dB17e8Ad8dafA1a7748AD42d66919B3f3"
+    "0x5110FB4762021ad3954Bdf2caBF4510C0ACd6d2f"
   ],
   confirmationMinHeight: 64,
   l1BlockContractAddress: "0x4200000000000000000000000000000000000015",
@@ -1363,8 +1355,7 @@ export const NOSTR_CONFIG = {
     "wss://warpgreen-relay-test.232220.xyz",
     "wss://testnet-relay.msmc.dev",
     "wss://warpgreen-testnet-relay.midl.dev",
-    "wss://relay.testnet.giritec.com",
-    "wss://test-relay.goby.app"
+    "wss://relay.testnet.giritec.com"
   ] : [
     "wss://relay.fireacademy.io",
     "wss://relay.bufflehead.org",
@@ -1375,8 +1366,7 @@ export const NOSTR_CONFIG = {
     "wss://warpgreen-relay.232220.xyz",
     "wss://relay.msmc.dev",
     "wss://warpgreen-mainnet-relay.midl.dev",
-    "wss://relay.giritec.com",
-    "wss://relay.goby.app"
+    "wss://relay.giritec.com"
   ],
   validatorKeys: TESTNET ? [
     "cd5fd0859c3a27c13dd9734b7cdc6f2c25646e45821dcecaa089808803d01706",
@@ -1388,8 +1378,7 @@ export const NOSTR_CONFIG = {
     "280e03462f0f87ba2aefeb7a033c2c1ec134fc9c06f28a5e9ed308dabf9e7700",
     "14aed9c23d7774dda60532891423e4e8adf74f468ea5f5cbac58cf8994387b94",
     "38c4190c961bfbc0a23b2c274c36fd6ccad5d50033e8bb263fc4aa23930ededf",
-    "b94fe9fd1a47f33bdf1aa6cbf295734e6fc7fdf2d210403edc8b177801c0a849",
-    "e492322cbbc745127af4bd59227d7e7d7b54a98d3a013d2072c4261dff319f88"
+    "b94fe9fd1a47f33bdf1aa6cbf295734e6fc7fdf2d210403edc8b177801c0a849"
   ] : [
     "db5790fd1aac8f0cb60879cd468b0cc845e5b692350ef7a26d4776c4f6da3776",
     "ad4bc8487872b07d5acd9dd4ee11906e107a97945f2141eb60d6f0880c29f8e7",
@@ -1400,7 +1389,6 @@ export const NOSTR_CONFIG = {
     "7567a34d43e5fbed05afe8b085eadf2462a9f9cf8e1bbb53701ecb9e04e8c09c",
     "10eade3fefcf87d15235bf23e9e6c23bef85aac2762badabe18567fe603c1945",
     "e0a2e65ee292aff65b0fa92a74541a4e5b54f2919bfa6dba08e7df25b4300fb6",
-    "2239f413ce7b399ad1e91e2fb4742960d73637b87a3616c4a28771cc84fb648e",
-    "f456f0c091ebb98d0446f734b5f35c124b3ae0d0d0a6773e98a53d93e0be545e"
+    "2239f413ce7b399ad1e91e2fb4742960d73637b87a3616c4a28771cc84fb648e"
   ]
 }
