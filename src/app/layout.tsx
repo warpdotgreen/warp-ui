@@ -9,8 +9,8 @@ import { cn } from "@/lib/utils"
 const inter = Inter({ subsets: ["latin"], variable: '--font-inter' })
 
 export const metadata: Metadata = {
-  title: "warp.green",
-  description: "We have recently identified two suspicious transactions of 85,000 wUSDC.b and 8,000 wUSDC. Preliminary analysis suggests they are malicious.",
+  title: "warp.green | A Cross-Chain Messaging Protocol",
+  description: "warp.green is a cross-chain messaging protocol that currently supports sending messages between Chia, Ethereum, and Base.",
 }
 
 export default function UILayout({ children }: { children: React.ReactNode }) {
