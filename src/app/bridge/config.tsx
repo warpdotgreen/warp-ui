@@ -155,6 +155,7 @@ export const ETHEREUM_NETWORK: Network = TESTNET ? {
   type: NetworkType.EVM,
   chainId: mainnet.id,
   rpcUrl: 'https://mainnet.infura.io/v3/fe4978ed90a14204a6db4d5ac1f42250',
+  // rpcUrl: 'https://ethereum-rpc.publicnode.com',
   explorerUrl: 'https://etherscan.io',
   messageToll: ethers.parseEther("0.00001"),
   signatureThreshold: 6,
