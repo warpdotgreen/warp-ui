@@ -350,6 +350,9 @@ export async function getSigsAndSelectors(
     const destinationNetworkId = hexToString(rawMessage.destinationChainHex);
     const destinationNetwork = NETWORKS.filter((network) => network.id === destinationNetworkId)[0];
 
+    // One event per validator. A second nostr id for the same pubkey repeats a signer
+    // and the portal reverts !order.
+    const seenPubkeys = new Set<string>();
     let sigStrings = events.filter((e) => 
       NOSTR_CONFIG.validatorKeys.includes(e.pubkey)
     ).filter((sigEvent) => {
@@ -396,6 +399,10 @@ export async function getSigsAndSelectors(
         console.log(`Invalid EVM signature from Nostr: recovered address if ${recoveredAddress}, expected ${address} for pubkey ${sigEvent.pubkey} on chain ${destinationNetworkId}`);
         return false;
       }
+      return true;
+    }).filter((sigEvent) => {
+      if (seenPubkeys.has(sigEvent.pubkey)) return false;
+      seenPubkeys.add(sigEvent.pubkey);
       return true;
     }).sort((a, b) => {
         const indexA = NOSTR_CONFIG.validatorKeys.findIndex(key => key === a.pubkey);
