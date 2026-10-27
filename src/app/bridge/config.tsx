@@ -1246,6 +1246,25 @@ export const HORSE_MEMECOIN_TOKEN_BASE_ONLY: Token = {
   additionalWarning: null,
 }
 
+const STR8_MEMECOIN_ASSET_ID_BASE_MAINNET = 'd43cbae944800abd0c1bea28137efe77338ef0d5863cbf7c8345a2369a4cade7'
+const STR8_MEMECOIN_ADDRESS_BASE_MAINNET = '0x80EA00af91bbfae4006Fd48321C5635Cf47ec72a'
+
+export const STR8_MEMECOIN_TOKEN_BASE_ONLY: Token = {
+  symbol: 'STR8',
+  getSpecificSymbol: makeCoinsetNativeToken('STR8'),
+  sourceNetworkType: NetworkType.COINSET,
+  supported: [
+    {
+      evmNetworkId: BASE_NETWORK.id,
+      coinsetNetworkId: CHIA_NETWORK.id,
+      assetId: STR8_MEMECOIN_ASSET_ID_BASE_MAINNET,
+      contractAddress: STR8_MEMECOIN_ADDRESS_BASE_MAINNET
+    },
+  ],
+  memecoin: true,
+  additionalWarning: null,
+}
+
 export const TOKENS = TESTNET ? [
   ETH_TOKEN,
   USDT_TOKEN,
@@ -1303,6 +1322,7 @@ export const TOKENS = TESTNET ? [
   MINUTES_MEMECOIN_TOKEN_BASE_ONLY,
   WESO_TOKEN_BASE_ONLY,
   HORSE_MEMECOIN_TOKEN_BASE_ONLY,
+  STR8_MEMECOIN_TOKEN_BASE_ONLY,
 ]
 
 declare module 'wagmi' {
